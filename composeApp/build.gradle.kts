@@ -8,7 +8,7 @@ plugins {
 kotlin {
     androidLibrary {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
-        namespace = "com.watermelonkode.simpletemplate"
+        namespace = "com.homesharing.cashbackhome"
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources.enable = true
     }
@@ -40,6 +40,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlin.testJunit)
         }
     }
 }
