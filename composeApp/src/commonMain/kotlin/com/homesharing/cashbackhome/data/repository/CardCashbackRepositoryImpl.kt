@@ -1,10 +1,10 @@
 package com.homesharing.cashbackhome.data.repository
 
 import com.homesharing.cashbackhome.data.local.CardCashbackDao
-import com.homesharing.cashbackhome.domain.models.BankCard
-import com.homesharing.cashbackhome.domain.models.BankCardWithCashback
-import com.homesharing.cashbackhome.domain.models.CardCashback
-import com.homesharing.cashbackhome.domain.models.CashbackRule
+import com.homesharing.cashbackhome.domain.entity.BankCard
+import com.homesharing.cashbackhome.domain.entity.BankCardWithCashback
+import com.homesharing.cashbackhome.domain.entity.CardCashback
+import com.homesharing.cashbackhome.domain.entity.CashbackRule
 import com.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import kotlinx.coroutines.flow.Flow
 

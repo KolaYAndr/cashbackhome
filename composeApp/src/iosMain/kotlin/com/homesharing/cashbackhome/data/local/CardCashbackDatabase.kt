@@ -2,13 +2,21 @@ package com.homesharing.cashbackhome.data.local
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import platform.Foundation.NSApplicationSupportDirectory
-import platform.Foundation.NSSearchPathForDirectoriesInDomains
+import kotlinx.cinterop.ExperimentalForeignApi
+import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
+@OptIn(ExperimentalForeignApi::class)
 fun createCardCashbackDatabaseBuilder(): RoomDatabase.Builder<CardCashbackDatabase> {
-    val paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, true)
-    val basePath = paths.firstOrNull() ?: error("Cannot access application support directory")
+    val directory = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = false,
+        error = null,
+    )
+    val basePath = requireNotNull(directory?.path)
     return Room.databaseBuilder<CardCashbackDatabase>(
         name = "$basePath/database.db"
     )

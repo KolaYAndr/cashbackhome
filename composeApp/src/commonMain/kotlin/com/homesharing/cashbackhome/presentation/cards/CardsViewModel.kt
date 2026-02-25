@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.stateIn
 
 private const val THRESHOLD = 5000L
 
-class CardsViewModel(
+internal class CardsViewModel(
     repository: CardCashbackRepository
 ) : ViewModel() {
 

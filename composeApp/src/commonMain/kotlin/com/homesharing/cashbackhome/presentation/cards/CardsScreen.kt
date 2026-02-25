@@ -30,24 +30,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.homesharing.cashbackhome.domain.models.BankCardWithCashback
-import com.homesharing.cashbackhome.domain.models.CashbackRule
+import com.homesharing.cashbackhome.domain.entity.BankCardWithCashback
+import com.homesharing.cashbackhome.domain.entity.CashbackRule
 import homesharing.composeapp.generated.resources.Res
 import homesharing.composeapp.generated.resources.add
 import homesharing.composeapp.generated.resources.arrow_drop_down
 import homesharing.composeapp.generated.resources.arrow_drop_up
+import homesharing.composeapp.generated.resources.card_add
+import homesharing.composeapp.generated.resources.cards_empty
+import homesharing.composeapp.generated.resources.cashback_rule_add
+import homesharing.composeapp.generated.resources.cashback_rules_empty
+import homesharing.composeapp.generated.resources.category_cafe
+import homesharing.composeapp.generated.resources.category_flowers
+import homesharing.composeapp.generated.resources.category_groceries
+import homesharing.composeapp.generated.resources.category_online_shopping
+import homesharing.composeapp.generated.resources.category_other
+import homesharing.composeapp.generated.resources.category_pharmacy
+import homesharing.composeapp.generated.resources.category_restaurant
+import homesharing.composeapp.generated.resources.category_travel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun CardsScreen(
     viewModel: CardsViewModel = koinViewModel(),
+    onAddCardClick: () -> Unit
 ) {
     val cards by viewModel.uiState.collectAsStateWithLifecycle()
 
     CardsScreen(
         cards = cards,
-        onAddCardClick = {},
+        onAddCardClick = onAddCardClick,
         onAddCashbackClick = {},
         onCardClick = {},
     )
@@ -65,7 +79,7 @@ private fun CardsScreen(
             FloatingActionButton(onClick = onAddCardClick) {
                 Icon(
                     painter = painterResource(Res.drawable.add),
-                    contentDescription = "Add card"
+                    contentDescription = stringResource(Res.string.card_add)
                 )
             }
         }
@@ -77,7 +91,7 @@ private fun CardsScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No cards yet")
+                Text(stringResource(Res.string.cards_empty))
             }
         } else {
             LazyColumn(
@@ -136,7 +150,9 @@ private fun CardItem(
                     )
                 }
 
-                IconButton(onClick = { expanded = !expanded }) {
+                IconButton(
+                    onClick = { expanded = !expanded }
+                ) {
                     Icon(
                         painter = painterResource(
                             if (expanded) {
@@ -145,7 +161,7 @@ private fun CardItem(
                                 Res.drawable.arrow_drop_down
                             }
                         ),
-                            contentDescription = null
+                        contentDescription = null
                     )
                 }
             }
@@ -155,7 +171,7 @@ private fun CardItem(
 
                 if (cardWithCashback.cashbacks.isEmpty()) {
                     Text(
-                        text = "No cashback rules",
+                        text = stringResource(Res.string.cashback_rules_empty),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -173,7 +189,7 @@ private fun CardItem(
                         contentDescription = null
                     )
                     Spacer(Modifier.width(4.dp))
-                    Text("Add cashback rule")
+                    Text(stringResource(Res.string.cashback_rule_add))
                 }
             }
         }
@@ -188,16 +204,18 @@ private fun CashbackRuleItem(rule: CashbackRule) {
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val categoryName = when (rule.category) {
-            CashbackRule.CashbackCategory.Groceries -> "Groceries"
-            CashbackRule.CashbackCategory.Cafe -> "Cafe"
-            CashbackRule.CashbackCategory.Restaurant -> "Restaurant"
-            CashbackRule.CashbackCategory.Travel -> "Travel"
-            CashbackRule.CashbackCategory.OnlineShopping -> "Online shopping"
-            CashbackRule.CashbackCategory.Flowers -> "Flowers"
-            CashbackRule.CashbackCategory.Pharmacy -> "Pharmacy"
-            CashbackRule.CashbackCategory.Other -> "Other"
-        }
+        val categoryName = stringResource(
+            when (rule.category) {
+                CashbackRule.CashbackCategory.Groceries -> Res.string.category_groceries
+                CashbackRule.CashbackCategory.Cafe -> Res.string.category_cafe
+                CashbackRule.CashbackCategory.Restaurant -> Res.string.category_restaurant
+                CashbackRule.CashbackCategory.Travel -> Res.string.category_travel
+                CashbackRule.CashbackCategory.OnlineShopping -> Res.string.category_online_shopping
+                CashbackRule.CashbackCategory.Flowers -> Res.string.category_flowers
+                CashbackRule.CashbackCategory.Pharmacy -> Res.string.category_pharmacy
+                CashbackRule.CashbackCategory.Other -> Res.string.category_other
+            }
+        )
 
         Column(
             modifier = Modifier.weight(1f)

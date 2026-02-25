@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">cashback-home</string>
+    <string name="add_card_cashback_title">Add card cashback</string>
+    <string name="back_button_description">Back</string>
+    <string name="new_card_dropdown_item">New card</string>
+    <string name="selected_card_label">Selected Card</string>
+    <string name="card_bank_label">Bank: %1$s</string>
+    <string name="card_mask_label">Mask: %1$s</string>
+    <string name="cashback_rules_section_title">Cashback rules for this card</string>
+    <string name="add_cashback_rule_button">Add cashback rule</string>
+    <string name="save_button">Save</string>
+    <string name="bank_name_field_label">Bank Name</string>
+    <string name="card_mask_field_label">Card Mask</string>
+    <string name="rule_title_field_label">Title</string>
+    <string name="rule_percentage_field_label">Percentage</string>
+    <string name="remove_rule_button">Remove rule</string>
+    <string name="card_add">Add new card</string>
+    <string name="cards_empty">No cards yet. Add your first one!</string>
+    <string name="cashback_rule_add">Add cashback rule</string>
+    <string name="cashback_rules_empty">No cashback rules for this card.</string>
+    <string name="category_groceries">Groceries</string>
+    <string name="category_cafe">Cafe</string>
+    <string name="category_restaurant">Restaurant</string>
+    <string name="category_travel">Travel</string>
+    <string name="category_online_shopping">Online Shopping</string>
+    <string name="category_flowers">Flowers</string>
+    <string name="category_pharmacy">Pharmacy</string>
+    <string name="category_other">Other</string>
+</resources>

@@ -6,6 +6,7 @@ import com.homesharing.cashbackhome.data.local.CardCashbackDatabase
 import com.homesharing.cashbackhome.data.local.getRoomDatabase
 import com.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import com.homesharing.cashbackhome.domain.repository.CardCashbackRepository
+import com.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import com.homesharing.cashbackhome.presentation.cards.CardsViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -18,6 +19,7 @@ private val sharedStaticModule = module {
         bind<CardCashbackRepository>()
     }
     viewModelOf(::CardsViewModel)
+    viewModelOf(::AddCardWithCashbacksViewModel)
 }
 
 fun initKoinModules(

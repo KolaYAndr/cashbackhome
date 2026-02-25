@@ -26,7 +26,7 @@ android {
         }
 
         debug {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
         }
     }
     compileOptions {
