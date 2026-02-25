@@ -1,10 +1,12 @@
 package com.homesharing.cashbackhome.presentation.addcard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,6 +17,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,20 +34,32 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.homesharing.cashbackhome.domain.entity.BankCard
+import com.homesharing.cashbackhome.domain.entity.CashbackRule
 import com.homesharing.cashbackhome.domain.model.BankCardDraft
 import com.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import homesharing.composeapp.generated.resources.Res
+import homesharing.composeapp.generated.resources.add_card
 import homesharing.composeapp.generated.resources.add_card_cashback_title
 import homesharing.composeapp.generated.resources.add_cashback_rule_button
 import homesharing.composeapp.generated.resources.arrow_back
 import homesharing.composeapp.generated.resources.back_button_description
 import homesharing.composeapp.generated.resources.bank_name_field_label
+import homesharing.composeapp.generated.resources.card
 import homesharing.composeapp.generated.resources.card_bank_label
 import homesharing.composeapp.generated.resources.card_mask_field_label
 import homesharing.composeapp.generated.resources.card_mask_label
 import homesharing.composeapp.generated.resources.cashback_rules_section_title
+import homesharing.composeapp.generated.resources.category_cafe
+import homesharing.composeapp.generated.resources.category_flowers
+import homesharing.composeapp.generated.resources.category_groceries
+import homesharing.composeapp.generated.resources.category_online_shopping
+import homesharing.composeapp.generated.resources.category_other
+import homesharing.composeapp.generated.resources.category_pharmacy
+import homesharing.composeapp.generated.resources.category_restaurant
+import homesharing.composeapp.generated.resources.category_travel
 import homesharing.composeapp.generated.resources.new_card_dropdown_item
 import homesharing.composeapp.generated.resources.remove_rule_button
+import homesharing.composeapp.generated.resources.rule_category_field_label
 import homesharing.composeapp.generated.resources.rule_percentage_field_label
 import homesharing.composeapp.generated.resources.rule_title_field_label
 import homesharing.composeapp.generated.resources.save_button
@@ -62,7 +77,7 @@ internal fun AddCardWithCashbacksScreen(
     val existingCards by viewModel.state.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
 
-    AddCardWithCashbacksScreen(
+    AddCardWithCashbacksScreenContent(
         uiState = uiState,
         existingCards = existingCards,
         onIntent = viewModel::onIntent,
@@ -76,7 +91,7 @@ internal fun AddCardWithCashbacksScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddCardWithCashbacksScreen(
+private fun AddCardWithCashbacksScreenContent(
     uiState: AddCardWithCashbacksUiState,
     existingCards: List<BankCard>,
     onIntent: (AddCardIntent) -> Unit,
@@ -109,10 +124,7 @@ private fun AddCardWithCashbacksScreen(
             ) {
                 TextField(
                     modifier = Modifier
-                        .menuAnchor(
-                            type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                            enabled = true
-                        )
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                         .fillMaxWidth(),
                     readOnly = true,
                     value = if (uiState.isCreatingNewCard) {
@@ -132,6 +144,16 @@ private fun AddCardWithCashbacksScreen(
                     onDismissRequest = { expanded = false },
                 ) {
                     DropdownMenuItem(
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(Res.drawable.add_card),
+                                contentDescription = null,
+                                modifier = Modifier.background(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            )
+                        },
                         text = { Text(stringResource(Res.string.new_card_dropdown_item)) },
                         onClick = {
                             onIntent(AddCardIntent.SwitchToNewCard)
@@ -144,6 +166,16 @@ private fun AddCardWithCashbacksScreen(
                             onClick = {
                                 onIntent(AddCardIntent.ExistingCardSelected(card.cardId))
                                 expanded = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(Res.drawable.card),
+                                    contentDescription = null,
+                                    modifier = Modifier.background(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                )
                             }
                         )
                     }
@@ -236,12 +268,27 @@ private fun CardDraftForm(draft: BankCardDraft, onDraftChange: (BankCardDraft) -
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CashbackRuleDraftItem(
     draft: CashbackRuleDraft,
     onRemove: () -> Unit,
     onDraftChange: (CashbackRuleDraft) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    val categories = remember {
+        listOf(
+            CashbackRule.CashbackCategory.Groceries,
+            CashbackRule.CashbackCategory.Cafe,
+            CashbackRule.CashbackCategory.Restaurant,
+            CashbackRule.CashbackCategory.Travel,
+            CashbackRule.CashbackCategory.OnlineShopping,
+            CashbackRule.CashbackCategory.Flowers,
+            CashbackRule.CashbackCategory.Pharmacy,
+            CashbackRule.CashbackCategory.Other,
+        )
+    }
+
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         TextField(
             value = draft.title,
@@ -255,8 +302,57 @@ private fun CashbackRuleDraftItem(
             label = { Text(stringResource(Res.string.rule_percentage_field_label)) },
             modifier = Modifier.fillMaxWidth()
         )
-        Button(onClick = onRemove, modifier = Modifier.padding(top = 8.dp)) {
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+        ) {
+            TextField(
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = categoryName(draft.category),
+                onValueChange = {},
+                label = { Text(stringResource(Res.string.rule_category_field_label)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                categories.forEach { category ->
+                    DropdownMenuItem(
+                        text = { Text(categoryName(category)) },
+                        onClick = {
+                            onDraftChange(draft.copy(category = category))
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Button(
+            onClick = onRemove,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
             Text(stringResource(Res.string.remove_rule_button))
         }
+    }
+}
+
+@Composable
+private fun categoryName(category: CashbackRule.CashbackCategory): String {
+    return when (category) {
+        is CashbackRule.CashbackCategory.Cafe -> stringResource(Res.string.category_cafe)
+        is CashbackRule.CashbackCategory.Flowers -> stringResource(Res.string.category_flowers)
+        is CashbackRule.CashbackCategory.Groceries -> stringResource(Res.string.category_groceries)
+        is CashbackRule.CashbackCategory.OnlineShopping -> stringResource(Res.string.category_online_shopping)
+        is CashbackRule.CashbackCategory.Other -> stringResource(Res.string.category_other)
+        is CashbackRule.CashbackCategory.Pharmacy -> stringResource(Res.string.category_pharmacy)
+        is CashbackRule.CashbackCategory.Restaurant -> stringResource(Res.string.category_restaurant)
+        is CashbackRule.CashbackCategory.Travel -> stringResource(Res.string.category_travel)
     }
 }
