@@ -4,10 +4,10 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import com.homesharing.cashbackhome.domain.BankCard
-import com.homesharing.cashbackhome.domain.CardCashback
-import com.homesharing.cashbackhome.domain.CashbackCategoryConverter
-import com.homesharing.cashbackhome.domain.CashbackRule
+import com.homesharing.cashbackhome.domain.models.BankCard
+import com.homesharing.cashbackhome.domain.models.CardCashback
+import com.homesharing.cashbackhome.domain.models.CashbackCategoryConverter
+import com.homesharing.cashbackhome.domain.models.CashbackRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 

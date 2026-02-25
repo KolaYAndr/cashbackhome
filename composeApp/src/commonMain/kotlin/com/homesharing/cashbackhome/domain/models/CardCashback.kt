@@ -1,4 +1,4 @@
-package com.homesharing.cashbackhome.domain
+package com.homesharing.cashbackhome.domain.models
 
 import androidx.room.Entity
 import androidx.room.Index

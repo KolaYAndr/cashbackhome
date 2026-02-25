@@ -15,7 +15,7 @@ material3 = "1.10.0-alpha05"
 lifecycleRuntimeKtx = "2.10.0"
 composeBom = "2026.02.00"
 ksp = "2.3.5"
-sqlite = "2.5.0-SNAPSHOT"
+sqlite = "2.6.2"
 androidx-room = "2.8.4"
 koin = "4.1.1"
 
