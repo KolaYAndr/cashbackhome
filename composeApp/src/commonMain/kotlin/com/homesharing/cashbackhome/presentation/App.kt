@@ -7,19 +7,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
 import com.homesharing.cashbackhome.presentation.cards.CardsScreen
+import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 
 @Composable
 fun App() {
-    var showDetails by remember { mutableStateOf(false) }
+    CashbackHomeTheme {
+        var showDetails by remember { mutableStateOf(false) }
 
-    if (showDetails) {
-        AddCardWithCashbacksScreen(
-            onBackClick = { showDetails = false },
-            onSavedSuccessfully = { showDetails = false }
-        )
-    } else {
-        CardsScreen(
-            onAddCardClick = { showDetails = true }
-        )
+        if (showDetails) {
+            AddCardWithCashbacksScreen(
+                onBackClick = { showDetails = false },
+                onSavedSuccessfully = { showDetails = false }
+            )
+        } else {
+            CardsScreen(
+                onAddCardClick = { showDetails = true }
+            )
+        }
     }
 }

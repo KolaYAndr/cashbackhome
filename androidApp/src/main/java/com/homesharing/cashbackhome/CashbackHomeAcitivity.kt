@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.homesharing.cashbackhome.presentation.App
-import com.homesharing.cashbackhome.ui.theme.CashbackHomeTheme
 
 class CashbackHomeAcitivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,9 +14,7 @@ class CashbackHomeAcitivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            CashbackHomeTheme {
-                App()
-            }
+            App()
         }
     }
 }
@@ -25,7 +22,5 @@ class CashbackHomeAcitivity : ComponentActivity() {
 @Preview(showSystemUi = true)
 @Composable
 fun AppAndroidPreview() {
-    CashbackHomeTheme {
-        App()
-    }
+    App()
 }
