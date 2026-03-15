@@ -5,23 +5,49 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import com.homesharing.cashbackhome.theme.Pink40
-import com.homesharing.cashbackhome.theme.Pink80
-import com.homesharing.cashbackhome.theme.Purple40
-import com.homesharing.cashbackhome.theme.Purple80
-import com.homesharing.cashbackhome.theme.PurpleGrey40
-import com.homesharing.cashbackhome.theme.PurpleGrey80
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    background = LightBackground,
+    onBackground = LightOnBackground,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    onSurfaceVariant = TextSecondary,
+    primary = AccentPrimary,
+    onPrimary = LightOnBackground,
+    primaryContainer = AccentPrimaryPressed,
+    onPrimaryContainer = LightOnBackground,
+    error = WarningExpiration,
+    errorContainer = Delete,
+    secondary = ButtonPrimary,
+    onSecondary = OnButtonPrimary,
+    secondaryContainer = ButtonPrimaryPressed,
+    onSecondaryContainer = OnButtonPrimary,
+    tertiary = ButtonSecondary,
+    onTertiary = OnButtonSecondary,
+    tertiaryContainer = ButtonSecondaryPressed,
+    onTertiaryContainer = OnButtonSecondary
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    onSurfaceVariant = TextSecondary,
+    primary = AccentPrimary,
+    onPrimary = LightOnBackground,
+    primaryContainer = AccentPrimaryPressed,
+    onPrimaryContainer = LightOnBackground,
+    error = WarningExpiration,
+    errorContainer = Delete,
+    secondary = ButtonPrimary,
+    onSecondary = OnButtonPrimary,
+    secondaryContainer = ButtonPrimaryPressed,
+    onSecondaryContainer = OnButtonPrimary,
+    tertiary = ButtonSecondary,
+    onTertiary = OnButtonSecondary,
+    tertiaryContainer = ButtonSecondaryPressed,
+    onTertiaryContainer = OnButtonSecondary
 )
 
 @Composable
@@ -29,14 +55,12 @@ internal fun CashbackHomeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        typography = appTypography(),
+        content = content,
     )
 }
+
