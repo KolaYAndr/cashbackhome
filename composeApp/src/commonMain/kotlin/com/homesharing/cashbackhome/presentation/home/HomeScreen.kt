@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +40,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.homesharing.cashbackhome.presentation.cards.CardsScreen
-import com.homesharing.cashbackhome.presentation.navigation.AppRoute
 import com.homesharing.cashbackhome.presentation.navigation.HomeScreenRoute
 import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme

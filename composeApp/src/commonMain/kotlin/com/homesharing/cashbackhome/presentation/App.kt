@@ -5,10 +5,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
-import com.homesharing.cashbackhome.presentation.cards.CardsScreen
 import com.homesharing.cashbackhome.presentation.home.HomeScreenRoot
 import com.homesharing.cashbackhome.presentation.navigation.AppRoute
-import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 
 @Composable
