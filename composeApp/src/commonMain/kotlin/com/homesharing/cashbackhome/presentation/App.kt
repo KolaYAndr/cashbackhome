@@ -23,59 +23,58 @@ fun App() {
                     backStack.removeAt(backStack.lastIndex)
                 }
             },
-            entryProvider =
-                entryProvider {
-                    entry<Route.Categories> {
-                        CategoriesScreenRoot(
-                            onCardsTabClick = {
-                                while (backStack.isNotEmpty()) {
-                                    backStack.removeLastOrNull()
-                                }
-                                backStack.add(Route.Categories)
-                                backStack.add(Route.Cards)
-                            },
-                            onPromotionsTabClick = {
-                                while (backStack.isNotEmpty()) {
-                                    backStack.removeLastOrNull()
-                                }
-                                backStack.add(Route.Categories)
-                                backStack.add(Route.Promotions)
-                            },
-                            onAddCategoryClick = {
-                                while (backStack.isNotEmpty()) {
-                                    backStack.removeLastOrNull()
-                                }
-                                backStack.add(Route.Categories)
-                                backStack.add(Route.AddCardWithCashbacks)
-                            },
-                        )
-                    }
+            entryProvider = entryProvider {
+                entry<Route.Categories> {
+                    CategoriesScreenRoot(
+                        onCardsTabClick = {
+                            while (backStack.isNotEmpty()) {
+                                backStack.removeLastOrNull()
+                            }
+                            backStack.add(Route.Categories)
+                            backStack.add(Route.Cards)
+                        },
+                        onPromotionsTabClick = {
+                            while (backStack.isNotEmpty()) {
+                                backStack.removeLastOrNull()
+                            }
+                            backStack.add(Route.Categories)
+                            backStack.add(Route.Promotions)
+                        },
+                        onAddCategoryClick = {
+                            while (backStack.isNotEmpty()) {
+                                backStack.removeLastOrNull()
+                            }
+                            backStack.add(Route.Categories)
+                            backStack.add(Route.AddCardWithCashbacks)
+                        },
+                    )
+                }
 
-                    entry<Route.Cards> {
-                        CardsScreen(
-                            onAddCardClick = { backStack.add(Route.AddCardWithCashbacks) },
-                        )
-                    }
+                entry<Route.Cards> {
+                    CardsScreen(
+                        onAddCardClick = { backStack.add(Route.AddCardWithCashbacks) },
+                    )
+                }
 
-                    entry<Route.Promotions> {
-                        PromotionsScreen()
-                    }
+                entry<Route.Promotions> {
+                    PromotionsScreen()
+                }
 
-                    entry<Route.AddCardWithCashbacks> {
-                        AddCardWithCashbacksScreen(
-                            onBackClick = {
-                                if (backStack.size > 1) {
-                                    backStack.removeAt(backStack.lastIndex)
-                                }
-                            },
-                            onSavedSuccessfully = {
-                                if (backStack.size > 1) {
-                                    backStack.removeAt(backStack.lastIndex)
-                                }
-                            },
-                        )
-                    }
-                },
+                entry<Route.AddCardWithCashbacks> {
+                    AddCardWithCashbacksScreen(
+                        onBackClick = {
+                            if (backStack.size > 1) {
+                                backStack.removeAt(backStack.lastIndex)
+                            }
+                        },
+                        onSavedSuccessfully = {
+                            if (backStack.size > 1) {
+                                backStack.removeAt(backStack.lastIndex)
+                            }
+                        },
+                    )
+                }
+            },
         )
     }
 }

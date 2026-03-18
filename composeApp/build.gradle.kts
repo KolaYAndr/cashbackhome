@@ -11,15 +11,9 @@ plugins {
 
 kotlin {
     androidLibrary {
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
         namespace = "com.homesharing.cashbackhome"
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources.enable = true
     }
 
@@ -70,5 +64,5 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-    androidRuntimeClasspath("org.jetbrains.compose.ui:ui-tooling:1.10.0")
+    androidRuntimeClasspath(libs.ui.tooling)
 }
