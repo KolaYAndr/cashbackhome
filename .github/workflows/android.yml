@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Lockbox-debug.apk
-          path: composeApp/build/outputs/apk/debug/Lockbox-debug.apk
+          path: androidApp/build/outputs/apk/debug/CashbackHome-debug.apk
