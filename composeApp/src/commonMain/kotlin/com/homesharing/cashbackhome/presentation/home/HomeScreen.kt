@@ -239,9 +239,9 @@ private fun SearchAndSortBar() {
         IconButton(
             onClick = {},
         ) {
-            TODO("make the Icon centered " +
-                    "because tap reaction is not centered around the icon " +
-                    "but the center of the IconButton")
+//            TODO("make the Icon centered " +
+//                    "because tap reaction is not centered around the icon " +
+//                    "but the center of the IconButton")
             Icon(
                 painter = painterResource(Res.drawable.tune),
                 contentDescription = stringResource(Res.string.filter_icon_description),

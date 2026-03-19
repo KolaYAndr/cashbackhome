@@ -50,11 +50,11 @@ fun App() {
                 }
 
                 entry<AppRoute.PersonalCabinet> {
-                    TODO("Add personal cabinet screen")
+//                    TODO("Add personal cabinet screen")
                 }
 
                 entry<AppRoute.EditCardWithCashback> {
-                    TODO("Add edit category screen")
+//                    TODO("Add edit category screen")
                 }
             },
         )
