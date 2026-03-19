@@ -1,3 +1,5 @@
+import com.android.build.api.variant.impl.VariantOutputImpl
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
@@ -41,6 +43,16 @@ android {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.outputs
+            .map { it as VariantOutputImpl }
+            .forEach { output ->
+                output.outputFileName = "CashbackHome-${variant.buildType}.apk"
+            }
     }
 }
 
