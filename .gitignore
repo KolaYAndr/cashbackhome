@@ -1,5 +1,4 @@
 # ───── Kotlin/Gradle ──────────────────────────────────────────────────────────
-.gradle/
 build/
 out/
 bin/
@@ -110,7 +109,6 @@ $RECYCLE.BIN/
 *.swp
 *.swo
 *.swn
-*~
 *.orig
 
 # Environment files
