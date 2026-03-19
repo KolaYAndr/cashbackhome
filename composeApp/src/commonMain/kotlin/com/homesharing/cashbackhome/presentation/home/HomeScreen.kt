@@ -1,4 +1,4 @@
-package com.homesharing.cashbackhome.presentation.categories
+package com.homesharing.cashbackhome.presentation.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +21,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +36,12 @@ import androidx.compose.ui.layout.innermostOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import com.homesharing.cashbackhome.presentation.cards.CardsScreen
+import com.homesharing.cashbackhome.presentation.navigation.HomeScreenRoute
+import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import homesharing.composeapp.generated.resources.Res
 import homesharing.composeapp.generated.resources.add_category_button
@@ -56,23 +64,17 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
-internal fun CategoriesScreenRoot(
-    viewModel: CategoriesScreenViewModel = koinInject(),
-    onCardsTabClick: () -> Unit,
-    onPromotionsTabClick: () -> Unit,
+internal fun HomeScreenRoot(
+    viewModel: HomeScreenViewModel = koinInject(),
     onAddCategoryClick: () -> Unit,
 ) {
-    CategoriesScreen(
-        onCardsTabClick,
-        onPromotionsTabClick,
+    HomeScreen(
         onAddCategoryClick,
     )
 }
 
 @Composable
-private fun CategoriesScreen(
-    onCardsTabClick: () -> Unit,
-    onPromotionsTabClick: () -> Unit,
+private fun HomeScreen(
     onAddCategoryClick: () -> Unit,
 ) {
     Column(
@@ -87,31 +89,58 @@ private fun CategoriesScreen(
             .padding(horizontal = 16.dp),
     ) {
         Header()
+        val backStack = rememberNavBackStack(HomeScreenRoute.CategoriesScreen)
+        val tabState = rememberSaveable { mutableStateOf(0) }
+        val tabs = listOf(
+            stringResource(Res.string.tab_categories) to HomeScreenRoute.CategoriesScreen,
+            stringResource(Res.string.tab_my_cards) to HomeScreenRoute.MyCardsScreen,
+            stringResource(Res.string.tab_promotions) to HomeScreenRoute.PromotionsScreen
+        )
 
         Row(
             modifier = Modifier.padding(bottom = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            ScreenTab(
-                title = stringResource(Res.string.tab_categories),
-                selected = true,
-                onClick = {},
-            )
-            ScreenTab(
-                title = stringResource(Res.string.tab_my_cards),
-                selected = false,
-                onClick = onCardsTabClick,
-            )
-            ScreenTab(
-                title = stringResource(Res.string.tab_promotions),
-                selected = false,
-                onClick = onPromotionsTabClick,
-            )
+            tabs.forEachIndexed { index, tab ->
+                ScreenTab(
+                    title = tab.first,
+                    selected = tabState.value == index,
+                    onClick = {
+                        tabState.value = index
+                        if (backStack.size > 1) {
+                            backStack.removeLastOrNull()
+                        }
+                        backStack.add(tab.second)
+                    }
+                )
+            }
         }
 
         SearchAndSortBar()
 
-        EmptyCategories(onAddCategoryClick)
+        NavDisplay(
+            backStack = backStack,
+            onBack = {
+                while (backStack.isNotEmpty()) {
+                    backStack.removeLastOrNull()
+                }
+                backStack.add(HomeScreenRoute.CategoriesScreen)
+                tabState.value = 0
+            },
+            entryProvider = entryProvider {
+                entry<HomeScreenRoute.CategoriesScreen>{
+                    EmptyCategories(onAddCategoryClick)
+                }
+
+                entry<HomeScreenRoute.PromotionsScreen>{
+                    PromotionsScreen()
+                }
+
+                entry<HomeScreenRoute.MyCardsScreen>{
+                    CardsScreen() {}
+                }
+            }
+        )
     }
 }
 
@@ -210,6 +239,9 @@ private fun SearchAndSortBar() {
         IconButton(
             onClick = {},
         ) {
+//            TODO("make the Icon centered " +
+//                    "because tap reaction is not centered around the icon " +
+//                    "but the center of the IconButton")
             Icon(
                 painter = painterResource(Res.drawable.tune),
                 contentDescription = stringResource(Res.string.filter_icon_description),
@@ -285,16 +317,16 @@ private fun Modifier.colorUnderline(
 
 @Composable
 @Preview
-private fun CategoriesScreenPreviewLight() {
+private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        CategoriesScreen({}, {}, {})
+        HomeScreen({})
     }
 }
 
 @Composable
 @Preview
-private fun CategoriesScreenPreviewDark() {
+private fun HomeScreenPreviewDark() {
     CashbackHomeTheme(true) {
-        CategoriesScreen({}, {}, {})
+        HomeScreen({})
     }
 }
