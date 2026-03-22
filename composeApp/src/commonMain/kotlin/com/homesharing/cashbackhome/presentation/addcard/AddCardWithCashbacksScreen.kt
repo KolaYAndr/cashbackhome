@@ -26,13 +26,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homesharing.cashbackhome.domain.entity.BankCard
 import com.homesharing.cashbackhome.domain.entity.CashbackRule
 import com.homesharing.cashbackhome.domain.model.BankCardDraft
@@ -74,8 +74,8 @@ internal fun AddCardWithCashbacksScreen(
     onBackClick: () -> Unit,
     onSavedSuccessfully: () -> Unit,
 ) {
-    val existingCards by viewModel.state.collectAsState()
-    val uiState by viewModel.uiState.collectAsState()
+    val existingCards by viewModel.state.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     AddCardWithCashbacksScreenContent(
         uiState = uiState,
@@ -117,7 +117,11 @@ private fun AddCardWithCashbacksScreenContent(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
@@ -132,7 +136,7 @@ private fun AddCardWithCashbacksScreenContent(
                     } else {
                         existingCards
                             .find { it.cardId == uiState.selectedCardId }
-                            ?.let { "${it.bankName} - ${it.mask}" } ?: ""
+                            ?.let { "${it.bankName} - ${it.mask}" }.orEmpty()
                     },
                     onValueChange = {},
                     label = { Text(stringResource(Res.string.selected_card_label)) },
@@ -192,7 +196,9 @@ private fun AddCardWithCashbacksScreenContent(
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
                                 Text(stringResource(Res.string.card_bank_label, card.bankName))
                                 Text(stringResource(Res.string.card_mask_label, card.mask))
                             }
@@ -202,11 +208,16 @@ private fun AddCardWithCashbacksScreenContent(
             }
 
             Text(
-                stringResource(Res.string.cashback_rules_section_title),
-                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+                text = stringResource(Res.string.cashback_rules_section_title),
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    bottom = 8.dp
+                )
             )
 
-            LazyColumn(modifier = Modifier.weight(1f)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f)
+            ) {
                 itemsIndexed(uiState.cashbackDrafts) { index, draft ->
                     CashbackRuleDraftItem(
                         draft = draft,
@@ -222,7 +233,9 @@ private fun AddCardWithCashbacksScreenContent(
                     )
                 }
                 item {
-                    Button(onClick = { onIntent(AddCardIntent.AddCashbackDraft) }) {
+                    Button(
+                        onClick = { onIntent(AddCardIntent.AddCashbackDraft) }
+                    ) {
                         Text(stringResource(Res.string.add_cashback_rule_button))
                     }
                 }
