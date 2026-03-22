@@ -1,5 +1,12 @@
 package com.homesharing.cashbackhome.presentation.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,8 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,12 +42,8 @@ import androidx.compose.ui.layout.innermostOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.ui.NavDisplay
-import com.homesharing.cashbackhome.presentation.UiText
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homesharing.cashbackhome.presentation.cards.CardsScreen
-import com.homesharing.cashbackhome.presentation.navigation.HomeScreenRoute
 import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import homesharing.composeapp.generated.resources.Res
@@ -56,23 +58,22 @@ import homesharing.composeapp.generated.resources.profile_name
 import homesharing.composeapp.generated.resources.search
 import homesharing.composeapp.generated.resources.search_categories_placeholder
 import homesharing.composeapp.generated.resources.search_icon_description
-import homesharing.composeapp.generated.resources.tab_categories
-import homesharing.composeapp.generated.resources.tab_my_cards
-import homesharing.composeapp.generated.resources.tab_promotions
 import homesharing.composeapp.generated.resources.tune
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+
+private const val ANIMATION_DURATION = 200
 
 @Composable
 internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinInject(),
     onAddCategoryClick: () -> Unit,
 ) {
-    val tabState = viewModel.tabState.collectAsState()
+    val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
     HomeScreen(
-        tabState.value,
+        selectedTab = tabState,
         onAddCategoryClick = onAddCategoryClick,
         onTabClick = { viewModel.switchToTab(it) }
     )
@@ -80,9 +81,9 @@ internal fun HomeScreenRoot(
 
 @Composable
 private fun HomeScreen(
-    selected: Int,
+    selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
-    onTabClick: (Int) -> Unit,
+    onTabClick: (Tab) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -96,58 +97,60 @@ private fun HomeScreen(
             .padding(horizontal = 16.dp),
     ) {
         Header()
-        val backStack = rememberNavBackStack(HomeScreenRoute.CategoriesScreen)
         val tabs = listOf(
             Tab.Categories,
             Tab.MyCards,
             Tab.Promotions
         )
 
-        SideEffect {
-            if (backStack.size > 1) {
-                backStack.removeLastOrNull()
-            }
-            backStack.add(tabs[selected].route)
-        }
-
         Row(
             modifier = Modifier.padding(bottom = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            tabs.forEachIndexed { index, tab ->
+            tabs.forEach { tab ->
                 ScreenTab(
-                    title = tab.name.asString(),
-                    selected = selected == index,
-                    onClick = { onTabClick(index) }
+                    title = stringResource(tab.name),
+                    selected = tab == selectedTab,
+                    onClick = { onTabClick(tab) }
                 )
             }
         }
 
         SearchAndSortBar()
 
-        NavDisplay(
-            backStack = backStack,
-            onBack = {
-                while (backStack.isNotEmpty()) {
-                    backStack.removeLastOrNull()
+        AnimatedContent(
+            targetState = selectedTab,
+            transitionSpec = {
+                if (targetState.hierarchyIndex > initialState.hierarchyIndex) {
+                    (slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                    ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(ANIMATION_DURATION)
+                        ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                    )
+                } else {
+                    (slideInHorizontally(
+                        initialOffsetX = { fullWidth -> -fullWidth },
+                        animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                    ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(ANIMATION_DURATION)
+                        ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                    )
                 }
-                backStack.add(HomeScreenRoute.CategoriesScreen)
-                onTabClick(0)
             },
-            entryProvider = entryProvider {
-                entry<HomeScreenRoute.CategoriesScreen>{
-                    EmptyCategories(onAddCategoryClick)
-                }
-
-                entry<HomeScreenRoute.PromotionsScreen>{
-                    PromotionsScreen()
-                }
-
-                entry<HomeScreenRoute.MyCardsScreen>{
-                    CardsScreen() {}
-                }
+            contentKey = { selectedTab }
+        ) {
+            when (selectedTab) {
+                Tab.Categories -> EmptyCategories(onAddCategoryClick = onAddCategoryClick)
+                Tab.MyCards -> CardsScreen(onAddCardClick = {})
+                Tab.Promotions -> PromotionsScreen()
             }
-        )
+        }
     }
 }
 
@@ -190,20 +193,20 @@ private fun ScreenTab(
     Column(
         modifier = Modifier.clickable(onClick = onClick),
     ) {
-        if (selected) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.colorUnderline(MaterialTheme.colorScheme.primary),
-            )
-        } else {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onBackground
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = if (selected) {
+                Modifier.colorUnderline(MaterialTheme.colorScheme.primary)
+            } else {
+                Modifier
+            }
+        )
     }
 }
 
@@ -238,7 +241,7 @@ private fun SearchAndSortBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 12.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SearchBar(Modifier.weight(1f))
@@ -246,15 +249,11 @@ private fun SearchAndSortBar() {
         IconButton(
             onClick = {},
         ) {
-//            TODO("make the Icon centered " +
-//                    "because tap reaction is not centered around the icon " +
-//                    "but the center of the IconButton")
             Icon(
                 painter = painterResource(Res.drawable.tune),
                 contentDescription = stringResource(Res.string.filter_icon_description),
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
-                    .padding(start = 8.dp)
                     .size(24.dp),
             )
         }
@@ -321,32 +320,10 @@ private fun Modifier.colorUnderline(
     )
 }
 
-internal sealed class Tab(
-    val name: UiText,
-    val route: HomeScreenRoute
-) {
-    object Categories: Tab(
-        name = UiText.StringResourceId(Res.string.tab_categories),
-        route = HomeScreenRoute.CategoriesScreen
-    )
-
-    object MyCards: Tab(
-        name = UiText.StringResourceId(Res.string.tab_my_cards),
-        route = HomeScreenRoute.MyCardsScreen
-    )
-
-    object Promotions: Tab(
-        name = UiText.StringResourceId(Res.string.tab_promotions),
-        route = HomeScreenRoute.PromotionsScreen
-    )
-}
-
-
-
 @Composable
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(0, {}, {})
+        HomeScreen(Tab.Categories, {}, {})
     }
 }

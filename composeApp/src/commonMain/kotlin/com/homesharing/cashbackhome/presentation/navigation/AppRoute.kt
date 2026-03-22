@@ -4,16 +4,16 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal sealed interface AppRoute : NavKey {
+internal sealed class AppRoute : NavKey {
     @Serializable
-    data object Home : AppRoute
+    data object Home : AppRoute()
 
     @Serializable
-    data object AddCardWithCashbacks : AppRoute
+    data object AddCardWithCashbacks : AppRoute()
 
     @Serializable
-    data object EditCardWithCashback : AppRoute
+    data object EditCardWithCashback : AppRoute()
 
     @Serializable
-    data object PersonalCabinet : AppRoute
+    data object PersonalCabinet : AppRoute()
 }
