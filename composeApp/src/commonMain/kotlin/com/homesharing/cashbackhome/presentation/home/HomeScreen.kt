@@ -21,8 +21,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.homesharing.cashbackhome.presentation.UiText
 import com.homesharing.cashbackhome.presentation.cards.CardsScreen
 import com.homesharing.cashbackhome.presentation.navigation.HomeScreenRoute
 import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
@@ -68,14 +69,20 @@ internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinInject(),
     onAddCategoryClick: () -> Unit,
 ) {
+    val tabState = viewModel.tabState.collectAsState()
+
     HomeScreen(
-        onAddCategoryClick,
+        tabState.value,
+        onAddCategoryClick = onAddCategoryClick,
+        onTabClick = { viewModel.switchToTab(it) }
     )
 }
 
 @Composable
 private fun HomeScreen(
+    selected: Int,
     onAddCategoryClick: () -> Unit,
+    onTabClick: (Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -90,12 +97,18 @@ private fun HomeScreen(
     ) {
         Header()
         val backStack = rememberNavBackStack(HomeScreenRoute.CategoriesScreen)
-        val tabState = rememberSaveable { mutableStateOf(0) }
         val tabs = listOf(
-            stringResource(Res.string.tab_categories) to HomeScreenRoute.CategoriesScreen,
-            stringResource(Res.string.tab_my_cards) to HomeScreenRoute.MyCardsScreen,
-            stringResource(Res.string.tab_promotions) to HomeScreenRoute.PromotionsScreen
+            Tab.Categories,
+            Tab.MyCards,
+            Tab.Promotions
         )
+
+        SideEffect {
+            if (backStack.size > 1) {
+                backStack.removeLastOrNull()
+            }
+            backStack.add(tabs[selected].route)
+        }
 
         Row(
             modifier = Modifier.padding(bottom = 5.dp),
@@ -103,15 +116,9 @@ private fun HomeScreen(
         ) {
             tabs.forEachIndexed { index, tab ->
                 ScreenTab(
-                    title = tab.first,
-                    selected = tabState.value == index,
-                    onClick = {
-                        tabState.value = index
-                        if (backStack.size > 1) {
-                            backStack.removeLastOrNull()
-                        }
-                        backStack.add(tab.second)
-                    }
+                    title = tab.name.asString(),
+                    selected = selected == index,
+                    onClick = { onTabClick(index) }
                 )
             }
         }
@@ -125,7 +132,7 @@ private fun HomeScreen(
                     backStack.removeLastOrNull()
                 }
                 backStack.add(HomeScreenRoute.CategoriesScreen)
-                tabState.value = 0
+                onTabClick(0)
             },
             entryProvider = entryProvider {
                 entry<HomeScreenRoute.CategoriesScreen>{
@@ -314,19 +321,32 @@ private fun Modifier.colorUnderline(
     )
 }
 
+internal sealed class Tab(
+    val name: UiText,
+    val route: HomeScreenRoute
+) {
+    object Categories: Tab(
+        name = UiText.StringResourceId(Res.string.tab_categories),
+        route = HomeScreenRoute.CategoriesScreen
+    )
+
+    object MyCards: Tab(
+        name = UiText.StringResourceId(Res.string.tab_my_cards),
+        route = HomeScreenRoute.MyCardsScreen
+    )
+
+    object Promotions: Tab(
+        name = UiText.StringResourceId(Res.string.tab_promotions),
+        route = HomeScreenRoute.PromotionsScreen
+    )
+}
+
+
 
 @Composable
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen({})
-    }
-}
-
-@Composable
-@Preview
-private fun HomeScreenPreviewDark() {
-    CashbackHomeTheme(true) {
-        HomeScreen({})
+        HomeScreen(0, {}, {})
     }
 }
