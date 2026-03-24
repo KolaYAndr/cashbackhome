@@ -8,9 +8,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.CashbackHomeTheme">
         <activity
-            android:name=".CashbackHomeAcitivity"
+            android:name=".CashbackHomeActivity"
             android:exported="true"
             android:theme="@style/Theme.CashbackHomeTheme">
             <intent-filter>

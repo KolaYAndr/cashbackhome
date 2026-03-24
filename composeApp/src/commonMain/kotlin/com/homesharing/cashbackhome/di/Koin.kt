@@ -8,7 +8,7 @@ import com.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import com.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import com.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import com.homesharing.cashbackhome.presentation.cards.CardsViewModel
-import com.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
+import com.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -22,7 +22,7 @@ private val sharedStaticModule =
         }
         viewModelOf(::CardsViewModel)
         viewModelOf(::AddCardWithCashbacksViewModel)
-        viewModelOf(::CategoriesScreenViewModel)
+        viewModelOf(::HomeScreenViewModel)
     }
 
 fun initKoinModules(databaseBuilder: RoomDatabase.Builder<CardCashbackDatabase>): Array<Module> {

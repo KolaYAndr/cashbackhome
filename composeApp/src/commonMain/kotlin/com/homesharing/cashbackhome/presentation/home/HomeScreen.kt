@@ -1,5 +1,12 @@
-package com.homesharing.cashbackhome.presentation.categories
+package com.homesharing.cashbackhome.presentation.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,14 +26,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.WindowInsetsRulers
@@ -34,11 +44,15 @@ import androidx.compose.ui.layout.innermostOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.homesharing.cashbackhome.presentation.cards.CardsScreen
+import com.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import com.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import homesharing.composeapp.generated.resources.Res
 import homesharing.composeapp.generated.resources.add_category_button
 import homesharing.composeapp.generated.resources.categories_empty_description
 import homesharing.composeapp.generated.resources.categories_empty_title
+import homesharing.composeapp.generated.resources.chevron_right_icon_description
 import homesharing.composeapp.generated.resources.default_profile_picture
 import homesharing.composeapp.generated.resources.filter_icon_description
 import homesharing.composeapp.generated.resources.profile_chevron_right
@@ -47,71 +61,101 @@ import homesharing.composeapp.generated.resources.profile_name
 import homesharing.composeapp.generated.resources.search
 import homesharing.composeapp.generated.resources.search_categories_placeholder
 import homesharing.composeapp.generated.resources.search_icon_description
-import homesharing.composeapp.generated.resources.tab_categories
-import homesharing.composeapp.generated.resources.tab_my_cards
-import homesharing.composeapp.generated.resources.tab_promotions
 import homesharing.composeapp.generated.resources.tune
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+private const val ANIMATION_DURATION = 200
 
 @Composable
-internal fun CategoriesScreenRoot(
-    viewModel: CategoriesScreenViewModel = koinInject(),
-    onCardsTabClick: () -> Unit,
-    onPromotionsTabClick: () -> Unit,
+internal fun HomeScreenRoot(
+    viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
 ) {
-    CategoriesScreen(
-        onCardsTabClick,
-        onPromotionsTabClick,
-        onAddCategoryClick,
+    val tabState by viewModel.tabState.collectAsStateWithLifecycle()
+
+    HomeScreen(
+        selectedTab = tabState,
+        onAddCategoryClick = onAddCategoryClick,
+        onTabClick = { viewModel.switchToTab(it) }
     )
 }
 
 @Composable
-private fun CategoriesScreen(
-    onCardsTabClick: () -> Unit,
-    onPromotionsTabClick: () -> Unit,
+private fun HomeScreen(
+    selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
+    onTabClick: (Tab) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .fitInside(
-                RectRulers.innermostOf(
-                    WindowInsetsRulers.SafeDrawing.current,
-                    WindowInsetsRulers.Ime.current,
-                ),
-            ).background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp),
-    ) {
-        Header()
-
-        Row(
-            modifier = Modifier.padding(bottom = 5.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+    Scaffold {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .fitInside(
+                    RectRulers.innermostOf(
+                        WindowInsetsRulers.SafeDrawing.current,
+                        WindowInsetsRulers.Ime.current,
+                    ),
+                ).background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 16.dp),
         ) {
-            ScreenTab(
-                title = stringResource(Res.string.tab_categories),
-                selected = true,
-                onClick = {},
+            Header()
+            val tabs = listOf(
+                Tab.Categories,
+                Tab.MyCards,
+                Tab.Promotions
             )
-            ScreenTab(
-                title = stringResource(Res.string.tab_my_cards),
-                selected = false,
-                onClick = onCardsTabClick,
-            )
-            ScreenTab(
-                title = stringResource(Res.string.tab_promotions),
-                selected = false,
-                onClick = onPromotionsTabClick,
-            )
+
+            Row(
+                modifier = Modifier.padding(bottom = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
+                tabs.forEach { tab ->
+                    ScreenTab(
+                        title = stringResource(tab.name),
+                        selected = tab == selectedTab,
+                        onClick = { onTabClick(tab) }
+                    )
+                }
+            }
+
+            SearchAndSortBar()
+
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    if (targetState.hierarchyIndex > initialState.hierarchyIndex) {
+                        (slideInHorizontally(
+                            initialOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                        ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> -fullWidth },
+                                animationSpec = tween(ANIMATION_DURATION)
+                            ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                        )
+                    } else {
+                        (slideInHorizontally(
+                            initialOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                        ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> fullWidth },
+                                animationSpec = tween(ANIMATION_DURATION)
+                            ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                        )
+                    }
+                },
+                contentKey = { selectedTab }
+            ) {
+                when (selectedTab) {
+                    Tab.Categories -> EmptyCategories(onAddCategoryClick = onAddCategoryClick)
+                    Tab.MyCards -> CardsScreen(onAddCardClick = {})
+                    Tab.Promotions -> PromotionsScreen()
+                }
+            }
         }
-
-        SearchAndSortBar()
-
-        EmptyCategories(onAddCategoryClick)
     }
 }
 
@@ -138,8 +182,9 @@ private fun Header(name: String? = null) {
 
         Image(
             painter = painterResource(Res.drawable.profile_chevron_right),
-            contentDescription = null,
+            contentDescription = stringResource(Res.string.chevron_right_icon_description),
             modifier = Modifier.size(width = 10.dp, height = 12.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
             contentScale = ContentScale.Crop,
         )
     }
@@ -154,20 +199,20 @@ private fun ScreenTab(
     Column(
         modifier = Modifier.clickable(onClick = onClick),
     ) {
-        if (selected) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.colorUnderline(MaterialTheme.colorScheme.primary),
-            )
-        } else {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (selected) {
+                MaterialTheme.colorScheme.onBackground
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = if (selected) {
+                Modifier.colorUnderline(MaterialTheme.colorScheme.primary)
+            } else {
+                Modifier
+            }
+        )
     }
 }
 
@@ -202,7 +247,7 @@ private fun SearchAndSortBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 12.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SearchBar(Modifier.weight(1f))
@@ -215,7 +260,6 @@ private fun SearchAndSortBar() {
                 contentDescription = stringResource(Res.string.filter_icon_description),
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
-                    .padding(start = 8.dp)
                     .size(24.dp),
             )
         }
@@ -282,19 +326,10 @@ private fun Modifier.colorUnderline(
     )
 }
 
-
 @Composable
 @Preview
-private fun CategoriesScreenPreviewLight() {
+private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        CategoriesScreen({}, {}, {})
-    }
-}
-
-@Composable
-@Preview
-private fun CategoriesScreenPreviewDark() {
-    CashbackHomeTheme(true) {
-        CategoriesScreen({}, {}, {})
+        HomeScreen(Tab.Categories, {}, {})
     }
 }
