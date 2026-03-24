@@ -1,9 +1,10 @@
 package org.homesharing.cashbackhome.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 
 interface CardCashbackRepository {
 
@@ -17,9 +18,9 @@ interface CardCashbackRepository {
     suspend fun deleteBankCardById(cardId: Long)
 
     // CashbackRule
-    fun getAllCashbackRules(): Flow<List<CashbackRule>>
-    fun getCashbackRule(ruleId: Long): Flow<CashbackRule>
-    suspend fun upsertCashbackRule(rule: CashbackRule)
+    fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>>
+    fun getCashbackRule(ruleId: Long): Flow<CashbackRuleDraft>
+    suspend fun upsertCashbackRule(rule: CashbackRuleDraft)
     suspend fun deleteCashbackRuleById(ruleId: Long)
 
     // Junction

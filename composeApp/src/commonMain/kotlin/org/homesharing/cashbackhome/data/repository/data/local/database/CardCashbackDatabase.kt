@@ -1,4 +1,4 @@
-package org.homesharing.cashbackhome.data.local
+package org.homesharing.cashbackhome.data.local.database
 
 import androidx.room.ConstructedBy
 import androidx.room.Database
@@ -8,10 +8,10 @@ import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.CardCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackCategoryConverter
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackCategoryConverter
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 @Database(
     entities = [BankCard::class, CashbackRule::class, CardCashback::class],
