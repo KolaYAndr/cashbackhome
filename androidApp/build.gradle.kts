@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.impl.VariantOutputImpl
 
 plugins {
@@ -5,7 +6,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
-android {
+configure<ApplicationExtension> {
     namespace = "org.homesharing.cashbackhome"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
