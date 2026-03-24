@@ -1,12 +1,16 @@
 package com.homesharing.cashbackhome.data.repository
 
-import com.homesharing.cashbackhome.data.local.CardCashbackDao
-import com.homesharing.cashbackhome.domain.entity.BankCard
-import com.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import com.homesharing.cashbackhome.domain.entity.CardCashback
-import com.homesharing.cashbackhome.domain.entity.CashbackRule
+import com.homesharing.cashbackhome.data.local.database.CardCashbackDao
+import com.homesharing.cashbackhome.data.local.database.entity.BankCard
+import com.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import com.homesharing.cashbackhome.data.local.database.entity.CardCashback
+import com.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import com.homesharing.cashbackhome.data.mapper.DbEntityModelMapper
+import com.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import com.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class CardCashbackRepositoryImpl(
     private val dao: CardCashbackDao
@@ -37,15 +41,38 @@ class CardCashbackRepositoryImpl(
 
 
     // -------- CashbackRule --------
+    private var cashbackList = mutableListOf<CashbackRuleDraft>()
 
-    override fun getAllCashbackRules(): Flow<List<CashbackRule>> =
+    override fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>> = flow {
         dao.getAllCashbackRules()
+            .map {
+                DbEntityModelMapper.cashbackRuleToCashBackRuleDraftList(it)
+            }
+            .collect {
+                cashbackList = it.toMutableList()
+                emit(
+                    List(10) {
+                        CashbackRuleDraft(
+                            cashbackRuleId = it.toLong(),
+                            title = "$it position",
+                            percentage = it.toDouble() / 100,
+                            category = CashbackRule.CashbackCategory.Cafe,
+                            expirationDate = "2026-15-04"
+                        )
+                    }
+                )
+            }
+    }
 
-    override fun getCashbackRule(ruleId: Long): Flow<CashbackRule> =
-        dao.getCashbackRule(ruleId)
+    override fun getCashbackRule(ruleId: Long): Flow<CashbackRuleDraft> =
+        dao.getCashbackRule(ruleId).map {
+            DbEntityModelMapper.cashbackRuleToCashBackRuleDraft(it)
+        }
 
-    override suspend fun upsertCashbackRule(rule: CashbackRule) {
-        dao.upsertCashbackRule(rule)
+    override suspend fun upsertCashbackRule(rule: CashbackRuleDraft) {
+        dao.upsertCashbackRule(
+            DbEntityModelMapper.cashbackRuleDraftToCashBackRule(rule)
+        )
     }
 
     override suspend fun deleteCashbackRuleById(ruleId: Long) {

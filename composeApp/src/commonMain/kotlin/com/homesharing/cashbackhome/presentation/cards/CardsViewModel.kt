@@ -2,7 +2,7 @@ package com.homesharing.cashbackhome.presentation.cards
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.homesharing.cashbackhome.domain.entity.BankCardWithCashback
+import com.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
 import com.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

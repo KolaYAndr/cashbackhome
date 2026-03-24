@@ -2,6 +2,7 @@ package com.homesharing.cashbackhome.data.local
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager

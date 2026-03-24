@@ -1,4 +1,4 @@
-package com.homesharing.cashbackhome.domain.entity
+package com.homesharing.cashbackhome.data.local.database.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

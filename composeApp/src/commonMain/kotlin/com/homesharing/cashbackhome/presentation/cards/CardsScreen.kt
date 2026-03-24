@@ -36,8 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import com.homesharing.cashbackhome.domain.entity.CashbackRule
+import com.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import com.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import homesharing.composeapp.generated.resources.Res
 import homesharing.composeapp.generated.resources.add
 import homesharing.composeapp.generated.resources.arrow_drop_down

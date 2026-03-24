@@ -33,8 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.homesharing.cashbackhome.domain.entity.BankCard
-import com.homesharing.cashbackhome.domain.entity.CashbackRule
+import com.homesharing.cashbackhome.data.local.database.entity.BankCard
+import com.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import com.homesharing.cashbackhome.domain.model.BankCardDraft
 import com.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import homesharing.composeapp.generated.resources.Res
