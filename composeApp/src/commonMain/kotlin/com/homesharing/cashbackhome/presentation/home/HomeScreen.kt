@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.WindowInsetsRulers
@@ -50,6 +52,7 @@ import homesharing.composeapp.generated.resources.Res
 import homesharing.composeapp.generated.resources.add_category_button
 import homesharing.composeapp.generated.resources.categories_empty_description
 import homesharing.composeapp.generated.resources.categories_empty_title
+import homesharing.composeapp.generated.resources.chevron_right_icon_description
 import homesharing.composeapp.generated.resources.default_profile_picture
 import homesharing.composeapp.generated.resources.filter_icon_description
 import homesharing.composeapp.generated.resources.profile_chevron_right
@@ -61,13 +64,13 @@ import homesharing.composeapp.generated.resources.search_icon_description
 import homesharing.composeapp.generated.resources.tune
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 private const val ANIMATION_DURATION = 200
 
 @Composable
 internal fun HomeScreenRoot(
-    viewModel: HomeScreenViewModel = koinInject(),
+    viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
@@ -85,70 +88,72 @@ private fun HomeScreen(
     onAddCategoryClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .fitInside(
-                RectRulers.innermostOf(
-                    WindowInsetsRulers.SafeDrawing.current,
-                    WindowInsetsRulers.Ime.current,
-                ),
-            ).background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp),
-    ) {
-        Header()
-        val tabs = listOf(
-            Tab.Categories,
-            Tab.MyCards,
-            Tab.Promotions
-        )
-
-        Row(
-            modifier = Modifier.padding(bottom = 5.dp),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
+    Scaffold {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .fitInside(
+                    RectRulers.innermostOf(
+                        WindowInsetsRulers.SafeDrawing.current,
+                        WindowInsetsRulers.Ime.current,
+                    ),
+                ).background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = 16.dp),
         ) {
-            tabs.forEach { tab ->
-                ScreenTab(
-                    title = stringResource(tab.name),
-                    selected = tab == selectedTab,
-                    onClick = { onTabClick(tab) }
-                )
-            }
-        }
+            Header()
+            val tabs = listOf(
+                Tab.Categories,
+                Tab.MyCards,
+                Tab.Promotions
+            )
 
-        SearchAndSortBar()
-
-        AnimatedContent(
-            targetState = selectedTab,
-            transitionSpec = {
-                if (targetState.hierarchyIndex > initialState.hierarchyIndex) {
-                    (slideInHorizontally(
-                        initialOffsetX = { fullWidth -> fullWidth },
-                        animationSpec = tween(durationMillis = ANIMATION_DURATION)
-                    ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> -fullWidth },
-                            animationSpec = tween(ANIMATION_DURATION)
-                        ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
-                    )
-                } else {
-                    (slideInHorizontally(
-                        initialOffsetX = { fullWidth -> -fullWidth },
-                        animationSpec = tween(durationMillis = ANIMATION_DURATION)
-                    ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> fullWidth },
-                            animationSpec = tween(ANIMATION_DURATION)
-                        ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+            Row(
+                modifier = Modifier.padding(bottom = 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
+                tabs.forEach { tab ->
+                    ScreenTab(
+                        title = stringResource(tab.name),
+                        selected = tab == selectedTab,
+                        onClick = { onTabClick(tab) }
                     )
                 }
-            },
-            contentKey = { selectedTab }
-        ) {
-            when (selectedTab) {
-                Tab.Categories -> EmptyCategories(onAddCategoryClick = onAddCategoryClick)
-                Tab.MyCards -> CardsScreen(onAddCardClick = {})
-                Tab.Promotions -> PromotionsScreen()
+            }
+
+            SearchAndSortBar()
+
+            AnimatedContent(
+                targetState = selectedTab,
+                transitionSpec = {
+                    if (targetState.hierarchyIndex > initialState.hierarchyIndex) {
+                        (slideInHorizontally(
+                            initialOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                        ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> -fullWidth },
+                                animationSpec = tween(ANIMATION_DURATION)
+                            ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                        )
+                    } else {
+                        (slideInHorizontally(
+                            initialOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(durationMillis = ANIMATION_DURATION)
+                        ) + fadeIn(animationSpec = tween(ANIMATION_DURATION))).togetherWith(
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> fullWidth },
+                                animationSpec = tween(ANIMATION_DURATION)
+                            ) + fadeOut(animationSpec = tween(ANIMATION_DURATION))
+                        )
+                    }
+                },
+                contentKey = { selectedTab }
+            ) {
+                when (selectedTab) {
+                    Tab.Categories -> EmptyCategories(onAddCategoryClick = onAddCategoryClick)
+                    Tab.MyCards -> CardsScreen(onAddCardClick = {})
+                    Tab.Promotions -> PromotionsScreen()
+                }
             }
         }
     }
@@ -177,8 +182,9 @@ private fun Header(name: String? = null) {
 
         Image(
             painter = painterResource(Res.drawable.profile_chevron_right),
-            contentDescription = null,
+            contentDescription = stringResource(Res.string.chevron_right_icon_description),
             modifier = Modifier.size(width = 10.dp, height = 12.dp),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
             contentScale = ContentScale.Crop,
         )
     }
