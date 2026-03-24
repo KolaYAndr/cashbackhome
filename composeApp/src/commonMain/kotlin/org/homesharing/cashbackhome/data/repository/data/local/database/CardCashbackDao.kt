@@ -1,4 +1,4 @@
-package org.homesharing.cashbackhome.data.local
+package org.homesharing.cashbackhome.data.local.database
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,10 +6,10 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CardCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 @Dao
 interface CardCashbackDao {

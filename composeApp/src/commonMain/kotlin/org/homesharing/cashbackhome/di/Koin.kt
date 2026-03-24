@@ -1,13 +1,15 @@
 package org.homesharing.cashbackhome.di
 
 import androidx.room.RoomDatabase
-import org.homesharing.cashbackhome.data.local.CardCashbackDao
-import org.homesharing.cashbackhome.data.local.CardCashbackDatabase
-import org.homesharing.cashbackhome.data.local.getRoomDatabase
+import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
+import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
+import org.homesharing.cashbackhome.data.local.database.getRoomDatabase
 import org.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
+import org.homesharing.cashbackhome.domain.usecase.GetAllCashbackRulesUseCase
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import org.homesharing.cashbackhome.presentation.cards.CardsViewModel
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -20,9 +22,11 @@ private val sharedStaticModule =
         singleOf(::CardCashbackRepositoryImpl) {
             bind<CardCashbackRepository>()
         }
+        singleOf(::GetAllCashbackRulesUseCase)
         viewModelOf(::CardsViewModel)
         viewModelOf(::AddCardWithCashbacksViewModel)
         viewModelOf(::HomeScreenViewModel)
+        viewModelOf(::CategoriesScreenViewModel)
     }
 
 fun initKoinModules(databaseBuilder: RoomDatabase.Builder<CardCashbackDatabase>): Array<Module> {
