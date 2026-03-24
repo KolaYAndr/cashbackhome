@@ -41,7 +41,8 @@
     <string name="categories_empty_title">У вас пока нет категорий</string>
     <string name="categories_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>
     <string name="add_category_button">Добавить</string>
-    <string name="profile_icon_description">Профиль</string>
+    <string name="profile_icon_description">Фото профиля</string>
+    <string name="chevron_right_icon_description">Профиль</string>
     <string name="search_icon_description">Поиск</string>
     <string name="filter_icon_description">Фильтр</string>
 

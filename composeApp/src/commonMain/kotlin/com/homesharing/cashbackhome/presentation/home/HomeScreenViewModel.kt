@@ -20,9 +20,9 @@ internal class HomeScreenViewModel : ViewModel() {
     }
 }
 
-private const val FIRST = 1
-private const val SECOND = 2
-private const val THRID = 3
+private const val FIRST_TAB = 1
+private const val SECOND_TAB = 2
+private const val THIRD_TAB = 3
 
 internal sealed class Tab(
     val name: StringResource,
@@ -30,17 +30,16 @@ internal sealed class Tab(
 ) {
     object Categories : Tab(
         name = Res.string.tab_categories,
-        hierarchyIndex = FIRST,
-
+        hierarchyIndex = FIRST_TAB,
     )
 
     object MyCards : Tab(
         name = Res.string.tab_my_cards,
-        hierarchyIndex = SECOND,
+        hierarchyIndex = SECOND_TAB,
     )
 
     object Promotions : Tab(
         name = Res.string.tab_promotions,
-        hierarchyIndex = THRID,
+        hierarchyIndex = THIRD_TAB,
     )
 }
