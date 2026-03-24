@@ -3,6 +3,7 @@ package org.homesharing.cashbackhome.data.local
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
 
 fun createCardCashbackDatabaseBuilder(context: Context): RoomDatabase.Builder<CardCashbackDatabase> {
     val appContext = context.applicationContext
