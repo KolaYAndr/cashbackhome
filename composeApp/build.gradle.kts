@@ -12,7 +12,7 @@ plugins {
 kotlin {
     androidLibrary {
         compileSdk = libs.versions.android.compileSdk.get().toInt()
-        namespace = "com.homesharing.cashbackhome"
+        namespace = "org.homesharing.cashbackhome"
         minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources.enable = true
     }

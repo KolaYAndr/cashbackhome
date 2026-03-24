@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.homesharing.cashbackhome"
+    namespace = "org.homesharing.cashbackhome"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.homesharing.cashbackhome"
+        applicationId = "org.homesharing.cashbackhome"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

@@ -1,4 +1,4 @@
-rootProject.name = "homesharing"
+rootProject.name = "CashbackHome"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
