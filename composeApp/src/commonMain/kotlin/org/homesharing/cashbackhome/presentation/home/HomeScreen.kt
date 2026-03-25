@@ -1,9 +1,15 @@
 package org.homesharing.cashbackhome.presentation.home
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -19,7 +25,9 @@ import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +51,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
+import cashbackhome.composeapp.generated.resources.add
 import cashbackhome.composeapp.generated.resources.chevron_right_icon_description
 import cashbackhome.composeapp.generated.resources.default_profile_picture
 import cashbackhome.composeapp.generated.resources.filter_icon_description
@@ -53,8 +62,12 @@ import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
+import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.presentation.cards.CardsScreen
+import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenState
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -67,7 +80,7 @@ private const val ANIMATION_DURATION = 200
 internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
-    onEditCategoryClick: () -> Unit,
+    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
@@ -84,9 +97,54 @@ private fun HomeScreen(
     selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
-    onEditCategoryClick: () -> Unit,
+    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
-    Scaffold {
+    val scaffoldState = rememberScaffoldState()
+
+    val fabEnterTransition = scaleIn(
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            )
+            ) + fadeIn(
+        // Fades should be strictly linear/tweened, not bouncy
+        animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+    )
+
+// 2. The Exit Animation (Fast & Direct)
+    val fabExitTransition = scaleOut(
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMedium
+        )
+    ) + fadeOut(
+        animationSpec = tween(durationMillis = 100)
+    )
+
+    Scaffold(
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = scaffoldState.fabConfig.isVisible,
+                enter = fabEnterTransition,
+                exit = fabExitTransition
+            ) {
+                FloatingActionButton(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(56.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    onClick = scaffoldState.fabConfig.onClick
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.add),
+                        contentDescription = "Add",
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+            }
+        }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -149,11 +207,15 @@ private fun HomeScreen(
             ) {
                 when (selectedTab) {
                     Tab.Categories -> CategoriesScreenRoot(
+                        scaffoldState = scaffoldState,
                         onAddCategoryClick = onAddCategoryClick,
-                        onEditCategoryClick = onEditCategoryClick
+                        onEditCategorySwipe = onEditCategoryClick
                     )
-                    Tab.MyCards -> CardsScreen(onAddCardClick = {})
-                    Tab.Promotions -> PromotionsScreen()
+                    Tab.MyCards -> CardsScreen(
+                        scaffoldState = scaffoldState,
+                        onAddCardClick = {}
+                    )
+                    Tab.Promotions -> PromotionsScreen(scaffoldState)
                 }
             }
         }

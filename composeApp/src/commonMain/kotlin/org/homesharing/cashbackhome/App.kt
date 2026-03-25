@@ -9,7 +9,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
-import org.homesharing.cashbackhome.presentation.editcategory.EditCategoryRoot
+import org.homesharing.cashbackhome.presentation.categories.EditCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.home.HomeScreenRoot
 import org.homesharing.cashbackhome.presentation.navigation.AppRoute
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -73,7 +73,7 @@ fun App() {
                 }
 
                 entry<AppRoute.EditCategoryScreen> {
-                    EditCategoryRoot()
+                    EditCategoryScreenRoot()
                 }
 
                 entry<AppRoute.PersonalCabinet> {

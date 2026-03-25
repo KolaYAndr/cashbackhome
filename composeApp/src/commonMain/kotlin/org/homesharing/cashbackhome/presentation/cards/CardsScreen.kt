@@ -54,6 +54,7 @@ import cashbackhome.composeapp.generated.resources.category_other
 import cashbackhome.composeapp.generated.resources.category_pharmacy
 import cashbackhome.composeapp.generated.resources.category_restaurant
 import cashbackhome.composeapp.generated.resources.category_travel
+import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -61,10 +62,12 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 internal fun CardsScreen(
     viewModel: CardsViewModel = koinViewModel(),
+    scaffoldState: ScaffoldState,
     onAddCardClick: () -> Unit
 ) {
     val cards by viewModel.uiState.collectAsStateWithLifecycle()
 
+    scaffoldState.updateFab(true, onAddCardClick)
     CardsScreen(
         cards = cards,
         onAddCardClick = onAddCardClick,
@@ -81,45 +84,32 @@ private fun CardsScreen(
     onAddCashbackClick: (Long) -> Unit,
     onCardClick: (Long) -> Unit,
 ) {
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAddCardClick) {
-                Icon(
-                    painter = painterResource(Res.drawable.add),
-                    contentDescription = stringResource(Res.string.card_add)
-                )
+    if (cards.isNullOrEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            if (cards == null) {
+                LoadingIndicator()
+            } else {
+                Text(stringResource(Res.string.cards_empty))
             }
         }
-    ) { innerPadding ->
-        if (cards.isNullOrEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                if (cards == null) {
-                    LoadingIndicator()
-                } else {
-                    Text(stringResource(Res.string.cards_empty))
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                items(
-                    items = cards,
-                    key = { it.card.cardId }
-                ) { item ->
-                    CardItem(
-                        cardWithCashback = item,
-                        onCardClick = { onCardClick(item.card.cardId) },
-                        onAddCashbackClick = { onAddCashbackClick(item.card.cardId) }
-                    )
-                }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            items(
+                items = cards,
+                key = { it.card.cardId }
+            ) { item ->
+                CardItem(
+                    cardWithCashback = item,
+                    onCardClick = { onCardClick(item.card.cardId) },
+                    onAddCashbackClick = { onAddCashbackClick(item.card.cardId) }
+                )
             }
         }
     }

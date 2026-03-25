@@ -52,6 +52,9 @@
     <!-- EditCategoriesScreen -->
     <string name="edit_category_placeholder">Раздел &quot;Редактировать категорию&quot; скоро появится</string>
 
+    <!-- AddCategoriesScreen -->
+    <string name="add_category_placeholder">Раздел &quot;Добавить категорию&quot; скоро появится</string>
+
 
     <!-- PromotionsScreen -->
     <string name="promotions_placeholder">Раздел &quot;Акции&quot; скоро появится</string>

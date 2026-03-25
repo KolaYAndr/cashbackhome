@@ -49,6 +49,9 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import org.homesharing.cashbackhome.presentation.home.ScaffoldState
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,18 +60,25 @@ import kotlin.time.Clock
 @Composable
 internal fun CategoriesScreenRoot(
     viewModel: CategoriesScreenViewModel = koinViewModel(),
+    scaffoldState: ScaffoldState,
     onAddCategoryClick: () -> Unit,
-    onEditCategoryClick: () -> Unit,
+    onEditCategorySwipe: (CashbackRuleDraft) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     when (val state = uiState.value) {
-        is CategoriesScreenState.EmptyScreen -> EmptyCategories(onAddCategoryClick)
-        is CategoriesScreenState.Categories -> CategoriesScreen(
-            categories = state.categories,
-            onEditCategoryClick = onEditCategoryClick,
-            onDelete = { viewModel.deleteCashBackRuleById(it) }
-        )
+        is CategoriesScreenState.EmptyScreen -> {
+            scaffoldState.updateFab(false, onAddCategoryClick)
+            EmptyCategories(onAddCategoryClick)
+        }
+        is CategoriesScreenState.Categories -> {
+            scaffoldState.updateFab(true, onAddCategoryClick)
+            CategoriesScreen(
+                categories = state.categories,
+                onEditCategorySwipe = onEditCategorySwipe,
+                onDeleteCategorySwipe = { viewModel.deleteCashbackRuleById(it) }
+            )
+        }
         is CategoriesScreenState.Loading -> {
             LoadingScreen()
         }
@@ -77,9 +87,9 @@ internal fun CategoriesScreenRoot(
 
 @Composable
 private fun CategoriesScreen(
-    categories: List<CashbackRule>
-    onEditCategoryClick: () -> Unit,
-    onDelete: (Long) -> Unit,
+    categories: List<CashbackRule>,
+    onEditCategorySwipe: (CashbackRuleDraft) -> Unit,
+    onDeleteCategorySwipe: (Long) -> Unit,
 ) {
     LazyColumn (
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -90,8 +100,8 @@ private fun CategoriesScreen(
         ) { category ->
             CashbackCard(
                 category = category,
-                onEditCategoryClick = onEditCategoryClick,
-                onDelete = { onDelete(category.cashbackRuleId) }
+                onEditCategorySwipe = { onEditCategorySwipe(category) },
+                onDeleteCategorySwipe = { onDeleteCategorySwipe(category.cashbackRuleId) }
             )
         }
     }
@@ -100,8 +110,8 @@ private fun CategoriesScreen(
 @Composable
 private fun CashbackCard(
     category: CashbackRule,
-    onEditCategoryClick: () -> Unit,
-    onDelete: () -> Unit,
+    onEditCategorySwipe: () -> Unit,
+    onDeleteCategorySwipe: () -> Unit,
 ) {
     val dismissState = rememberSwipeToDismissBoxState(positionalThreshold = { 0.5f })
     val coroutineScope = rememberCoroutineScope()
@@ -114,8 +124,8 @@ private fun CashbackCard(
         modifier = Modifier.fillMaxWidth(),
         onDismiss = { dismissValue ->
             when (dismissValue) {
-                SwipeToDismissBoxValue.StartToEnd -> onEditCategoryClick()
-                SwipeToDismissBoxValue.EndToStart -> onDelete()
+                SwipeToDismissBoxValue.StartToEnd -> onEditCategorySwipe()
+                SwipeToDismissBoxValue.EndToStart -> onDeleteCategorySwipe()
                 SwipeToDismissBoxValue.Settled -> Unit
             }
             coroutineScope.launch {
@@ -306,8 +316,8 @@ private fun CashBackCardPreview() {
     )
     CashbackCard(
         category = test,
-        onEditCategoryClick = {},
-        onDelete = {},
+        onEditCategorySwipe = {},
+        onDeleteCategorySwipe = {},
     )
 }
 

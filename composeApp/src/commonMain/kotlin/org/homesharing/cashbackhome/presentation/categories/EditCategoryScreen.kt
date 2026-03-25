@@ -1,4 +1,4 @@
-package org.homesharing.cashbackhome.presentation.editcategory
+package org.homesharing.cashbackhome.presentation.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,11 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.promotions_placeholder
+import cashbackhome.composeapp.generated.resources.edit_category_placeholder
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun EditCategoryRoot() {
+internal fun EditCategoryScreenRoot() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -22,7 +22,7 @@ fun EditCategoryRoot() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(Res.string.promotions_placeholder),
+            text = stringResource(Res.string.edit_category_placeholder),
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF1B1B1B)
         )

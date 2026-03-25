@@ -1,4 +1,4 @@
-package org.homesharing.cashbackhome.presentation.promotions
+package org.homesharing.cashbackhome.presentation.categories
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,15 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.promotions_placeholder
-import org.homesharing.cashbackhome.presentation.home.ScaffoldState
+import cashbackhome.composeapp.generated.resources.add_category_placeholder
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun PromotionsScreen(
-    scaffoldState: ScaffoldState
+internal fun AddCategoryScreenRoot(
+    onAddCategoryClick: () -> Unit
 ) {
-    scaffoldState.updateFab(false, {})
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -26,7 +24,7 @@ internal fun PromotionsScreen(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(Res.string.promotions_placeholder),
+            text = stringResource(Res.string.add_category_placeholder),
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF1B1B1B)
         )
