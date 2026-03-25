@@ -6,11 +6,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.usecase.DeleteCashbackRuleUseCase
 import org.homesharing.cashbackhome.domain.usecase.GetAllCashbackRulesUseCase
-import org.homesharing.cashbackhome.domain.usecase.UpsertCashbackRuleUseCase
 
 internal class CategoriesScreenViewModel(
     private val getAllCashbackRulesUseCase: GetAllCashbackRulesUseCase,
