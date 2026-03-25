@@ -42,10 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.homesharing.cashbackhome.presentation.cards.CardsScreen
-import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
-import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
-import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.chevron_right_icon_description
 import cashbackhome.composeapp.generated.resources.default_profile_picture
@@ -57,6 +53,10 @@ import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
+import org.homesharing.cashbackhome.presentation.cards.CardsScreen
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
+import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
+import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -67,13 +67,15 @@ private const val ANIMATION_DURATION = 200
 internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
+    onEditCategoryClick: () -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
     HomeScreen(
         selectedTab = tabState,
         onAddCategoryClick = onAddCategoryClick,
-        onTabClick = { viewModel.switchToTab(it) }
+        onTabClick = { viewModel.switchToTab(it) },
+        onEditCategoryClick = onEditCategoryClick
     )
 }
 
@@ -82,6 +84,7 @@ private fun HomeScreen(
     selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
+    onEditCategoryClick: () -> Unit,
 ) {
     Scaffold {
         Column(
@@ -145,7 +148,10 @@ private fun HomeScreen(
                 contentKey = { selectedTab }
             ) {
                 when (selectedTab) {
-                    Tab.Categories -> CategoriesScreenRoot(onAddCategoryClick = onAddCategoryClick)
+                    Tab.Categories -> CategoriesScreenRoot(
+                        onAddCategoryClick = onAddCategoryClick,
+                        onEditCategoryClick = onEditCategoryClick
+                    )
                     Tab.MyCards -> CardsScreen(onAddCardClick = {})
                     Tab.Promotions -> PromotionsScreen()
                 }
@@ -285,6 +291,6 @@ private fun Modifier.colorUnderline(
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(Tab.Categories, {}, {})
+        HomeScreen(Tab.Categories, {}, {}, {})
     }
 }

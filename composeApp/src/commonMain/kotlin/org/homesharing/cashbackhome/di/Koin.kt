@@ -6,7 +6,9 @@ import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
 import org.homesharing.cashbackhome.data.local.database.getRoomDatabase
 import org.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
+import org.homesharing.cashbackhome.domain.usecase.DeleteCashbackRuleUseCase
 import org.homesharing.cashbackhome.domain.usecase.GetAllCashbackRulesUseCase
+import org.homesharing.cashbackhome.domain.usecase.UpsertCashbackRuleUseCase
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import org.homesharing.cashbackhome.presentation.cards.CardsViewModel
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
@@ -23,6 +25,8 @@ private val sharedStaticModule =
             bind<CardCashbackRepository>()
         }
         singleOf(::GetAllCashbackRulesUseCase)
+        singleOf(::DeleteCashbackRuleUseCase)
+        singleOf(::UpsertCashbackRuleUseCase)
         viewModelOf(::CardsViewModel)
         viewModelOf(::AddCardWithCashbacksViewModel)
         viewModelOf(::HomeScreenViewModel)

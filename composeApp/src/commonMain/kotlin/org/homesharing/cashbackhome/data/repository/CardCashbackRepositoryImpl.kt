@@ -41,26 +41,13 @@ class CardCashbackRepositoryImpl(
 
 
     // -------- CashbackRule --------
-    private var cashbackList = mutableListOf<CashbackRuleDraft>()
-
     override fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>> = flow {
         dao.getAllCashbackRules()
             .map {
                 DbEntityModelMapper.cashbackRuleToCashBackRuleDraftList(it)
             }
             .collect {
-                cashbackList = it.toMutableList()
-                emit(
-                    List(10) {
-                        CashbackRuleDraft(
-                            cashbackRuleId = it.toLong(),
-                            title = "$it position",
-                            percentage = it.toDouble() / 100,
-                            category = CashbackRule.CashbackCategory.Cafe,
-                            expirationDate = "2026-15-04"
-                        )
-                    }
-                )
+                emit(it)
             }
     }
 
@@ -78,6 +65,7 @@ class CardCashbackRepositoryImpl(
     override suspend fun deleteCashbackRuleById(ruleId: Long) {
         dao.deleteJunctionsByRuleId(ruleId)
         dao.deleteCashbackRuleById(ruleId)
+
     }
 
 
