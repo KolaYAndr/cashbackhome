@@ -24,7 +24,8 @@ internal class CategoriesScreenViewModel(
             CategoriesScreenState.EmptyScreen
         )
 
-    fun deleteCashBackRuleById() {
-
+    fun deleteCashBackRuleById(ruleId: Long) {
+        viewModelScope.launch {
+        }
     }
 }

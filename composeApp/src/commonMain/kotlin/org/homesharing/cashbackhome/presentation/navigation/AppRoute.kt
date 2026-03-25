@@ -9,6 +9,9 @@ internal sealed class AppRoute : NavKey {
     data object Home : AppRoute()
 
     @Serializable
+    data object EditCategoryScreen: AppRoute()
+
+    @Serializable
     data object AddCardWithCashbacks : AppRoute()
 
     @Serializable

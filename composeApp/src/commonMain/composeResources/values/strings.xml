@@ -49,6 +49,10 @@
     <string name="categories_screen_add_category_button">Добавить</string>
     <string name="categories_screen_wrong_data_format">Неправильная дата</string>
 
+    <!-- EditCategoriesScreen -->
+    <string name="edit_category_placeholder">Раздел &quot;Редактировать категорию&quot; скоро появится</string>
+
+
     <!-- PromotionsScreen -->
     <string name="promotions_placeholder">Раздел &quot;Акции&quot; скоро появится</string>
 </resources>

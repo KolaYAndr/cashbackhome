@@ -9,6 +9,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
+import org.homesharing.cashbackhome.presentation.editcategory.EditCategoryRoot
 import org.homesharing.cashbackhome.presentation.home.HomeScreenRoot
 import org.homesharing.cashbackhome.presentation.navigation.AppRoute
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -33,6 +34,10 @@ fun App() {
                             AppRoute.EditCardWithCashback::class,
                             AppRoute.EditCardWithCashback.serializer()
                         )
+                        subclass(
+                            AppRoute.EditCategoryScreen::class,
+                            AppRoute.EditCategoryScreen.serializer()
+                        )
                     }
                 }
             },
@@ -50,6 +55,9 @@ fun App() {
                         onAddCategoryClick = {
                             backStack.add(AppRoute.AddCardWithCashbacks)
                         },
+                        onEditCategoryClick = {
+                            backStack.add(AppRoute.EditCategoryScreen)
+                        }
                     )
                 }
 
@@ -62,6 +70,10 @@ fun App() {
                             backStack.removeLastOrNull()
                         },
                     )
+                }
+
+                entry<AppRoute.EditCategoryScreen> {
+                    EditCategoryRoot()
                 }
 
                 entry<AppRoute.PersonalCabinet> {

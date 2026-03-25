@@ -67,13 +67,15 @@ private const val ANIMATION_DURATION = 200
 internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
+    onEditCategoryClick: () -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
     HomeScreen(
         selectedTab = tabState,
         onAddCategoryClick = onAddCategoryClick,
-        onTabClick = { viewModel.switchToTab(it) }
+        onTabClick = { viewModel.switchToTab(it) },
+        onEditCategoryClick = onEditCategoryClick
     )
 }
 
@@ -82,6 +84,7 @@ private fun HomeScreen(
     selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
+    onEditCategoryClick: () -> Unit,
 ) {
     Scaffold {
         Column(
@@ -145,7 +148,10 @@ private fun HomeScreen(
                 contentKey = { selectedTab }
             ) {
                 when (selectedTab) {
-                    Tab.Categories -> CategoriesScreenRoot(onAddCategoryClick = onAddCategoryClick)
+                    Tab.Categories -> CategoriesScreenRoot(
+                        onAddCategoryClick = onAddCategoryClick,
+                        onEditCategoryClick = onEditCategoryClick
+                    )
                     Tab.MyCards -> CardsScreen(onAddCardClick = {})
                     Tab.Promotions -> PromotionsScreen()
                 }
@@ -285,6 +291,6 @@ private fun Modifier.colorUnderline(
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(Tab.Categories, {}, {})
+        HomeScreen(Tab.Categories, {}, {}, {})
     }
 }
