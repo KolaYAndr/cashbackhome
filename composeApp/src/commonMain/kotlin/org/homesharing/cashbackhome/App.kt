@@ -9,6 +9,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
+import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.EditCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.home.HomeScreenRoot
 import org.homesharing.cashbackhome.presentation.navigation.AppRoute
@@ -22,6 +23,10 @@ fun App() {
                 serializersModule = SerializersModule {
                     polymorphic(NavKey::class) {
                         subclass(AppRoute.Home::class, AppRoute.Home.serializer())
+                        subclass(
+                            AppRoute.AddCategoryScreen::class,
+                            AppRoute.AddCategoryScreen.serializer()
+                        )
                         subclass(
                             AppRoute.AddCardWithCashbacks::class,
                             AppRoute.AddCardWithCashbacks.serializer()
@@ -53,6 +58,9 @@ fun App() {
                 entry<AppRoute.Home> {
                     HomeScreenRoot(
                         onAddCategoryClick = {
+                            backStack.add(AppRoute.AddCategoryScreen)
+                        },
+                        onAddCardClick = {
                             backStack.add(AppRoute.AddCardWithCashbacks)
                         },
                         onEditCategoryClick = {
@@ -69,6 +77,20 @@ fun App() {
                         onSavedSuccessfully = {
                             backStack.removeLastOrNull()
                         },
+                    )
+                }
+
+                entry<AppRoute.AddCategoryScreen> {
+                    AddCategoryScreenRoot(
+                        onAddCategoryClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onAddCardClick = {
+                            backStack.add(AppRoute.AddCardWithCashbacks)
+                        }
                     )
                 }
 

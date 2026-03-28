@@ -18,12 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -36,25 +34,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.add
 import cashbackhome.composeapp.generated.resources.arrow_drop_down
 import cashbackhome.composeapp.generated.resources.arrow_drop_up
-import cashbackhome.composeapp.generated.resources.card_add
 import cashbackhome.composeapp.generated.resources.cards_empty
 import cashbackhome.composeapp.generated.resources.cashback_rule_add
 import cashbackhome.composeapp.generated.resources.cashback_rules_empty
-import cashbackhome.composeapp.generated.resources.category_cafe
-import cashbackhome.composeapp.generated.resources.category_flowers
-import cashbackhome.composeapp.generated.resources.category_groceries
-import cashbackhome.composeapp.generated.resources.category_online_shopping
-import cashbackhome.composeapp.generated.resources.category_other
-import cashbackhome.composeapp.generated.resources.category_pharmacy
-import cashbackhome.composeapp.generated.resources.category_restaurant
-import cashbackhome.composeapp.generated.resources.category_travel
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.repository.data.mapper.DbEntityModelMapper
+import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
+import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -188,7 +179,9 @@ private fun CardItem(
                             )
                         } else {
                             cardWithCashback.cashbacks.forEach { rule ->
-                                CashbackRuleItem(rule = rule)
+                                CashbackRuleItem(
+                                    DbEntityModelMapper.cashbackRuleToCashBackRuleDraft(rule)
+                                )
                             }
                         }
 
@@ -210,33 +203,18 @@ private fun CardItem(
 }
 
 @Composable
-private fun CashbackRuleItem(rule: CashbackRule) {
+private fun CashbackRuleItem(rule: CashbackRuleDraft) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val categoryName = stringResource(
-            when (rule.category) {
-                CashbackRule.CashbackCategory.Groceries -> Res.string.category_groceries
-                CashbackRule.CashbackCategory.Cafe -> Res.string.category_cafe
-                CashbackRule.CashbackCategory.Restaurant -> Res.string.category_restaurant
-                CashbackRule.CashbackCategory.Travel -> Res.string.category_travel
-                CashbackRule.CashbackCategory.OnlineShopping -> Res.string.category_online_shopping
-                CashbackRule.CashbackCategory.Flowers -> Res.string.category_flowers
-                CashbackRule.CashbackCategory.Pharmacy -> Res.string.category_pharmacy
-                CashbackRule.CashbackCategory.Other -> Res.string.category_other
-            }
-        )
+        val categoryName = categoryName(rule.category)
 
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = rule.title,
-                style = MaterialTheme.typography.bodyLarge
-            )
             Text(
                 text = categoryName,
                 style = MaterialTheme.typography.bodySmall,

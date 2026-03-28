@@ -28,6 +28,4 @@ internal class CategoriesScreenViewModel(
         viewModelScope.launch {
         }
     }
-
-    fun upsertCashbackRule() {}
 }

@@ -15,7 +15,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 @Database(
     entities = [BankCard::class, CashbackRule::class, CardCashback::class],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 @TypeConverters(value = [CashbackCategoryConverter::class])
@@ -28,8 +28,9 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<CardCashbackDatabase>,
 ): CardCashbackDatabase {
     return builder
-        .addMigrations()
+//        .addMigrations()
         .fallbackToDestructiveMigrationOnDowngrade(true)
+        .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

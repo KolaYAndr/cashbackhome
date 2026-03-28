@@ -62,7 +62,7 @@ internal fun CategoriesScreenRoot(
     viewModel: CategoriesScreenViewModel = koinViewModel(),
     scaffoldState: ScaffoldState,
     onAddCategoryClick: () -> Unit,
-    onEditCategorySwipe: (CashbackRuleDraft) -> Unit,
+    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -75,7 +75,7 @@ internal fun CategoriesScreenRoot(
             scaffoldState.updateFab(true, onAddCategoryClick)
             CategoriesScreen(
                 categories = state.categories,
-                onEditCategorySwipe = onEditCategorySwipe,
+                onEditCategorySwipe = onEditCategoryClick,
                 onDeleteCategorySwipe = { viewModel.deleteCashbackRuleById(it) }
             )
         }
