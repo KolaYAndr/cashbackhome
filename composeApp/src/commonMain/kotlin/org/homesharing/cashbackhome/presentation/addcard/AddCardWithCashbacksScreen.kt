@@ -49,7 +49,6 @@ import cashbackhome.composeapp.generated.resources.new_card_dropdown_item
 import cashbackhome.composeapp.generated.resources.remove_rule_button
 import cashbackhome.composeapp.generated.resources.rule_category_field_label
 import cashbackhome.composeapp.generated.resources.rule_percentage_field_label
-import cashbackhome.composeapp.generated.resources.rule_title_field_label
 import cashbackhome.composeapp.generated.resources.save_button
 import cashbackhome.composeapp.generated.resources.selected_card_label
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
