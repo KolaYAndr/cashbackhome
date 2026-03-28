@@ -104,7 +104,6 @@ class AddCardWithCashbacksViewModel(
 
                     uiState.value.cashbackDrafts.forEach { draft ->
                         val rule = CashbackRuleDraft(
-                            title = draft.title,
                             percentage = draft.percentage,
                             category = draft.category,
                             maxAmount = draft.maxAmount,
@@ -119,7 +118,6 @@ class AddCardWithCashbacksViewModel(
                     uiState.value.selectedCardId?.let { cardId ->
                         uiState.value.cashbackDrafts.forEach { draft ->
                             val rule = CashbackRuleDraft(
-                                title = draft.title,
                                 percentage = draft.percentage,
                                 category = draft.category,
                                 maxAmount = draft.maxAmount,

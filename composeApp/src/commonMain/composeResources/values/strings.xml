@@ -51,7 +51,45 @@
 
     <!-- AddCategoriesScreen -->
     <string name="add_category_placeholder">Раздел &quot;Добавить категорию&quot; скоро появится</string>
+    <string name="add_category_title">Добавить категорию</string>
+    <string name="add_category_category_label">Категория</string>
+    <string name="add_category_category_placeholder">Выберите категорию</string>
+    <string name="add_category_card_label">Карта</string>
+    <string name="add_category_card_placeholder">Выберите карту</string>
+    <string name="add_category_expiration_label">Срок действия категории</string>
+    <string name="add_category_expiration_placeholder">До какого числа</string>
+    <string name="add_category_unlimited">Бессрочно</string>
+    <string name="add_category_cashback_label">Кэшбэк</string>
+    <string name="add_category_duplicate_hint">Нельзя добавить дубликат категории для одной карты в текущем месяце.</string>
+    <string name="add_category_submit_button">Добавить</string>
+    <string name="add_category_no_card">У вас пока нет добавленных карт</string>
+    <string name="add_category_add_card">Добавить карту</string>
 
+    <!-- Виды категорий -->
+    <string name="category_type_all_purchases">Все покупки</string>
+    <string name="category_type_pharmacies">Аптеки</string>
+    <string name="category_type_cafes_restaurants_fastfood">Кафе, рестораны, фастфуд</string>
+    <string name="category_type_clothes_shoes">Одежда и обувь</string>
+    <string name="category_type_gas_stations_fuel">АЗС / Топливо</string>
+    <string name="category_type_taxi">Такси</string>
+    <string name="category_type_marketplaces">Маркетплейсы</string>
+    <string name="category_type_transport">Транспорт</string>
+    <string name="category_type_supermarkets">Супермаркеты</string>
+    <string name="category_type_train_air_tickets">ЖД билеты / авиа</string>
+    <string name="category_type_auto_services_goods">Автоуслуги / автотовары</string>
+    <string name="category_type_home_repair">Дом и ремонт</string>
+    <string name="category_type_children_goods">Детские товары</string>
+    <string name="category_type_communication_internet_tv">Связь, интернет, ТВ</string>
+    <string name="category_type_beauty_cosmetics">Красота / косметика</string>
+    <string name="category_type_culture_entertainment">Культура и развлечения</string>
+    <string name="category_type_books">Книги</string>
+    <string name="category_type_souvenirs_hobbies">Сувениры / хобби</string>
+    <string name="category_type_flowers_gifts">Цветы и подарки</string>
+    <string name="category_type_jewelry">Ювелирные изделия</string>
+    <string name="category_type_technology_electronics">Техника / электроника</string>
+    <string name="category_type_sports_outdoor">Спорт / активный отдых</string>
+    <string name="category_type_utilities">Услуги ЖКХ</string>
+    <string name="category_type_duty_free">Duty-free / беспошлинная торговля</string>
 
     <!-- PromotionsScreen -->
     <string name="promotions_placeholder">Раздел &quot;Акции&quot; скоро появится</string>

@@ -64,10 +64,7 @@ import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.presentation.cards.CardsScreen
-import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
-import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenState
-import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -80,6 +77,7 @@ private const val ANIMATION_DURATION = 200
 internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
+    onAddCardClick: () -> Unit,
     onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
@@ -87,6 +85,7 @@ internal fun HomeScreenRoot(
     HomeScreen(
         selectedTab = tabState,
         onAddCategoryClick = onAddCategoryClick,
+        onAddCardClick = onAddCardClick,
         onTabClick = { viewModel.switchToTab(it) },
         onEditCategoryClick = onEditCategoryClick
     )
@@ -96,6 +95,7 @@ internal fun HomeScreenRoot(
 private fun HomeScreen(
     selectedTab: Tab,
     onAddCategoryClick: () -> Unit,
+    onAddCardClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
     onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
@@ -209,11 +209,11 @@ private fun HomeScreen(
                     Tab.Categories -> CategoriesScreenRoot(
                         scaffoldState = scaffoldState,
                         onAddCategoryClick = onAddCategoryClick,
-                        onEditCategorySwipe = onEditCategoryClick
+                        onEditCategoryClick = onEditCategoryClick
                     )
                     Tab.MyCards -> CardsScreen(
                         scaffoldState = scaffoldState,
-                        onAddCardClick = {}
+                        onAddCardClick = onAddCardClick
                     )
                     Tab.Promotions -> PromotionsScreen(scaffoldState)
                 }
@@ -353,6 +353,6 @@ private fun Modifier.colorUnderline(
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(Tab.Categories, {}, {}, {})
+        HomeScreen(Tab.Categories, {}, {}, {}, {})
     }
 }

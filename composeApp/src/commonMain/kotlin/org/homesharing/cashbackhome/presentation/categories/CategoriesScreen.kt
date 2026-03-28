@@ -45,7 +45,6 @@ import cashbackhome.composeapp.generated.resources.categories_empty_title
 import cashbackhome.composeapp.generated.resources.delete
 import cashbackhome.composeapp.generated.resources.edit
 import kotlinx.coroutines.launch
-import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.jetbrains.compose.resources.DrawableResource
@@ -59,7 +58,7 @@ internal fun CategoriesScreenRoot(
     viewModel: CategoriesScreenViewModel = koinViewModel(),
     scaffoldState: ScaffoldState,
     onAddCategoryClick: () -> Unit,
-    onEditCategorySwipe: (CashbackRuleDraft) -> Unit,
+    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -72,7 +71,7 @@ internal fun CategoriesScreenRoot(
             scaffoldState.updateFab(true, onAddCategoryClick)
             CategoriesScreen(
                 categories = state.categories,
-                onEditCategorySwipe = onEditCategorySwipe,
+                onEditCategorySwipe = onEditCategoryClick,
                 onDeleteCategorySwipe = { viewModel.deleteCashbackRuleById(it) }
             )
         }
@@ -293,8 +292,7 @@ private fun getExpirationDaysTitle(x: String): String{
 @Composable
 private fun CashBackCardPreview() {
     val test = CashbackRuleDraft(
-        title = "My supermarkets",
-        category = CashbackRule.CashbackCategory.Groceries,
+        category = CashbackRuleDraft.CashbackCategory.Groceries,
         expirationDate = "2026-15-04",
         percentage = 0.05
     )

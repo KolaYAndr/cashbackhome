@@ -32,6 +32,4 @@ internal class CategoriesScreenViewModel(
             deleteCashbackRuleUseCase(ruleId)
         }
     }
-
-    fun upsertCashbackRule() {}
 }
