@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">cashback-home</string>
 
+    <!-- HomeScreen -->
+    <string name="profile_name">Имя</string>
+    <string name="tab_categories">Категории</string>
+    <string name="tab_my_cards">Мои карты</string>
+    <string name="tab_promotions">Акции</string>
+    <string name="search_categories_placeholder">Поиск категорий</string>
+    <string name="filter_icon_description">Фильтр</string>
+    <string name="chevron_right_icon_description">Профиль</string>
+    <string name="profile_icon_description">Фото профиля</string>
+    <string name="search_icon_description">Поиск</string>
+
     <!-- AddCardWithCashbacksScreen -->
     <string name="add_card_cashback_title">Add card cashback</string>
     <string name="back_button_description">Back</string>
@@ -33,18 +44,10 @@
     <string name="category_other">Other</string>
 
     <!-- CategoriesScreen -->
-    <string name="profile_name">Имя</string>
-    <string name="tab_categories">Категории</string>
-    <string name="tab_my_cards">Мои карты</string>
-    <string name="tab_promotions">Акции</string>
-    <string name="search_categories_placeholder">Поиск категорий</string>
-    <string name="categories_empty_title">У вас пока нет категорий</string>
-    <string name="categories_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>
-    <string name="add_category_button">Добавить</string>
-    <string name="profile_icon_description">Фото профиля</string>
-    <string name="chevron_right_icon_description">Профиль</string>
-    <string name="search_icon_description">Поиск</string>
-    <string name="filter_icon_description">Фильтр</string>
+    <string name="categories_screen_empty_title">У вас пока нет категорий</string>
+    <string name="categories_screen_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>
+    <string name="categories_screen_add_category_button">Добавить</string>
+    <string name="categories_screen_wrong_data_format">Неправильная дата</string>
 
     <!-- PromotionsScreen -->
     <string name="promotions_placeholder">Раздел &quot;Акции&quot; скоро появится</string>

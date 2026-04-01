@@ -28,10 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.add_category_button
 import cashbackhome.composeapp.generated.resources.bankplaceholder
-import cashbackhome.composeapp.generated.resources.categories_empty_description
-import cashbackhome.composeapp.generated.resources.categories_empty_title
+import cashbackhome.composeapp.generated.resources.categories_screen_add_category_button
+import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
+import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
+import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.char
@@ -153,10 +154,12 @@ private fun getCurrentDate(): LocalDate {
     return datetimeInSystemZone.date
 }
 
+@Composable
 private fun getExpirationDaysTitle(x: String): String{
     val format = LocalDate.Format {
         year(); char('-'); day(); char('-'); monthNumber()
     }
+    var returnValue = stringResource(Res.string.categories_screen_wrong_data_format)
     runCatching{ LocalDate.parse(x, format) }
         .onSuccess {
             val res = StringBuilder("до ")
@@ -178,10 +181,10 @@ private fun getExpirationDaysTitle(x: String): String{
             res.append(it.day)
             res.append(monthNumberToString[it.month.number])
 
-            return res.toString()
+            returnValue = res.toString()
         }
 
-    return "Неправильная дата"
+    return returnValue
 }
 
 @Preview
@@ -205,13 +208,13 @@ private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
     ) {
         Text(
-            text = stringResource(Res.string.categories_empty_title),
+            text = stringResource(Res.string.categories_screen_empty_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
         Text(
-            text = stringResource(Res.string.categories_empty_description),
+            text = stringResource(Res.string.categories_screen_empty_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -229,7 +232,7 @@ private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
             ),
         ) {
             Text(
-                text = stringResource(Res.string.add_category_button),
+                text = stringResource(Res.string.categories_screen_add_category_button),
                 style = MaterialTheme.typography.headlineSmall,
             )
         }

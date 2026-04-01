@@ -42,10 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.homesharing.cashbackhome.presentation.cards.CardsScreen
-import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
-import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
-import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.chevron_right_icon_description
 import cashbackhome.composeapp.generated.resources.default_profile_picture
@@ -57,6 +53,10 @@ import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
+import org.homesharing.cashbackhome.presentation.cards.CardsScreen
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
+import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
+import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
