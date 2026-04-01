@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,12 +35,8 @@ import cashbackhome.composeapp.generated.resources.categories_screen_add_categor
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
-import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format.DateTimeFormat
-import kotlinx.datetime.format.char
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
