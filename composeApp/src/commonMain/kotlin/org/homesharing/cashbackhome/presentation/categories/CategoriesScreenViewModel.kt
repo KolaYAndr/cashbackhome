@@ -27,8 +27,4 @@ internal class CategoriesScreenViewModel(
     fun deleteCashBackRuleById() {
 
     }
-
-    fun updateCashBackRuleById() {
-
-    }
 }
