@@ -19,10 +19,7 @@ import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,9 +43,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.add_category_button
-import cashbackhome.composeapp.generated.resources.categories_empty_description
-import cashbackhome.composeapp.generated.resources.categories_empty_title
 import cashbackhome.composeapp.generated.resources.chevron_right_icon_description
 import cashbackhome.composeapp.generated.resources.default_profile_picture
 import cashbackhome.composeapp.generated.resources.filter_icon_description
@@ -60,6 +54,7 @@ import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
 import org.homesharing.cashbackhome.presentation.cards.CardsScreen
+import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -150,7 +145,7 @@ private fun HomeScreen(
                 contentKey = { selectedTab }
             ) {
                 when (selectedTab) {
-                    Tab.Categories -> EmptyCategories(onAddCategoryClick = onAddCategoryClick)
+                    Tab.Categories -> CategoriesScreenRoot(onAddCategoryClick = onAddCategoryClick)
                     Tab.MyCards -> CardsScreen(onAddCardClick = {})
                     Tab.Promotions -> PromotionsScreen()
                 }
@@ -261,46 +256,6 @@ private fun SearchAndSortBar() {
                 tint = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier
                     .size(24.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-    ) {
-        Text(
-            text = stringResource(Res.string.categories_empty_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-
-        Text(
-            text = stringResource(Res.string.categories_empty_description),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Button(
-            onClick = onAddCategoryClick,
-            modifier = Modifier
-                .padding(top = 13.dp, bottom = 13.dp)
-                .height(45.dp)
-                .width(193.dp),
-            shape = RoundedCornerShape(26.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-            ),
-        ) {
-            Text(
-                text = stringResource(Res.string.add_category_button),
-                style = MaterialTheme.typography.headlineSmall,
             )
         }
     }

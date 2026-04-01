@@ -1,14 +1,14 @@
 package org.homesharing.cashbackhome.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.homesharing.cashbackhome.data.local.CardCashbackDao
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CardCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
-class CardCashbackRepositoryImpl(
+internal class CardCashbackRepositoryImpl(
     private val dao: CardCashbackDao
 ) : CardCashbackRepository {
 
@@ -37,7 +37,6 @@ class CardCashbackRepositoryImpl(
 
 
     // -------- CashbackRule --------
-
     override fun getAllCashbackRules(): Flow<List<CashbackRule>> =
         dao.getAllCashbackRules()
 

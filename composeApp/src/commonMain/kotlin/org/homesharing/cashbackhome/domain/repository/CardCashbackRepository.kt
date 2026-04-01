@@ -1,9 +1,9 @@
 package org.homesharing.cashbackhome.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 interface CardCashbackRepository {
 

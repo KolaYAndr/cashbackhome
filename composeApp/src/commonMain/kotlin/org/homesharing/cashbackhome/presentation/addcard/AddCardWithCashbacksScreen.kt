@@ -60,8 +60,8 @@ import cashbackhome.composeapp.generated.resources.rule_percentage_field_label
 import cashbackhome.composeapp.generated.resources.rule_title_field_label
 import cashbackhome.composeapp.generated.resources.save_button
 import cashbackhome.composeapp.generated.resources.selected_card_label
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.jetbrains.compose.resources.painterResource

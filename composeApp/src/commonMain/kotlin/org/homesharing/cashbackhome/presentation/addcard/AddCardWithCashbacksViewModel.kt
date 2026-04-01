@@ -9,12 +9,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
-import kotlin.collections.emptyList
 
 private const val THRESHOLD = 5000L
 

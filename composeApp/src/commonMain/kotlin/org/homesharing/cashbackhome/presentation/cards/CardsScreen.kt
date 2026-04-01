@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.add
 import cashbackhome.composeapp.generated.resources.arrow_drop_down
@@ -52,8 +54,6 @@ import cashbackhome.composeapp.generated.resources.category_other
 import cashbackhome.composeapp.generated.resources.category_pharmacy
 import cashbackhome.composeapp.generated.resources.category_restaurant
 import cashbackhome.composeapp.generated.resources.category_travel
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
