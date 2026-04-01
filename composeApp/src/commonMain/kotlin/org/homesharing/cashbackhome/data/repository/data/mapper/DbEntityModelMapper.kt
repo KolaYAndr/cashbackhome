@@ -3,7 +3,7 @@ package org.homesharing.cashbackhome.data.repository.data.mapper
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 
-internal object DbEntityModelMapper {
+internal class DbEntityModelMapper {
     fun cashbackRuleToCashBackRuleDraft(source: CashbackRule) = CashbackRuleDraft(
         cashbackRuleId = source.cashbackRuleId,
         title = source.title,
@@ -13,10 +13,6 @@ internal object DbEntityModelMapper {
         expirationDate = source.expirationDate
     )
 
-    fun cashbackRuleToCashBackRuleDraftList(source: List<CashbackRule>) = List(source.size) {
-        cashbackRuleToCashBackRuleDraft(source[it])
-    }
-
     fun cashbackRuleDraftToCashBackRule(source: CashbackRuleDraft) = CashbackRule(
         title = source.title,
         percentage = source.percentage,
@@ -24,8 +20,4 @@ internal object DbEntityModelMapper {
         maxAmount = source.maxAmount,
         expirationDate = source.expirationDate
     )
-
-    fun cashbackRuleDraftToCashBackRuleList(source: List<CashbackRuleDraft>) = List(source.size) {
-        cashbackRuleDraftToCashBackRule(source[it])
-    }
 }

@@ -12,8 +12,9 @@ import org.homesharing.cashbackhome.data.repository.data.mapper.DbEntityModelMap
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
-class CardCashbackRepositoryImpl(
-    private val dao: CardCashbackDao
+internal class CardCashbackRepositoryImpl(
+    private val dao: CardCashbackDao,
+    private val mapper: DbEntityModelMapper
 ) : CardCashbackRepository {
 
     // -------- Aggregates --------
@@ -41,37 +42,20 @@ class CardCashbackRepositoryImpl(
 
 
     // -------- CashbackRule --------
-    private var cashbackList = mutableListOf<CashbackRuleDraft>()
-
-    override fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>> = flow {
+    override fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>> =
         dao.getAllCashbackRules()
             .map {
-                DbEntityModelMapper.cashbackRuleToCashBackRuleDraftList(it)
+                it.map{ item -> mapper.cashbackRuleToCashBackRuleDraft(item) }
             }
-            .collect {
-                cashbackList = it.toMutableList()
-                emit(
-                    List(10) {
-                        CashbackRuleDraft(
-                            cashbackRuleId = it.toLong(),
-                            title = "$it position",
-                            percentage = it.toDouble() / 100,
-                            category = CashbackRule.CashbackCategory.Cafe,
-                            expirationDate = "2026-15-04"
-                        )
-                    }
-                )
-            }
-    }
 
     override fun getCashbackRule(ruleId: Long): Flow<CashbackRuleDraft> =
         dao.getCashbackRule(ruleId).map {
-            DbEntityModelMapper.cashbackRuleToCashBackRuleDraft(it)
+            mapper.cashbackRuleToCashBackRuleDraft(it)
         }
 
     override suspend fun upsertCashbackRule(rule: CashbackRuleDraft) {
         dao.upsertCashbackRule(
-            DbEntityModelMapper.cashbackRuleDraftToCashBackRule(rule)
+            mapper.cashbackRuleDraftToCashBackRule(rule)
         )
     }
 
