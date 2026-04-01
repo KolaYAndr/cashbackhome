@@ -1,19 +1,15 @@
 package org.homesharing.cashbackhome.data.repository
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
-import org.homesharing.cashbackhome.data.repository.data.mapper.DbEntityModelMapper
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
 internal class CardCashbackRepositoryImpl(
-    private val dao: CardCashbackDao,
-    private val mapper: DbEntityModelMapper
+    private val dao: CardCashbackDao
 ) : CardCashbackRepository {
 
     // -------- Aggregates --------
@@ -41,21 +37,14 @@ internal class CardCashbackRepositoryImpl(
 
 
     // -------- CashbackRule --------
-    override fun getAllCashbackRules(): Flow<List<CashbackRuleDraft>> =
+    override fun getAllCashbackRules(): Flow<List<CashbackRule>> =
         dao.getAllCashbackRules()
-            .map {
-                it.map{ item -> mapper.cashbackRuleToCashBackRuleDraft(item) }
-            }
 
-    override fun getCashbackRule(ruleId: Long): Flow<CashbackRuleDraft> =
-        dao.getCashbackRule(ruleId).map {
-            mapper.cashbackRuleToCashBackRuleDraft(it)
-        }
+    override fun getCashbackRule(ruleId: Long): Flow<CashbackRule> =
+        dao.getCashbackRule(ruleId)
 
-    override suspend fun upsertCashbackRule(rule: CashbackRuleDraft) {
-        dao.upsertCashbackRule(
-            mapper.cashbackRuleDraftToCashBackRule(rule)
-        )
+    override suspend fun upsertCashbackRule(rule: CashbackRule) {
+        dao.upsertCashbackRule(rule)
     }
 
     override suspend fun deleteCashbackRuleById(ruleId: Long) {

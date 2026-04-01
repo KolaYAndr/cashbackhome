@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.homesharing.cashbackhome.domain.usecase.GetAllCashbackRulesUseCase
+import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
 internal class CategoriesScreenViewModel(
-    private val getAllCashbackRulesUseCase: GetAllCashbackRulesUseCase
+    repository: CardCashbackRepository
 ) : ViewModel() {
-    val uiState = getAllCashbackRulesUseCase()
+    val uiState = repository.getAllCashbackRules()
         .map {
             if (it.isEmpty()) {
                 CategoriesScreenState.EmptyScreen
