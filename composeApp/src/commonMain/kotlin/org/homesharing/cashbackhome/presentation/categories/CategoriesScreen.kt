@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,11 +32,18 @@ import cashbackhome.composeapp.generated.resources.add_category_button
 import cashbackhome.composeapp.generated.resources.bankplaceholder
 import cashbackhome.composeapp.generated.resources.categories_empty_description
 import cashbackhome.composeapp.generated.resources.categories_empty_title
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.char
+import kotlinx.datetime.minus
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
 
 @Composable
 internal fun CategoriesScreenRoot(
@@ -122,42 +130,58 @@ private fun CashbackCard(category: CashbackRuleDraft) {
 
 private fun getPercents(x: Double) = "${(x * 100).toInt()}%"
 
-private fun getExpirationDays(until: String): Int {
-    // TODO("Date difference")
-    return 0
+@Composable
+private fun getDateColor(until: String): Color {
+    val format = LocalDate.Format {
+        year(); char('-'); day(); char('-'); monthNumber()
+    }
+    runCatching{ LocalDate.parse(until, format) }
+        .onSuccess {
+            val dateNow = getCurrentDate()
+            val daysLeft = (it - dateNow).days
+
+            if (daysLeft > 15)
+                return MaterialTheme.colorScheme.onSurfaceVariant
+            return MaterialTheme.colorScheme.error
+        }
+    return MaterialTheme.colorScheme.errorContainer
+}
+
+private fun getCurrentDate(): LocalDate {
+    val currentMoment = Clock.System.now() // Returns an Instant
+    val datetimeInSystemZone = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault())
+    return datetimeInSystemZone.date
 }
 
 private fun getExpirationDaysTitle(x: String): String{
-    val res = StringBuilder("до ")
-    val day = if (x[5] == '0') {
-        x[6].digitToInt()
-    } else {
-        (x[5].toString() + x[6]).toInt()
+    val format = LocalDate.Format {
+        year(); char('-'); day(); char('-'); monthNumber()
     }
-    val month = if (x[8] == '0') {
-        x[9].digitToInt()
-    } else {
-        (x[8].toString() + x[9]).toInt()
-    }
+    runCatching{ LocalDate.parse(x, format) }
+        .onSuccess {
+            val res = StringBuilder("до ")
 
-    val monthNumberToString = mapOf(
-        1 to " января",
-        2 to " февраля",
-        3 to " марта",
-        4 to " апреля",
-        5 to " мая",
-        6 to " июня",
-        7 to " июля",
-        8 to " августа",
-        9 to " сентября",
-        10 to " октября",
-        11 to " ноября",
-        12 to " декабря"
-    )
-    res.append(day)
-    res.append(monthNumberToString[month])
+            val monthNumberToString = mapOf(
+                1 to " января",
+                2 to " февраля",
+                3 to " марта",
+                4 to " апреля",
+                5 to " мая",
+                6 to " июня",
+                7 to " июля",
+                8 to " августа",
+                9 to " сентября",
+                10 to " октября",
+                11 to " ноября",
+                12 to " декабря"
+            )
+            res.append(it.day)
+            res.append(monthNumberToString[it.month.number])
 
-    return res.toString()
+            return res.toString()
+        }
+
+    return "Неправильная дата"
 }
 
 @Preview
