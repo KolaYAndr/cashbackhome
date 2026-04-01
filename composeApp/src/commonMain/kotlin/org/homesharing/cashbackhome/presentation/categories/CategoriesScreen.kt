@@ -117,7 +117,7 @@ private fun CashbackCard(category: CashbackRuleDraft) {
             Text(
                 text = getExpirationDaysTitle(category.expirationDate),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error
+                color = getDateColor(category.expirationDate)
             )
             Text(
                 text = getPercents(category.percentage),
