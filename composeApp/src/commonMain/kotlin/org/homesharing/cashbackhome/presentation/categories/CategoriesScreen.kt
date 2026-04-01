@@ -2,6 +2,7 @@ package org.homesharing.cashbackhome.presentation.categories
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,12 +18,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,14 +36,16 @@ import cashbackhome.composeapp.generated.resources.categories_screen_add_categor
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
+import kotlinx.datetime.DateTimePeriod
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.char
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,14 +62,14 @@ internal fun CategoriesScreenRoot(
         is CategoriesScreenState.EmptyScreen -> EmptyCategories(onAddCategoryClick)
         is CategoriesScreenState.Categories -> CategoriesScreen(state.categories)
         is CategoriesScreenState.Loading -> {
-//            TODO("add loading screen")
+            LoadingScreen()
         }
     }
 }
 
 @Composable
 private fun CategoriesScreen(
-    categories: List<CashbackRuleDraft>
+    categories: List<CashbackRule>
 ) {
     LazyColumn (
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -79,7 +84,7 @@ private fun CategoriesScreen(
 }
 
 @Composable
-private fun CashbackCard(category: CashbackRuleDraft) {
+private fun CashbackCard(category: CashbackRule) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -133,10 +138,7 @@ private fun getPercents(x: Double) = "${(x * 100).toInt()}%"
 
 @Composable
 private fun getDateColor(until: String): Color {
-    val format = LocalDate.Format {
-        year(); char('-'); day(); char('-'); monthNumber()
-    }
-    runCatching{ LocalDate.parse(until, format) }
+    runCatching{ LocalDate.parse(until) }
         .onSuccess {
             val dateNow = getCurrentDate()
             val daysLeft = (it - dateNow).days
@@ -149,18 +151,15 @@ private fun getDateColor(until: String): Color {
 }
 
 private fun getCurrentDate(): LocalDate {
-    val currentMoment = Clock.System.now() // Returns an Instant
+    val currentMoment = Clock.System.now()
     val datetimeInSystemZone = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault())
     return datetimeInSystemZone.date
 }
 
 @Composable
-private fun getExpirationDaysTitle(x: String): String{
-    val format = LocalDate.Format {
-        year(); char('-'); day(); char('-'); monthNumber()
-    }
+private fun getExpirationDaysTitle(x: String): String {
     var returnValue = stringResource(Res.string.categories_screen_wrong_data_format)
-    runCatching{ LocalDate.parse(x, format) }
+    runCatching{ LocalDate.parse(x) }
         .onSuccess {
             val res = StringBuilder("до ")
 
@@ -190,11 +189,12 @@ private fun getExpirationDaysTitle(x: String): String{
 @Preview
 @Composable
 private fun CashBackCardPreview() {
-    val test = CashbackRuleDraft(
+    val test = CashbackRule(
         title = "My supermarkets",
         category = CashbackRule.CashbackCategory.Groceries,
         expirationDate = "2026-15-04",
-        percentage = 0.05
+        percentage = 0.05,
+        maxAmount = 0.0
     )
     CashbackCard(test)
 }
@@ -236,5 +236,15 @@ private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
                 style = MaterialTheme.typography.headlineSmall,
             )
         }
+    }
+}
+
+@Composable
+private fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        CircularProgressIndicator()
     }
 }

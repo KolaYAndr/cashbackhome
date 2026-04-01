@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
@@ -103,7 +104,7 @@ class AddCardWithCashbacksViewModel(
                     val newCardId = repository.getAllCards().first().last().cardId
 
                     uiState.value.cashbackDrafts.forEach { draft ->
-                        val rule = CashbackRuleDraft(
+                        val rule = CashbackRule(
                             title = draft.title,
                             percentage = draft.percentage,
                             category = draft.category,
@@ -118,7 +119,7 @@ class AddCardWithCashbacksViewModel(
                 } else {
                     uiState.value.selectedCardId?.let { cardId ->
                         uiState.value.cashbackDrafts.forEach { draft ->
-                            val rule = CashbackRuleDraft(
+                            val rule = CashbackRule(
                                 title = draft.title,
                                 percentage = draft.percentage,
                                 category = draft.category,
