@@ -105,11 +105,11 @@ class AddCardWithCashbacksViewModel(
 
                     uiState.value.cashbackDrafts.forEach { draft ->
                         val rule = CashbackRule(
-                            title = draft.title,
                             percentage = draft.percentage,
                             category = draft.category,
                             maxAmount = draft.maxAmount,
-                            expirationDate = draft.expirationDate
+                            expirationDate = draft.expirationDate,
+                            bankCardName = ""
                         )
                         repository.upsertCashbackRule(rule)
                         val newRuleId =
@@ -120,11 +120,11 @@ class AddCardWithCashbacksViewModel(
                     uiState.value.selectedCardId?.let { cardId ->
                         uiState.value.cashbackDrafts.forEach { draft ->
                             val rule = CashbackRule(
-                                title = draft.title,
                                 percentage = draft.percentage,
                                 category = draft.category,
                                 maxAmount = draft.maxAmount,
-                                expirationDate = draft.expirationDate
+                                expirationDate = draft.expirationDate,
+                                bankCardName = ""
                             )
                             repository.upsertCashbackRule(rule)
                             val newRuleId =

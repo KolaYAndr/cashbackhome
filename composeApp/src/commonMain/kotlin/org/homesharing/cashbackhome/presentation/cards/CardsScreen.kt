@@ -42,8 +42,7 @@ import cashbackhome.composeapp.generated.resources.cards_empty
 import cashbackhome.composeapp.generated.resources.cashback_rule_add
 import cashbackhome.composeapp.generated.resources.cashback_rules_empty
 import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.data.repository.data.mapper.DbEntityModelMapper
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.jetbrains.compose.resources.painterResource
@@ -180,7 +179,7 @@ private fun CardItem(
                         } else {
                             cardWithCashback.cashbacks.forEach { rule ->
                                 CashbackRuleItem(
-                                    DbEntityModelMapper.cashbackRuleToCashBackRuleDraft(rule)
+                                    rule
                                 )
                             }
                         }
@@ -203,7 +202,7 @@ private fun CardItem(
 }
 
 @Composable
-private fun CashbackRuleItem(rule: CashbackRuleDraft) {
+private fun CashbackRuleItem(rule: CashbackRule) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

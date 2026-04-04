@@ -1,6 +1,10 @@
 package org.homesharing.cashbackhome.di
 
 import androidx.room.RoomDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
 import org.homesharing.cashbackhome.data.local.database.getRoomDatabase
@@ -19,6 +23,9 @@ import org.koin.dsl.module
 
 private val sharedStaticModule =
     module {
+        single<CoroutineScope>() {
+            CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        }
         singleOf(::CardCashbackRepositoryImpl) {
             bind<CardCashbackRepository>()
         }

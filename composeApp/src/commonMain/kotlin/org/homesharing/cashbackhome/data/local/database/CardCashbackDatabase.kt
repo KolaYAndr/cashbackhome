@@ -28,9 +28,8 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<CardCashbackDatabase>,
 ): CardCashbackDatabase {
     return builder
-//        .addMigrations()
+        .addMigrations()
         .fallbackToDestructiveMigrationOnDowngrade(true)
-        .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .build()

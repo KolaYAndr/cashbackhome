@@ -29,6 +29,7 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -36,6 +37,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,8 +51,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
+import cashbackhome.composeapp.generated.resources.add_category_add_card
 import cashbackhome.composeapp.generated.resources.add_category_card_label
 import cashbackhome.composeapp.generated.resources.add_category_card_placeholder
 import cashbackhome.composeapp.generated.resources.add_category_cashback_label
@@ -65,52 +72,93 @@ import cashbackhome.composeapp.generated.resources.arrow_back
 import cashbackhome.composeapp.generated.resources.arrow_drop_down
 import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.calendar
-import org.homesharing.cashbackhome.domain.model.BankCardDraft
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import co.touchlab.kermit.Logger
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule.CashbackCategory
+import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private const val DefaultCashbackPercent = 5
 private const val MinCashbackPercent = 1
 private const val MaxCashbackPercent = 100
 
 @Composable
 internal fun AddCategoryScreenRoot(
     viewModel: AddCategoriesScreenViewModel = koinViewModel(),
-    cards: List<BankCardDraft> = listOf(),
     onAddCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
     onAddCardClick: () -> Unit,
 ) {
-    AddCategoryScreen(
-        onAddCategoryClick = {
-            viewModel.upsertRule(it)
-            onAddCategoryClick()
-        },
-        onBackClick = onBackClick,
-        onAddCardClick = onAddCardClick
-    )
+    val uiState = viewModel.screenState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.value) {
+        Logger.i { "LaunchedEffect" }
+        when (uiState.value) {
+            is AddCategoriesScreenState.Ready -> {
+                val state = uiState.value as AddCategoriesScreenState.Ready
+                if (!state.error && state.forms.category != null) {
+                    onAddCategoryClick()
+                }
+            }
+            else -> {
+
+            }
+        }
+    }
+
+    when(uiState.value) {
+        is AddCategoriesScreenState.Loading -> {
+            LoadingScreen()
+        }
+        else -> {
+            val state = uiState.value as AddCategoriesScreenState.Ready
+            AddCategoryScreen(
+                state = state,
+                onAddCategoryClick = {
+                    viewModel.upsertRule()
+                },
+                onBackClick = onBackClick,
+                onAddCardClick = onAddCardClick,
+                onCategorySelected = {
+                    viewModel.categorySelected(it)
+                },
+                onCardSelected = {
+                    viewModel.cardSelected(it)
+                },
+                onDateType = {
+                    viewModel.dateSelected(it)
+                },
+                onPressCashback = {
+                    viewModel.cashbackSelected(it)
+                }
+            )
+        }
+    }
+
+
 }
 
 @Composable
 private fun AddCategoryScreen(
-    cards: List<BankCardDraft> = listOf(),
-    onAddCategoryClick: (CashbackRuleDraft) -> Unit,
+    state: AddCategoriesScreenState.Ready,
+    onAddCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
     onAddCardClick: () -> Unit,
+    onCategorySelected: (CashbackCategory) -> Unit,
+    onCardSelected: (BankCard) -> Unit,
+    onDateType: (String) -> Unit,
+    onPressCashback: (Int) -> Unit,
 ) {
-    var selectedCard by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedCategory by rememberSaveable {
-        mutableStateOf<CashbackRuleDraft.CashbackCategory?>(null)
-    }
-    var expirationDate by rememberSaveable { mutableStateOf("") }
+    val selectedCategory = state.forms.category
+    val cards = state.cards
+    val selectedCard = state.forms.card
+    val expirationDate = state.forms.date
     var isUnlimited by rememberSaveable { mutableStateOf(false) }
-    var cashbackPercent by rememberSaveable { mutableStateOf(DefaultCashbackPercent) }
-
-    val categoryOptions = CashbackRuleDraft.CashbackCategory.all.map {
+    val cashbackPercent = state.forms.cashback
+    val categoryOptions = CashbackCategory.all.map {
         it to categoryName(it)
     }
 
@@ -129,49 +177,52 @@ private fun AddCategoryScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             CategorySelectionFieldSection(
+                hasError = state.error,
                 label = stringResource(Res.string.add_category_category_label),
                 placeholder = stringResource(Res.string.add_category_category_placeholder),
-                selectedValue = selectedCategory,
+                selectedCategory = selectedCategory,
                 options = categoryOptions,
-                onOptionSelected = { selectedCategory = it },
+                onCategorySelected = onCategorySelected,
             )
 
             //Card
             if (cards.isEmpty()) {
                 NoCards(
-                    placeholder = stringResource(Res.string.add_category_no_card),
+                    hasError = state.error,
+                    label = stringResource(Res.string.add_category_card_label),
+                    message = stringResource(Res.string.add_category_no_card),
+                    buttonText = stringResource(Res.string.add_category_add_card),
                     onAddCardClick = onAddCardClick
                 )
             } else {
                 CardSelectionFieldSection(
+                    hasError = state.error,
                     label = stringResource(Res.string.add_category_card_label),
                     placeholder = stringResource(Res.string.add_category_card_placeholder),
-                    selectedValue = selectedCard,
+                    selectedCard = selectedCard,
                     options = cards,
-                    onOptionSelected = { selectedCard = it },
+                    onCardSelected = onCardSelected,
                 )
             }
 
             ChooseDate(
+                hasError = state.error,
                 expirationDate = expirationDate,
-                onType = { expirationDate = it },
+                onDateType = onDateType,
                 isUnlimited = isUnlimited,
-                onCheck = {
-                    isUnlimited = it
-                    if (it) {
-                        expirationDate = ""
+                onCheck = { checkBoxState ->
+                    isUnlimited = checkBoxState
+                    if (checkBoxState) {
+                        onDateType(" ")
+                    } else {
+                        onDateType("")
                     }
                 }
             )
 
             ChooseCashback(
                 cashbackPercent = cashbackPercent,
-                onPressMinus = {
-                    cashbackPercent = (cashbackPercent - 1).coerceAtLeast(MinCashbackPercent)
-                },
-                onPressPlus = {
-                    cashbackPercent = (cashbackPercent + 1).coerceAtMost(MaxCashbackPercent)
-                }
+                onPressCashback = onPressCashback,
             )
 
             //duplicate found
@@ -186,15 +237,7 @@ private fun AddCategoryScreen(
             )
 
             Button(
-                onClick = {
-                    onAddCategoryClick(
-                        CashbackRuleDraft(
-                            percentage = cashbackPercent.toDouble() / 100,
-                            category = selectedCategory ?: CashbackRuleDraft.CashbackCategory.Other,
-                            expirationDate = expirationDate
-                        )
-                    )
-                },
+                onClick = onAddCategoryClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 15.dp)
@@ -256,24 +299,29 @@ private fun SectionLabel(text: String) {
 @Composable
 private fun DefaultTextInBox(
     text: String,
-    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    hasError: Boolean
 ) {
     Text(
         text = text,
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.bodySmall,
-        color = color,
+        color = if (hasError) {
+            MaterialTheme.colorScheme.errorContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategorySelectionFieldSection(
+    hasError: Boolean,
     label: String,
     placeholder: String,
-    selectedValue: CashbackRuleDraft.CashbackCategory?,
-    options: List<Pair<CashbackRuleDraft.CashbackCategory, String>>,
-    onOptionSelected: (CashbackRuleDraft.CashbackCategory) -> Unit,
+    selectedCategory: CashbackCategory?,
+    options: List<Pair<CashbackCategory, String>>,
+    onCategorySelected: (CashbackCategory) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -287,7 +335,7 @@ private fun CategorySelectionFieldSection(
             onExpandedChange = { expanded = !expanded },
         ) {
             TextField(
-                value = categoryName(selectedValue),
+                value = categoryName(selectedCategory),
                 onValueChange = {},
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -295,7 +343,7 @@ private fun CategorySelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(placeholder)
+                    DefaultTextInBox(placeholder, hasError)
                 },
                 colors = dropdownTextFieldColors(),
                 trailingIcon = {
@@ -326,7 +374,7 @@ private fun CategorySelectionFieldSection(
                             )
                         },
                         onClick = {
-                            onOptionSelected(option.first)
+                            onCategorySelected(option.first)
                             expanded = false
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -339,22 +387,39 @@ private fun CategorySelectionFieldSection(
 
 @Composable
 private fun NoCards(
-    placeholder: String,
+    hasError: Boolean,
+    label: String,
+    message: String,
+    buttonText: String,
     onAddCardClick: () -> Unit
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        DefaultTextInBox(placeholder)
+        SectionLabel(label)
 
-        Button(
-            onClick = onAddCardClick,
-            colors = ButtonDefaults.buttonColors().copy(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DefaultTextInBox(placeholder, MaterialTheme.colorScheme.onBackground)
+            DefaultTextInBox(message, hasError)
+
+            Button(
+                shape = RoundedCornerShape(14.dp),
+                onClick = onAddCardClick,
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Text(
+                    text = buttonText,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         }
     }
 }
@@ -362,11 +427,12 @@ private fun NoCards(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CardSelectionFieldSection(
+    hasError: Boolean,
     label: String,
     placeholder: String,
-    selectedValue: String?,
-    options: List<BankCardDraft>,
-    onOptionSelected: (String) -> Unit,
+    selectedCard: BankCard?,
+    options: List<BankCard>,
+    onCardSelected: (BankCard) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -380,7 +446,7 @@ private fun CardSelectionFieldSection(
             onExpandedChange = { expanded = !expanded },
         ) {
             TextField(
-                value = selectedValue.orEmpty(),
+                value = selectedCard?.bankName.orEmpty(),
                 onValueChange = {},
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -388,7 +454,7 @@ private fun CardSelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(placeholder)
+                    DefaultTextInBox(placeholder, hasError)
                 },
                 colors = dropdownTextFieldColors(),
                 trailingIcon = {
@@ -419,7 +485,7 @@ private fun CardSelectionFieldSection(
                             )
                         },
                         onClick = {
-                            onOptionSelected(option.bankName)
+                            onCardSelected(option)
                             expanded = false
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -432,8 +498,9 @@ private fun CardSelectionFieldSection(
 
 @Composable
 private fun ChooseDate(
-    expirationDate: String,
-    onType: (String) -> Unit,
+    hasError: Boolean,
+    expirationDate: String?,
+    onDateType: (String) -> Unit,
     isUnlimited: Boolean,
     onCheck: (Boolean) -> Unit
 ) {
@@ -444,12 +511,20 @@ private fun ChooseDate(
             text = stringResource(Res.string.add_category_expiration_label),
         )
 
-        FormTextField(
-            value = expirationDate,
-            onValueChange = onType,
-            placeholder = stringResource(Res.string.add_category_expiration_placeholder),
+        TextField(
+            value = expirationDate.orEmpty(),
+            onValueChange = onDateType,
+            placeholder = {
+                DefaultTextInBox(
+                    stringResource(Res.string.add_category_expiration_placeholder),
+                    hasError
+                )
+            },
+            colors = dropdownTextFieldColors(),
+            modifier = Modifier.fillMaxWidth(),
             enabled = !isUnlimited,
-            trailingContent = {
+            singleLine = true,
+            trailingIcon = {
                 Icon(
                     painter = painterResource(Res.drawable.calendar),
                     contentDescription = null,
@@ -461,20 +536,28 @@ private fun ChooseDate(
                     }
                 )
             },
+            shape = RoundedCornerShape(14.dp),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground,
+            ),
         )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Checkbox(
-                checked = isUnlimited,
-                onCheckedChange = onCheck,
-                colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.primary,
-                    uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-                ),
-            )
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                Checkbox(
+                    checked = isUnlimited,
+                    onCheckedChange = onCheck,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
+                )
+            }
             Text(
                 text = stringResource(Res.string.add_category_unlimited),
                 style = MaterialTheme.typography.bodyMedium,
@@ -485,37 +568,9 @@ private fun ChooseDate(
 }
 
 @Composable
-private fun FormTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    enabled: Boolean,
-    trailingContent: @Composable (() -> Unit)? = null,
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        enabled = enabled,
-        singleLine = true,
-        placeholder = {
-            DefaultTextInBox(placeholder)
-        },
-        colors = dropdownTextFieldColors(),
-        trailingIcon = trailingContent,
-        shape = RoundedCornerShape(14.dp),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground,
-        ),
-    )
-}
-
-@Composable
 private fun ChooseCashback(
     cashbackPercent: Int,
-    onPressMinus: () -> Unit,
-    onPressPlus: () -> Unit,
+    onPressCashback: (Int) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -525,13 +580,17 @@ private fun ChooseCashback(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface),
+                .clip(RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(19.dp),
         ) {
+            val minusCashbackPercent =
+                (cashbackPercent - 1).coerceAtLeast(MinCashbackPercent)
             StepperButton(
                 label = "-",
-                onClick = onPressMinus,
+                onClick = { onPressCashback(minusCashbackPercent) },
             )
 
             Box(
@@ -554,9 +613,11 @@ private fun ChooseCashback(
                 )
             }
 
+            val plusCashbackPercent =
+                (cashbackPercent + 1).coerceAtMost(MaxCashbackPercent)
             StepperButton(
                 label = "+",
-                onClick = onPressPlus,
+                onClick = { onPressCashback(plusCashbackPercent) },
             )
         }
     }

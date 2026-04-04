@@ -8,7 +8,7 @@ import androidx.room.TypeConverter
 data class CashbackRule(
     @PrimaryKey(autoGenerate = true)
     val cashbackRuleId: Long = 0,
-    val title: String,
+    val bankCardName: String,
     val percentage: Double,
     val category: CashbackCategory = CashbackCategory.Other,
     val maxAmount: Double?,
@@ -47,6 +47,43 @@ data class CashbackRule(
         data object Flowers : CashbackCategory("flowers")
         data object Pharmacy : CashbackCategory("pharmacy")
         data object Other : CashbackCategory("other")
+
+        companion object {
+            val all: List<CashbackCategory> = listOf(
+                AllPurchases,
+                Pharmacies,
+                CafesRestaurantsFastfood,
+                ClothingAndShoes,
+                GasStationsFuel,
+                Taxi,
+                Marketplaces,
+                Transport,
+                Supermarkets,
+                TrainAndAirTickets,
+                AutoServicesAndAutoGoods,
+                HomeAndRepair,
+                ChildrenGoods,
+                CommunicationInternetTv,
+                BeautyCosmetics,
+                CultureEntertainment,
+                Books,
+                SouvenirsHobbies,
+                FlowersAndGifts,
+                Jewelry,
+                TechnologyElectronics,
+                SportsActiveLeisure,
+                Utilities,
+                DutyFree,
+                Groceries,
+                Cafe,
+                Restaurant,
+                Travel,
+                OnlineShopping,
+                Flowers,
+                Pharmacy,
+                Other,
+            )
+        }
     }
 }
 

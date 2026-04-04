@@ -60,7 +60,7 @@
     <string name="add_category_card_label">Карта</string>
     <string name="add_category_card_placeholder">Выберите карту</string>
     <string name="add_category_expiration_label">Срок действия категории</string>
-    <string name="add_category_expiration_placeholder">До какого числа</string>
+    <string name="add_category_expiration_placeholder">Выберите срок действия категории</string>
     <string name="add_category_unlimited">Бессрочно</string>
     <string name="add_category_cashback_label">Кэшбэк</string>
     <string name="add_category_duplicate_hint">Нельзя добавить дубликат категории для одной карты в текущем месяце.</string>

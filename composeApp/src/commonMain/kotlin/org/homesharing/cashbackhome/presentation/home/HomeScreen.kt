@@ -17,6 +17,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,7 +64,7 @@ import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.cards.CardsScreen
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
@@ -78,7 +80,7 @@ internal fun HomeScreenRoot(
     viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
-    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
+    onEditCategoryClick: (CashbackRule) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
@@ -97,7 +99,7 @@ private fun HomeScreen(
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
-    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
+    onEditCategoryClick: (CashbackRule) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
 
@@ -106,12 +108,9 @@ private fun HomeScreen(
                 dampingRatio = Spring.DampingRatioMediumBouncy,
                 stiffness = Spring.StiffnessLow
             )
-            ) + fadeIn(
-        // Fades should be strictly linear/tweened, not bouncy
-        animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+            ) + fadeIn(animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
     )
 
-// 2. The Exit Animation (Fast & Direct)
     val fabExitTransition = scaleOut(
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioNoBouncy,
@@ -354,5 +353,16 @@ private fun Modifier.colorUnderline(
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
         HomeScreen(Tab.Categories, {}, {}, {}, {})
+    }
+}
+
+
+@Composable
+internal fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        CircularProgressIndicator()
     }
 }

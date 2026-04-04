@@ -20,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
@@ -31,7 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -43,18 +44,23 @@ import cashbackhome.composeapp.generated.resources.categories_screen_add_categor
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
+import cashbackhome.composeapp.generated.resources.delete
+import cashbackhome.composeapp.generated.resources.edit
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
-import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.abs
 import kotlin.time.Clock
 
 @Composable
@@ -62,7 +68,7 @@ internal fun CategoriesScreenRoot(
     viewModel: CategoriesScreenViewModel = koinViewModel(),
     scaffoldState: ScaffoldState,
     onAddCategoryClick: () -> Unit,
-    onEditCategoryClick: (CashbackRuleDraft) -> Unit,
+    onEditCategoryClick: (CashbackRule) -> Unit,
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -88,7 +94,7 @@ internal fun CategoriesScreenRoot(
 @Composable
 private fun CategoriesScreen(
     categories: List<CashbackRule>,
-    onEditCategorySwipe: (CashbackRuleDraft) -> Unit,
+    onEditCategorySwipe: (CashbackRule) -> Unit,
     onDeleteCategorySwipe: (Long) -> Unit,
 ) {
     LazyColumn (
@@ -128,6 +134,7 @@ private fun CashbackCard(
                 SwipeToDismissBoxValue.EndToStart -> onDeleteCategorySwipe()
                 SwipeToDismissBoxValue.Settled -> Unit
             }
+            TODO()
             coroutineScope.launch {
                 dismissState.reset()
             }
@@ -247,7 +254,7 @@ private fun SwipeActionStripe(
 @Composable
 private fun revealedWidth(state: SwipeToDismissBoxState): Dp {
     val offsetPx = runCatching { state.requireOffset() }.getOrDefault(0f)
-    return androidx.compose.ui.platform.LocalDensity.current.run {
+    return LocalDensity.current.run {
         abs(offsetPx).toDp()
     }
 }
@@ -308,11 +315,11 @@ private fun getExpirationDaysTitle(x: String): String {
 @Composable
 private fun CashBackCardPreview() {
     val test = CashbackRule(
-        title = "My supermarkets",
         category = CashbackRule.CashbackCategory.Groceries,
         expirationDate = "2026-15-04",
         percentage = 0.05,
-        maxAmount = 0.0
+        maxAmount = 0.0,
+        bankCardName = "T-bank"
     )
     CashbackCard(
         category = test,
@@ -358,15 +365,5 @@ private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
                 style = MaterialTheme.typography.headlineSmall,
             )
         }
-    }
-}
-
-@Composable
-private fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        CircularProgressIndicator()
     }
 }

@@ -52,6 +52,7 @@ import cashbackhome.composeapp.generated.resources.rule_percentage_field_label
 import cashbackhome.composeapp.generated.resources.save_button
 import cashbackhome.composeapp.generated.resources.selected_card_label
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
@@ -283,7 +284,7 @@ private fun CashbackRuleDraftItem(
     onDraftChange: (CashbackRuleDraft) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val categories = remember { CashbackRuleDraft.CashbackCategory.all }
+    val categories = remember { CashbackRule.CashbackCategory.all }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
         TextField(
