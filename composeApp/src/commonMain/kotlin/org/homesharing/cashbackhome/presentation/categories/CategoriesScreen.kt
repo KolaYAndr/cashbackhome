@@ -52,7 +52,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
@@ -134,7 +133,6 @@ private fun CashbackCard(
                 SwipeToDismissBoxValue.EndToStart -> onDeleteCategorySwipe()
                 SwipeToDismissBoxValue.Settled -> Unit
             }
-            TODO()
             coroutineScope.launch {
                 dismissState.reset()
             }
