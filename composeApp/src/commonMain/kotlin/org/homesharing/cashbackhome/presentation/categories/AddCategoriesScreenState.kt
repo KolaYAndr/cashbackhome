@@ -3,7 +3,7 @@ package org.homesharing.cashbackhome.presentation.categories
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
-data class TextFields(
+internal data class TextFields(
     val category: CashbackRule.CashbackCategory? = null,
     val card: BankCard? = null,
     val date: String? = null,

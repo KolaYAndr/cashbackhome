@@ -73,8 +73,6 @@ internal class AddCategoriesScreenViewModel(
     }
 
     fun upsertRule() {
-        Logger.i { "upsertRule" }
-
         val forms = (screenState.value as AddCategoriesScreenState.Ready).forms
         if (checkNull(forms)) {
             errorFlow.update {
@@ -93,11 +91,6 @@ internal class AddCategoriesScreenViewModel(
         applicationScope.launch {
             repository.upsertCashbackRule(newCashbackRule)
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Logger.i {"onCleared"}
     }
 
     private fun checkNull(forms: TextFields): Boolean {
