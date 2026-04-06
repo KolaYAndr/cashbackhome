@@ -38,8 +38,8 @@ fun App() {
                             AppRoute.PersonalCabinet.serializer()
                         )
                         subclass(
-                            AppRoute.EditCardWithCashback::class,
-                            AppRoute.EditCardWithCashback.serializer()
+                            AppRoute.EditCardScreen::class,
+                            AppRoute.EditCardScreen.serializer()
                         )
                         subclass(
                             AppRoute.EditCategoryScreen::class,
@@ -71,6 +71,9 @@ fun App() {
                         },
                         onEditCategoryClick = { category ->
                             backStack.add(AppRoute.EditCategoryScreen(category))
+                        },
+                        onEditCardClick = { card ->
+                            backStack.add(AppRoute.EditCardScreen(card))
                         }
                     )
                 }
@@ -119,7 +122,7 @@ fun App() {
 //                    TODO("Add personal cabinet screen")
                 }
 
-                entry<AppRoute.EditCardWithCashback> {
+                entry<AppRoute.EditCardScreen> {
 //                    TODO("Add edit category screen")
                 }
             },

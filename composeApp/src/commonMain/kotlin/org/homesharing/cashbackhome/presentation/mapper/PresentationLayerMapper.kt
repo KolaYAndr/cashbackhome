@@ -2,14 +2,7 @@ package org.homesharing.cashbackhome.presentation.mapper
 
 import androidx.compose.runtime.Composable
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.category_cafe
-import cashbackhome.composeapp.generated.resources.category_flowers
-import cashbackhome.composeapp.generated.resources.category_groceries
-import cashbackhome.composeapp.generated.resources.category_online_shopping
 import cashbackhome.composeapp.generated.resources.category_other
-import cashbackhome.composeapp.generated.resources.category_pharmacy
-import cashbackhome.composeapp.generated.resources.category_restaurant
-import cashbackhome.composeapp.generated.resources.category_travel
 import cashbackhome.composeapp.generated.resources.category_type_all_purchases
 import cashbackhome.composeapp.generated.resources.category_type_auto_services_goods
 import cashbackhome.composeapp.generated.resources.category_type_beauty_cosmetics
@@ -25,6 +18,7 @@ import cashbackhome.composeapp.generated.resources.category_type_gas_stations_fu
 import cashbackhome.composeapp.generated.resources.category_type_home_repair
 import cashbackhome.composeapp.generated.resources.category_type_jewelry
 import cashbackhome.composeapp.generated.resources.category_type_marketplaces
+import cashbackhome.composeapp.generated.resources.category_type_other
 import cashbackhome.composeapp.generated.resources.category_type_pharmacies
 import cashbackhome.composeapp.generated.resources.category_type_souvenirs_hobbies
 import cashbackhome.composeapp.generated.resources.category_type_sports_outdoor
@@ -43,7 +37,7 @@ internal fun categoryName(category: CashbackRule.CashbackCategory?): String {
         return ""
     return when (category) {
         CashbackRule.CashbackCategory.AllPurchases -> stringResource(Res.string.category_type_all_purchases)
-        CashbackRule.CashbackCategory.Pharmacies -> stringResource(Res.string.category_type_pharmacies)
+        CashbackRule.CashbackCategory.Pharmacy -> stringResource(Res.string.category_type_pharmacies)
         CashbackRule.CashbackCategory.CafesRestaurantsFastfood -> stringResource(Res.string.category_type_cafes_restaurants_fastfood)
         CashbackRule.CashbackCategory.ClothingAndShoes -> stringResource(Res.string.category_type_clothes_shoes)
         CashbackRule.CashbackCategory.GasStationsFuel -> stringResource(Res.string.category_type_gas_stations_fuel)
@@ -66,13 +60,6 @@ internal fun categoryName(category: CashbackRule.CashbackCategory?): String {
         CashbackRule.CashbackCategory.SportsActiveLeisure -> stringResource(Res.string.category_type_sports_outdoor)
         CashbackRule.CashbackCategory.Utilities -> stringResource(Res.string.category_type_utilities)
         CashbackRule.CashbackCategory.DutyFree -> stringResource(Res.string.category_type_duty_free)
-        CashbackRule.CashbackCategory.Groceries -> stringResource(Res.string.category_groceries)
-        CashbackRule.CashbackCategory.Cafe -> stringResource(Res.string.category_cafe)
-        CashbackRule.CashbackCategory.Restaurant -> stringResource(Res.string.category_restaurant)
-        CashbackRule.CashbackCategory.Travel -> stringResource(Res.string.category_travel)
-        CashbackRule.CashbackCategory.OnlineShopping -> stringResource(Res.string.category_online_shopping)
-        CashbackRule.CashbackCategory.Flowers -> stringResource(Res.string.category_flowers)
-        CashbackRule.CashbackCategory.Pharmacy -> stringResource(Res.string.category_pharmacy)
-        CashbackRule.CashbackCategory.Other -> stringResource(Res.string.category_other)
+        CashbackRule.CashbackCategory.Other -> stringResource(Res.string.category_type_other)
     }
 }

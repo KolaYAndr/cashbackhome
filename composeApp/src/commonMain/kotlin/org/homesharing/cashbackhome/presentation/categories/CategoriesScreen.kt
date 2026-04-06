@@ -46,6 +46,8 @@ import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
 import cashbackhome.composeapp.generated.resources.delete
 import cashbackhome.composeapp.generated.resources.edit
+import cashbackhome.composeapp.generated.resources.filter_icon_description
+import cashbackhome.composeapp.generated.resources.tune
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -71,6 +73,7 @@ internal fun CategoriesScreenRoot(
 ) {
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
+    scaffoldState.updateSearchAndSortBar(false, false)
     when (val state = uiState.value) {
         is CategoriesScreenState.EmptyScreen -> {
             scaffoldState.updateFab(false, onAddCategoryClick)
@@ -85,6 +88,7 @@ internal fun CategoriesScreenRoot(
             )
         }
         is CategoriesScreenState.Loading -> {
+            scaffoldState.updateFab(false, onAddCategoryClick)
             LoadingScreen()
         }
     }
@@ -142,7 +146,7 @@ private fun CashbackCard(
             modifier = Modifier
                 .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors().copy(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
             Row(
                 modifier = Modifier
@@ -189,7 +193,7 @@ private fun CashbackCard(
 }
 
 @Composable
-private fun SwipeBackground(state: SwipeToDismissBoxState) {
+internal fun SwipeBackground(state: SwipeToDismissBoxState) {
     val revealedWidth = revealedWidth(state)
 
     Box(
@@ -313,7 +317,7 @@ private fun getExpirationDaysTitle(x: String): String {
 @Composable
 private fun CashBackCardPreview() {
     val test = CashbackRule(
-        category = CashbackRule.CashbackCategory.Groceries,
+        category = CashbackRule.CashbackCategory.GasStationsFuel,
         expirationDate = "2026-15-04",
         percentage = 0.05,
         maxAmount = 0.0,
