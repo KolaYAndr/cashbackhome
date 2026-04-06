@@ -2,7 +2,6 @@ package org.homesharing.cashbackhome.presentation.mapper
 
 import androidx.compose.runtime.Composable
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.category_other
 import cashbackhome.composeapp.generated.resources.category_type_all_purchases
 import cashbackhome.composeapp.generated.resources.category_type_auto_services_goods
 import cashbackhome.composeapp.generated.resources.category_type_beauty_cosmetics
