@@ -19,6 +19,7 @@ internal fun PromotionsScreen(
     scaffoldState: ScaffoldState
 ) {
     scaffoldState.updateFab(false, {})
+    scaffoldState.updateSearchAndSortBar(false, false)
     Box(
         modifier = Modifier
             .fillMaxSize()

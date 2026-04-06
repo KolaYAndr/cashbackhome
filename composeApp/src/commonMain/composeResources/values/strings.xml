@@ -7,7 +7,11 @@
     <string name="tab_my_cards">Мои карты</string>
     <string name="tab_promotions">Акции</string>
     <string name="search_categories_placeholder">Поиск категорий</string>
+    <string name="search_cards_placeholder">Поиск карт</string>
+    <string name="search_promotions_placeholder">Поиск акций</string>
     <string name="filter_icon_description">Фильтр</string>
+    <string name="list_view_icon_description">В виде списка</string>
+    <string name="grid_view_icon_description">В виде сетки</string>
     <string name="chevron_right_icon_description">Профиль</string>
     <string name="profile_icon_description">Фото профиля</string>
     <string name="search_icon_description">Поиск</string>
@@ -24,14 +28,21 @@
     <string name="save_button">Save</string>
     <string name="bank_name_field_label">Bank Name</string>
     <string name="card_mask_field_label">Card Mask</string>
+    <string name="card_type_field_label">Тип карты</string>
+    <string name="card_type_debit">Дебетовая</string>
+    <string name="card_type_credit">Кредитная</string>
+    <string name="card_type_other">Другая</string>
     <string name="rule_title_field_label">Title</string>
     <string name="rule_percentage_field_label">Percentage</string>
     <string name="rule_category_field_label">Category</string>
     <string name="remove_rule_button">Remove rule</string>
 
     <!-- CardsScreen -->
-    <string name="card_add">Add new card</string>
-    <string name="cards_empty">No cards yet. Add your first one!</string>
+    <string name="card_add">Добавить карту</string>
+    <string name="cards_empty_title">У вас пока нет карт</string>
+    <string name="cards_empty_description">Добавьте первую карту, чтобы начать получать кэшбеки</string>
+    <string name="cards_switch_to_grid">Переключить на сетку</string>
+    <string name="cards_switch_to_list">Переключить на список</string>
     <string name="cashback_rule_add">Add cashback rule</string>
     <string name="cashback_rules_empty">No cashback rules for this card.</string>
     <string name="category_groceries">Groceries</string>
@@ -94,6 +105,7 @@
     <string name="category_type_sports_outdoor">Спорт / активный отдых</string>
     <string name="category_type_utilities">Услуги ЖКХ</string>
     <string name="category_type_duty_free">Duty-free / беспошлинная торговля</string>
+    <string name="category_type_other">Другая категория</string>
 
     <!-- PromotionsScreen -->
     <string name="promotions_placeholder">Раздел &quot;Акции&quot; скоро появится</string>

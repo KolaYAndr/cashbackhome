@@ -88,11 +88,13 @@ interface CardCashbackDao {
     // --------- Helpers / Filters для UI ---------
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM bank_cards
         WHERE bankName LIKE '%' || :query || '%'
-           OR mask      LIKE '%' || :query || '%'
-    """)
+           OR title      LIKE '%' || :query || '%'
+    """
+    )
     fun searchCards(query: String): Flow<List<BankCardWithCashback>>
 
     @Transaction

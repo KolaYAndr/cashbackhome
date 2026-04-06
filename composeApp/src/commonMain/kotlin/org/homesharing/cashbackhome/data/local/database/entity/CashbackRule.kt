@@ -19,7 +19,7 @@ data class CashbackRule(
     @Serializable
     sealed class CashbackCategory(val name: String) {
         data object AllPurchases : CashbackCategory("all_purchases")
-        data object Pharmacies : CashbackCategory("pharmacies")
+        data object Pharmacy : CashbackCategory("pharmacies")
         data object CafesRestaurantsFastfood : CashbackCategory("cafes_restaurants_fastfood")
         data object ClothingAndShoes : CashbackCategory("clothing_and_shoes")
         data object GasStationsFuel : CashbackCategory("gas_stations_fuel")
@@ -42,19 +42,12 @@ data class CashbackRule(
         data object SportsActiveLeisure : CashbackCategory("sports_active_leisure")
         data object Utilities : CashbackCategory("utilities")
         data object DutyFree : CashbackCategory("duty_free")
-        data object Groceries : CashbackCategory("groceries")
-        data object Cafe : CashbackCategory("cafe")
-        data object Restaurant : CashbackCategory("restaurant")
-        data object Travel : CashbackCategory("travel")
-        data object OnlineShopping : CashbackCategory("online_shopping")
-        data object Flowers : CashbackCategory("flowers")
-        data object Pharmacy : CashbackCategory("pharmacy")
-        data object Other : CashbackCategory("other")
+        data object Other : CashbackCategory("other_category")
 
         companion object {
-            val all: List<CashbackCategory> = listOf(
+            val all: List<CashbackCategory> get() = listOf(
                 AllPurchases,
-                Pharmacies,
+                Pharmacy,
                 CafesRestaurantsFastfood,
                 ClothingAndShoes,
                 GasStationsFuel,
@@ -77,13 +70,6 @@ data class CashbackRule(
                 SportsActiveLeisure,
                 Utilities,
                 DutyFree,
-                Groceries,
-                Cafe,
-                Restaurant,
-                Travel,
-                OnlineShopping,
-                Flowers,
-                Pharmacy,
                 Other,
             )
         }
@@ -97,7 +83,7 @@ internal class CashbackCategoryConverter {
     @TypeConverter
     fun toCategory(categoryName: String): CashbackRule.CashbackCategory = when (categoryName) {
         "all_purchases" -> CashbackRule.CashbackCategory.AllPurchases
-        "pharmacies" -> CashbackRule.CashbackCategory.Pharmacies
+        "pharmacies" -> CashbackRule.CashbackCategory.Pharmacy
         "cafes_restaurants_fastfood" -> CashbackRule.CashbackCategory.CafesRestaurantsFastfood
         "clothing_and_shoes" -> CashbackRule.CashbackCategory.ClothingAndShoes
         "gas_stations_fuel" -> CashbackRule.CashbackCategory.GasStationsFuel
@@ -120,13 +106,6 @@ internal class CashbackCategoryConverter {
         "sports_active_leisure" -> CashbackRule.CashbackCategory.SportsActiveLeisure
         "utilities" -> CashbackRule.CashbackCategory.Utilities
         "duty_free" -> CashbackRule.CashbackCategory.DutyFree
-        "groceries" -> CashbackRule.CashbackCategory.Groceries
-        "cafe" -> CashbackRule.CashbackCategory.Cafe
-        "restaurant" -> CashbackRule.CashbackCategory.Restaurant
-        "online_shopping" -> CashbackRule.CashbackCategory.OnlineShopping
-        "flowers" -> CashbackRule.CashbackCategory.Flowers
-        "pharmacy" -> CashbackRule.CashbackCategory.Pharmacy
-        "travel" -> CashbackRule.CashbackCategory.Travel
         else -> CashbackRule.CashbackCategory.Other
     }
 }

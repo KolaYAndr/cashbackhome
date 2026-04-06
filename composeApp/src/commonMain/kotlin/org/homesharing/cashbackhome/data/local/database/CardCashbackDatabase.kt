@@ -9,6 +9,7 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardTypeConverter
 import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackCategoryConverter
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
@@ -18,7 +19,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
     version = 1,
     exportSchema = false,
 )
-@TypeConverters(value = [CashbackCategoryConverter::class])
+@TypeConverters(value = [CashbackCategoryConverter::class, BankCardTypeConverter::class])
 @ConstructedBy(CardCashbackDatabaseConstructor::class)
 abstract class CardCashbackDatabase : RoomDatabase() {
     abstract fun cardCashbackDao(): CardCashbackDao

@@ -32,10 +32,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,13 +59,20 @@ import cashbackhome.composeapp.generated.resources.add
 import cashbackhome.composeapp.generated.resources.chevron_right_icon_description
 import cashbackhome.composeapp.generated.resources.default_profile_picture
 import cashbackhome.composeapp.generated.resources.filter_icon_description
+import cashbackhome.composeapp.generated.resources.grid_view
+import cashbackhome.composeapp.generated.resources.grid_view_icon_description
+import cashbackhome.composeapp.generated.resources.list_view_icon_description
 import cashbackhome.composeapp.generated.resources.profile_chevron_right
 import cashbackhome.composeapp.generated.resources.profile_icon_description
 import cashbackhome.composeapp.generated.resources.profile_name
 import cashbackhome.composeapp.generated.resources.search
+import cashbackhome.composeapp.generated.resources.search_cards_placeholder
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
+import cashbackhome.composeapp.generated.resources.search_promotions_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
+import cashbackhome.composeapp.generated.resources.view_list
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.cards.CardsScreen
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
@@ -81,6 +90,7 @@ internal fun HomeScreenRoot(
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
+    onEditCardClick: (BankCard) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
 
@@ -89,7 +99,8 @@ internal fun HomeScreenRoot(
         onAddCategoryClick = onAddCategoryClick,
         onAddCardClick = onAddCardClick,
         onTabClick = { viewModel.switchToTab(it) },
-        onEditCategoryClick = onEditCategoryClick
+        onEditCategoryClick = onEditCategoryClick,
+        onEditCardClick = onEditCardClick,
     )
 }
 
@@ -100,6 +111,7 @@ private fun HomeScreen(
     onAddCardClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
+    onEditCardClick: (BankCard) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState()
 
@@ -175,7 +187,16 @@ private fun HomeScreen(
                 }
             }
 
-            SearchAndSortBar()
+            SearchAndSortBar(
+                selectedTab = selectedTab,
+                searchAndSortBarConfig = scaffoldState.searchAndSortBarConfig,
+                onGridIconClick = {
+                    scaffoldState.updateSearchAndSortBar(true, true)
+                },
+                onListIconClick = {
+                    scaffoldState.updateSearchAndSortBar(true, false)
+                }
+            )
 
             AnimatedContent(
                 targetState = selectedTab,
@@ -212,7 +233,8 @@ private fun HomeScreen(
                     )
                     Tab.MyCards -> CardsScreen(
                         scaffoldState = scaffoldState,
-                        onAddCardClick = onAddCardClick
+                        onAddCardClick = onAddCardClick,
+                        onEditCard = onEditCardClick,
                     )
                     Tab.Promotions -> PromotionsScreen(scaffoldState)
                 }
@@ -279,7 +301,10 @@ private fun ScreenTab(
 }
 
 @Composable
-private fun SearchBar(modifier: Modifier) {
+private fun SearchBar(
+    modifier: Modifier,
+    placeholder: String,
+) {
     Row(
         modifier = modifier
             .height(30.dp)
@@ -297,7 +322,7 @@ private fun SearchBar(modifier: Modifier) {
         )
 
         Text(
-            text = stringResource(Res.string.search_categories_placeholder),
+            text = placeholder,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -305,25 +330,75 @@ private fun SearchBar(modifier: Modifier) {
 }
 
 @Composable
-private fun SearchAndSortBar() {
+private fun SearchAndSortBar(
+    selectedTab: Tab,
+    searchAndSortBarConfig: SearchAndSortBarConfig,
+    onGridIconClick: () -> Unit,
+    onListIconClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SearchBar(Modifier.weight(1f))
-
-        IconButton(
-            onClick = {},
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.tune),
-                contentDescription = stringResource(Res.string.filter_icon_description),
-                tint = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .size(24.dp),
+        SearchBar(
+            modifier = Modifier.weight(1f),
+            placeholder = stringResource(
+                when (selectedTab) {
+                    Tab.Categories -> Res.string.search_categories_placeholder
+                    Tab.MyCards -> Res.string.search_cards_placeholder
+                    Tab.Promotions -> Res.string.search_promotions_placeholder
+                }
             )
+        )
+
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            if (!searchAndSortBarConfig.isWidened) {
+                IconButton(
+                    onClick = {},
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.tune),
+                        contentDescription = stringResource(Res.string.filter_icon_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.tune),
+                        contentDescription = stringResource(Res.string.filter_icon_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+
+                IconButton(
+                    onClick = onGridIconClick
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.grid_view),
+                        contentDescription = stringResource(Res.string.grid_view_icon_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+
+                IconButton(
+                    onClick = onListIconClick
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.view_list),
+                        contentDescription = stringResource(Res.string.list_view_icon_description),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -352,7 +427,13 @@ private fun Modifier.colorUnderline(
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(Tab.Categories, {}, {}, {}, {})
+        HomeScreen(Tab.Categories,
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
     }
 }
 
