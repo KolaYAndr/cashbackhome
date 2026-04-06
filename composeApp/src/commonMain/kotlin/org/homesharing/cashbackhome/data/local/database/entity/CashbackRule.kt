@@ -3,8 +3,10 @@ package org.homesharing.cashbackhome.data.local.database.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "cashback_rules")
+@Serializable
 data class CashbackRule(
     @PrimaryKey(autoGenerate = true)
     val cashbackRuleId: Long = 0,
@@ -14,6 +16,7 @@ data class CashbackRule(
     val maxAmount: Double?,
     val expirationDate: String,
 ) {
+    @Serializable
     sealed class CashbackCategory(val name: String) {
         data object AllPurchases : CashbackCategory("all_purchases")
         data object Pharmacies : CashbackCategory("pharmacies")

@@ -7,17 +7,19 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.data.local.database.getRoomDatabase
 import org.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import org.homesharing.cashbackhome.presentation.cards.CardsViewModel
-import org.homesharing.cashbackhome.presentation.categories.AddCategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
+import org.homesharing.cashbackhome.presentation.categories.UpsertCategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -33,7 +35,9 @@ private val sharedStaticModule =
         viewModelOf(::AddCardWithCashbacksViewModel)
         viewModelOf(::HomeScreenViewModel)
         viewModelOf(::CategoriesScreenViewModel)
-        viewModelOf(::AddCategoriesScreenViewModel)
+        viewModel { (category: CashbackRule?) ->
+            UpsertCategoriesScreenViewModel(get(), get(), category)
+        }
     }
 
 fun initKoinModules(databaseBuilder: RoomDatabase.Builder<CardCashbackDatabase>): Array<Module> {

@@ -69,8 +69,8 @@ fun App() {
                         onAddCardClick = {
                             backStack.add(AppRoute.AddCardWithCashbacks)
                         },
-                        onEditCategoryClick = {
-                            backStack.add(AppRoute.EditCategoryScreen)
+                        onEditCategoryClick = { category ->
+                            backStack.add(AppRoute.EditCategoryScreen(category))
                         }
                     )
                 }
@@ -100,8 +100,16 @@ fun App() {
                     )
                 }
 
-                entry<AppRoute.EditCategoryScreen> {
-                    EditCategoryScreenRoot()
+                entry<AppRoute.EditCategoryScreen> { key ->
+                    EditCategoryScreenRoot(
+                        category =  key.category,
+                        onEditCategoryClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                    )
                 }
 
                 entry<AppRoute.PersonalCabinet> {

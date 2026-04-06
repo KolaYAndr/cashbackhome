@@ -73,6 +73,7 @@ import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.calendar
 import co.touchlab.kermit.Logger
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule.CashbackCategory
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
@@ -80,26 +81,29 @@ import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 private const val MinCashbackPercent = 1
 private const val MaxCashbackPercent = 100
 
 @Composable
-internal fun AddCategoryScreenRoot(
-    viewModel: AddCategoriesScreenViewModel = koinViewModel(),
-    onAddCategoryClick: () -> Unit,
+internal fun EditCategoryScreenRoot(
+    category: CashbackRule,
     onBackClick: () -> Unit,
-    onAddCardClick: () -> Unit,
+    onEditCategoryClick: () -> Unit,
 ) {
+    val viewModel = koinViewModel<UpsertCategoriesScreenViewModel>(
+        parameters = { parametersOf(category) }
+    )
     val uiState = viewModel.screenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.value) {
         Logger.i { "LaunchedEffect" }
         when (uiState.value) {
-            is AddCategoriesScreenState.Ready -> {
-                val state = uiState.value as AddCategoriesScreenState.Ready
+            is UpsertCategoriesScreenState.Ready -> {
+                val state = uiState.value as UpsertCategoriesScreenState.Ready
                 if (!state.error && state.forms.category != null) {
-                    onAddCategoryClick()
+                    onEditCategoryClick()
                 }
             }
             else -> {
@@ -109,18 +113,18 @@ internal fun AddCategoryScreenRoot(
     }
 
     when(uiState.value) {
-        is AddCategoriesScreenState.Loading -> {
+        is UpsertCategoriesScreenState.Loading -> {
             LoadingScreen()
         }
         else -> {
-            val state = uiState.value as AddCategoriesScreenState.Ready
+            val state = uiState.value as UpsertCategoriesScreenState.Ready
             AddCategoryScreen(
                 state = state,
                 onAddCategoryClick = {
                     viewModel.upsertRule()
                 },
                 onBackClick = onBackClick,
-                onAddCardClick = onAddCardClick,
+                onPrimaryButtonClick = onEditCategoryClick,
                 onCategorySelected = {
                     viewModel.categorySelected(it)
                 },
@@ -136,18 +140,72 @@ internal fun AddCategoryScreenRoot(
             )
         }
     }
+}
 
+@Composable
+internal fun AddCategoryScreenRoot(
+    onAddCategoryClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onAddCardClick: () -> Unit,
+) {
+    val viewModel = koinViewModel<UpsertCategoriesScreenViewModel>(
+        parameters = { parametersOf(null) }
+    )
+    val uiState = viewModel.screenState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(uiState.value) {
+        Logger.i { "LaunchedEffect" }
+        when (uiState.value) {
+            is UpsertCategoriesScreenState.Ready -> {
+                val state = uiState.value as UpsertCategoriesScreenState.Ready
+                if (!state.error && state.forms.category != null) {
+                    onAddCategoryClick()
+                }
+            }
+            else -> {
+
+            }
+        }
+    }
+
+    when(uiState.value) {
+        is UpsertCategoriesScreenState.Loading -> {
+            LoadingScreen()
+        }
+        else -> {
+            val state = uiState.value as UpsertCategoriesScreenState.Ready
+            AddCategoryScreen(
+                state = state,
+                onAddCategoryClick = {
+                    viewModel.upsertRule()
+                },
+                onBackClick = onBackClick,
+                onPrimaryButtonClick = onAddCardClick,
+                onCategorySelected = {
+                    viewModel.categorySelected(it)
+                },
+                onCardSelected = {
+                    viewModel.cardSelected(it)
+                },
+                onDateType = {
+                    viewModel.dateSelected(it)
+                },
+                onPressCashback = {
+                    viewModel.cashbackSelected(it)
+                }
+            )
+        }
+    }
 }
 
 @Composable
 private fun AddCategoryScreen(
-    state: AddCategoriesScreenState.Ready,
+    state: UpsertCategoriesScreenState.Ready,
     onAddCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
-    onAddCardClick: () -> Unit,
+    onPrimaryButtonClick: () -> Unit,
     onCategorySelected: (CashbackCategory) -> Unit,
-    onCardSelected: (BankCard) -> Unit,
+    onCardSelected: (String) -> Unit,
     onDateType: (String) -> Unit,
     onPressCashback: (Int) -> Unit,
 ) {
@@ -191,7 +249,7 @@ private fun AddCategoryScreen(
                     label = stringResource(Res.string.add_category_card_label),
                     message = stringResource(Res.string.add_category_no_card),
                     buttonText = stringResource(Res.string.add_category_add_card),
-                    onAddCardClick = onAddCardClick
+                    onAddCardClick = onPrimaryButtonClick
                 )
             } else {
                 CardSelectionFieldSection(
@@ -429,9 +487,9 @@ private fun CardSelectionFieldSection(
     hasError: Boolean,
     label: String,
     placeholder: String,
-    selectedCard: BankCard?,
+    selectedCard: String?,
     options: List<BankCard>,
-    onCardSelected: (BankCard) -> Unit,
+    onCardSelected: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -445,7 +503,7 @@ private fun CardSelectionFieldSection(
             onExpandedChange = { expanded = !expanded },
         ) {
             TextField(
-                value = selectedCard?.bankName.orEmpty(),
+                value = selectedCard.orEmpty(),
                 onValueChange = {},
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -484,7 +542,7 @@ private fun CardSelectionFieldSection(
                             )
                         },
                         onClick = {
-                            onCardSelected(option)
+                            onCardSelected(option.bankName)
                             expanded = false
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),

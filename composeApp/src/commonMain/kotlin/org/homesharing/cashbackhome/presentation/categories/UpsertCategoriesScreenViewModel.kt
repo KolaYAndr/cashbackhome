@@ -10,33 +10,47 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
-internal class AddCategoriesScreenViewModel(
+internal class UpsertCategoriesScreenViewModel(
     private val applicationScope: CoroutineScope,
     private val repository: CardCashbackRepository,
+    private val category: CashbackRule? = null,
 ) : ViewModel() {
     private val textFieldsFlow = MutableStateFlow(TextFields())
     private val errorFlow = MutableStateFlow(false)
+
+    init {
+        if (category != null) {
+            textFieldsFlow.update {
+                TextFields(
+                    id = category.cashbackRuleId,
+                    category = category.category,
+                    card = category.bankCardName,
+                    date = category.expirationDate,
+                    cashback = getValueFromPercent(category.percentage)
+                )
+            }
+        }
+    }
 
     val screenState = combine(
         textFieldsFlow,
         errorFlow,
         repository.getAllCards()
     ) {textFields, error, cards ->
-        AddCategoriesScreenState.Ready(
+        UpsertCategoriesScreenState.Ready(
             forms = textFields,
             error = error,
             cards = cards
-        ) as AddCategoriesScreenState
+        ) as UpsertCategoriesScreenState
     }
-        .onStart { emit(AddCategoriesScreenState.Loading) }
+        .onStart { emit(UpsertCategoriesScreenState.Loading) }
         .stateIn(
             viewModelScope,
             SharingStarted.Lazily,
-            AddCategoriesScreenState.Loading
+            UpsertCategoriesScreenState.Loading
         )
 
     fun categorySelected(category: CashbackRule.CashbackCategory) {
@@ -47,7 +61,7 @@ internal class AddCategoriesScreenViewModel(
         }
     }
 
-    fun cardSelected(card: BankCard) {
+    fun cardSelected(card: String) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
                 card = card
@@ -72,7 +86,7 @@ internal class AddCategoriesScreenViewModel(
     }
 
     fun upsertRule() {
-        val forms = (screenState.value as AddCategoriesScreenState.Ready).forms
+        val forms = (screenState.value as UpsertCategoriesScreenState.Ready).forms
         if (checkNull(forms)) {
             errorFlow.update {
                 true
@@ -81,7 +95,7 @@ internal class AddCategoriesScreenViewModel(
         }
 
         val newCashbackRule = CashbackRule(
-            bankCardName = forms.card?.bankName ?: throw RuntimeException("Card is null"),
+            bankCardName = forms.card ?: throw RuntimeException("Card is null"),
             percentage = getPercent(forms.cashback),
             category = forms.category ?: throw RuntimeException("Card is null"),
             maxAmount = 0.0,
@@ -104,4 +118,6 @@ internal class AddCategoriesScreenViewModel(
     }
 
     private fun getPercent(value: Int) = value.toDouble() / 100
+
+    private fun getValueFromPercent(percent: Double) = (percent * 100).toInt()
 }
