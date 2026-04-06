@@ -47,6 +47,8 @@ import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
 import cashbackhome.composeapp.generated.resources.delete
 import cashbackhome.composeapp.generated.resources.edit
+import cashbackhome.composeapp.generated.resources.filter_icon_description
+import cashbackhome.composeapp.generated.resources.tune
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone

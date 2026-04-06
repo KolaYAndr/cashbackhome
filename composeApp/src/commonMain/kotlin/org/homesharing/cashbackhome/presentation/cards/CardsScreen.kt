@@ -354,6 +354,7 @@ fun ItemActionOverlay(
                     )
                 }
             }
+            CardTypeChip(cardType = card.cardType)
         }
     }
 }
