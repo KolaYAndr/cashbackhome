@@ -1,7 +1,10 @@
 package org.homesharing.cashbackhome.presentation.cards
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -22,6 +25,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
@@ -29,9 +34,14 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +55,9 @@ import cashbackhome.composeapp.generated.resources.card_type_debit
 import cashbackhome.composeapp.generated.resources.card_type_other
 import cashbackhome.composeapp.generated.resources.cards_empty_description
 import cashbackhome.composeapp.generated.resources.cards_empty_title
+import cashbackhome.composeapp.generated.resources.delete
+import cashbackhome.composeapp.generated.resources.edit
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
@@ -116,7 +129,8 @@ private fun CardsList(
             CardListItem(
                 card = card,
                 onEditCardSwipe = { onEditCard(card) },
-                onDeleteCardSwipe = { onDeleteCard(card.cardId) }
+                onDeleteCardSwipe = { onDeleteCard(card.cardId) },
+                onClick = {},
             )
         }
     }
@@ -128,6 +142,8 @@ private fun CardsGrid(
     onDeleteCard: (Long) -> Unit,
     onEditCard: (BankCard) -> Unit,
 ) {
+    var overlayActiveItem by remember { mutableStateOf<Long?>(null) }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -140,8 +156,11 @@ private fun CardsGrid(
         ) { card ->
             CardGridItem(
                 card = card,
-                onEditCategorySwipe = { onEditCard(card) },
-                onDeleteCategorySwipe = { onDeleteCard(card.cardId) },
+                isLongPressed = (overlayActiveItem == card.cardId),
+                onEditCategoryClick = { onEditCard(card) },
+                onDeleteCategoryClick = { onDeleteCard(card.cardId) },
+                onLongClick = { overlayActiveItem = card.cardId},
+                onClick = {},
             )
         }
     }
@@ -152,6 +171,7 @@ private fun CardListItem(
     card: BankCard,
     onDeleteCardSwipe: () -> Unit,
     onEditCardSwipe: () -> Unit,
+    onClick: () -> Unit,
 ) {
     val dismissState = rememberSwipeToDismissBoxState(positionalThreshold = { 0.5f })
     val coroutineScope = rememberCoroutineScope()
@@ -223,60 +243,117 @@ private fun CardListItem(
 @Preview
 @Composable
 private fun PreviewCardItem() {
-    CardListItem(BankCard(0L, "", ""), {}, {})
+    CardListItem(
+        BankCard(0L, "", ""),
+        {},
+        {},
+        {},
+    )
 }
 
 @Composable
 private fun CardGridItem(
     card: BankCard,
-    onEditCategorySwipe: () -> Unit,
-    onDeleteCategorySwipe: () -> Unit,
+    isLongPressed: Boolean,
+    onLongClick: () -> Unit,
+    onClick: () -> Unit,
+    onEditCategoryClick: () -> Unit,
+    onDeleteCategoryClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(1.08f),
+            .aspectRatio(1.1f)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Image(
-                        painter = painterResource(Res.drawable.bankplaceholder),
-                        contentDescription = null,
-                        modifier = Modifier.size(53.dp),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.bankplaceholder),
+                            contentDescription = null,
+                            modifier = Modifier.size(53.dp),
+                        )
+                        Text(
+                            text = card.bankName,
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                     Text(
-                        text = card.bankName,
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onBackground,
-                        maxLines = 1,
+                        text = card.title.ifBlank { "••••" },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    text = card.title.ifBlank { "••••" },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                CardTypeChip(cardType = card.cardType)
             }
-            CardTypeChip(cardType = card.cardType)
+            ItemActionOverlay(
+                isVisible = isLongPressed,
+                onEditClicked = onEditCategoryClick,
+                onDeleteClicked = onDeleteCategoryClick,
+            )
+        }
+
+    }
+}
+
+@Composable
+fun ItemActionOverlay(
+    isVisible: Boolean,
+    onEditClicked: () -> Unit,
+    onDeleteClicked: () -> Unit
+) {
+    Logger.i { "Hello, I am $isVisible" }
+    if (isVisible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.6f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(onClick = onEditClicked) {
+                    Icon(
+                        painter = painterResource(Res.drawable.edit),
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = onDeleteClicked) {
+                    Icon(
+                        painter = painterResource(Res.drawable.delete),
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.errorContainer
+                    )
+                }
+            }
         }
     }
 }
