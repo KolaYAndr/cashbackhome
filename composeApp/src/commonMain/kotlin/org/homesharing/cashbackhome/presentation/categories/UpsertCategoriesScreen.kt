@@ -71,6 +71,7 @@ import cashbackhome.composeapp.generated.resources.arrow_back
 import cashbackhome.composeapp.generated.resources.arrow_drop_down
 import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.calendar
+import cashbackhome.composeapp.generated.resources.edit_category_title
 import co.touchlab.kermit.Logger
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
@@ -90,7 +91,8 @@ private const val MaxCashbackPercent = 100
 internal fun EditCategoryScreenRoot(
     category: CashbackRule,
     onBackClick: () -> Unit,
-    onEditCategoryClick: () -> Unit,
+    onSavedSuccessfully: () -> Unit,
+    onAddCardClick: () -> Unit,
 ) {
     val viewModel = koinViewModel<UpsertCategoriesScreenViewModel>(
         parameters = { parametersOf(category) }
@@ -100,10 +102,10 @@ internal fun EditCategoryScreenRoot(
     LaunchedEffect(uiState.value) {
         Logger.i { "LaunchedEffect" }
         when (uiState.value) {
-            is UpsertCategoriesScreenState.Ready -> {
-                val state = uiState.value as UpsertCategoriesScreenState.Ready
-                if (!state.error && state.forms.category != null) {
-                    onEditCategoryClick()
+            is UpsertCategoriesScreenState.UpsertCategory -> {
+                val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
+                if (state.forms.isSaved) {
+                    onSavedSuccessfully()
                 }
             }
             else -> {
@@ -117,26 +119,16 @@ internal fun EditCategoryScreenRoot(
             LoadingScreen()
         }
         else -> {
-            val state = uiState.value as UpsertCategoriesScreenState.Ready
+            val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
             AddCategoryScreen(
                 state = state,
-                onAddCategoryClick = {
-                    viewModel.upsertRule()
-                },
+                onAddCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
-                onPrimaryButtonClick = onEditCategoryClick,
-                onCategorySelected = {
-                    viewModel.categorySelected(it)
-                },
-                onCardSelected = {
-                    viewModel.cardSelected(it)
-                },
-                onDateType = {
-                    viewModel.dateSelected(it)
-                },
-                onPressCashback = {
-                    viewModel.cashbackSelected(it)
-                }
+                onAddCardClick = onAddCardClick,
+                onCategorySelected = viewModel::categorySelected,
+                onCardSelected = viewModel::cardSelected,
+                onDateType = viewModel::dateSelected,
+                onPressCashback = viewModel::cashbackSelected,
             )
         }
     }
@@ -144,7 +136,7 @@ internal fun EditCategoryScreenRoot(
 
 @Composable
 internal fun AddCategoryScreenRoot(
-    onAddCategoryClick: () -> Unit,
+    onSavedSuccessfully: () -> Unit,
     onBackClick: () -> Unit,
     onAddCardClick: () -> Unit,
 ) {
@@ -156,10 +148,10 @@ internal fun AddCategoryScreenRoot(
     LaunchedEffect(uiState.value) {
         Logger.i { "LaunchedEffect" }
         when (uiState.value) {
-            is UpsertCategoriesScreenState.Ready -> {
-                val state = uiState.value as UpsertCategoriesScreenState.Ready
-                if (!state.error && state.forms.category != null) {
-                    onAddCategoryClick()
+            is UpsertCategoriesScreenState.UpsertCategory -> {
+                val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
+                if (state.forms.isSaved) {
+                    onSavedSuccessfully()
                 }
             }
             else -> {
@@ -173,26 +165,16 @@ internal fun AddCategoryScreenRoot(
             LoadingScreen()
         }
         else -> {
-            val state = uiState.value as UpsertCategoriesScreenState.Ready
+            val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
             AddCategoryScreen(
                 state = state,
-                onAddCategoryClick = {
-                    viewModel.upsertRule()
-                },
+                onAddCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
-                onPrimaryButtonClick = onAddCardClick,
-                onCategorySelected = {
-                    viewModel.categorySelected(it)
-                },
-                onCardSelected = {
-                    viewModel.cardSelected(it)
-                },
-                onDateType = {
-                    viewModel.dateSelected(it)
-                },
-                onPressCashback = {
-                    viewModel.cashbackSelected(it)
-                }
+                onAddCardClick = onAddCardClick,
+                onCategorySelected = viewModel::categorySelected,
+                onCardSelected = viewModel::cardSelected,
+                onDateType = viewModel::dateSelected,
+                onPressCashback = viewModel::cashbackSelected,
             )
         }
     }
@@ -200,10 +182,10 @@ internal fun AddCategoryScreenRoot(
 
 @Composable
 private fun AddCategoryScreen(
-    state: UpsertCategoriesScreenState.Ready,
+    state: UpsertCategoriesScreenState.UpsertCategory,
     onAddCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
-    onPrimaryButtonClick: () -> Unit,
+    onAddCardClick: () -> Unit,
     onCategorySelected: (CashbackCategory) -> Unit,
     onCardSelected: (String) -> Unit,
     onDateType: (String) -> Unit,
@@ -224,7 +206,14 @@ private fun AddCategoryScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
     ) {
-        AddCategoryTopBar(onBackClick = onBackClick)
+        AddCategoryTopBar(
+            title = if (state.isEditing) {
+                stringResource(Res.string.edit_category_title)
+            } else {
+                stringResource(Res.string.add_category_title)
+            },
+            onBackClick = onBackClick,
+        )
 
         Column(
             modifier = Modifier
@@ -234,9 +223,7 @@ private fun AddCategoryScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             CategorySelectionFieldSection(
-                hasError = state.error,
-                label = stringResource(Res.string.add_category_category_label),
-                placeholder = stringResource(Res.string.add_category_category_placeholder),
+                hasError = state.forms.hasError,
                 selectedCategory = selectedCategory,
                 options = categoryOptions,
                 onCategorySelected = onCategorySelected,
@@ -245,17 +232,12 @@ private fun AddCategoryScreen(
             //Card
             if (cards.isEmpty()) {
                 NoCards(
-                    hasError = state.error,
-                    label = stringResource(Res.string.add_category_card_label),
-                    message = stringResource(Res.string.add_category_no_card),
-                    buttonText = stringResource(Res.string.add_category_add_card),
-                    onAddCardClick = onPrimaryButtonClick
+                    hasError = state.forms.hasError,
+                    onAddCardClick = onAddCardClick
                 )
             } else {
                 CardSelectionFieldSection(
-                    hasError = state.error,
-                    label = stringResource(Res.string.add_category_card_label),
-                    placeholder = stringResource(Res.string.add_category_card_placeholder),
+                    hasError = state.forms.hasError,
                     selectedCard = selectedCard,
                     options = cards,
                     onCardSelected = onCardSelected,
@@ -263,7 +245,7 @@ private fun AddCategoryScreen(
             }
 
             ChooseDate(
-                hasError = state.error,
+                hasError = state.forms.hasError,
                 expirationDate = expirationDate,
                 onDateType = onDateType,
                 isUnlimited = isUnlimited,
@@ -319,12 +301,13 @@ private fun AddCategoryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddCategoryTopBar(
+    title: String,
     onBackClick: () -> Unit,
 ) {
     TopAppBar(
         title = {
             Text(
-                text = stringResource(Res.string.add_category_title),
+                text = title,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
             )
@@ -374,8 +357,6 @@ private fun DefaultTextInBox(
 @Composable
 private fun CategorySelectionFieldSection(
     hasError: Boolean,
-    label: String,
-    placeholder: String,
     selectedCategory: CashbackCategory?,
     options: List<Pair<CashbackCategory, String>>,
     onCategorySelected: (CashbackCategory) -> Unit,
@@ -385,7 +366,7 @@ private fun CategorySelectionFieldSection(
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SectionLabel(text = label)
+        SectionLabel(text = stringResource(Res.string.add_category_category_label))
 
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -400,7 +381,10 @@ private fun CategorySelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(placeholder, hasError)
+                    DefaultTextInBox(
+                        stringResource(Res.string.add_category_category_placeholder),
+                        hasError
+                    )
                 },
                 colors = dropdownTextFieldColors(),
                 trailingIcon = {
@@ -445,23 +429,20 @@ private fun CategorySelectionFieldSection(
 @Composable
 private fun NoCards(
     hasError: Boolean,
-    label: String,
-    message: String,
-    buttonText: String,
     onAddCardClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        SectionLabel(label)
+        SectionLabel(stringResource(Res.string.add_category_card_label))
 
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DefaultTextInBox(message, hasError)
+            DefaultTextInBox(stringResource(Res.string.add_category_no_card), hasError)
 
             Button(
                 shape = RoundedCornerShape(14.dp),
@@ -471,7 +452,7 @@ private fun NoCards(
                 )
             ) {
                 Text(
-                    text = buttonText,
+                    text = stringResource(Res.string.add_category_add_card),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground
@@ -485,8 +466,6 @@ private fun NoCards(
 @Composable
 private fun CardSelectionFieldSection(
     hasError: Boolean,
-    label: String,
-    placeholder: String,
     selectedCard: String?,
     options: List<BankCard>,
     onCardSelected: (String) -> Unit,
@@ -496,7 +475,7 @@ private fun CardSelectionFieldSection(
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SectionLabel(text = label)
+        SectionLabel(stringResource(Res.string.add_category_card_label))
 
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -511,7 +490,10 @@ private fun CardSelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(placeholder, hasError)
+                    DefaultTextInBox(
+                        stringResource(Res.string.add_category_card_placeholder),
+                        hasError
+                    )
                 },
                 colors = dropdownTextFieldColors(),
                 trailingIcon = {
@@ -720,6 +702,6 @@ private fun dropdownTextFieldColors() = TextFieldDefaults.colors(
 @Preview
 fun PreviewAddCategoryScreenLight() {
     CashbackHomeTheme {
-        AddCategoryScreenRoot(onAddCategoryClick = {}, onBackClick = {}, onAddCardClick = {} )
+        AddCategoryScreenRoot(onSavedSuccessfully = {}, onBackClick = {}, onAddCardClick = {} )
     }
 }

@@ -88,7 +88,7 @@ fun App() {
 
                 entry<AppRoute.AddCategoryScreen> {
                     AddCategoryScreenRoot(
-                        onAddCategoryClick = {
+                        onSavedSuccessfully = {
                             backStack.removeLastOrNull()
                         },
                         onBackClick = {
@@ -103,12 +103,15 @@ fun App() {
                 entry<AppRoute.EditCategoryScreen> { key ->
                     EditCategoryScreenRoot(
                         category =  key.category,
-                        onEditCategoryClick = {
+                        onSavedSuccessfully = {
                             backStack.removeLastOrNull()
                         },
                         onBackClick = {
                             backStack.removeLastOrNull()
                         },
+                        onAddCardClick = {
+                            backStack.add(AppRoute.AddCardWithCashbacks)
+                        }
                     )
                 }
 

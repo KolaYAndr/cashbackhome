@@ -19,7 +19,6 @@ internal class UpsertCategoriesScreenViewModel(
     private val category: CashbackRule? = null,
 ) : ViewModel() {
     private val textFieldsFlow = MutableStateFlow(TextFields())
-    private val errorFlow = MutableStateFlow(false)
 
     init {
         if (category != null) {
@@ -37,12 +36,10 @@ internal class UpsertCategoriesScreenViewModel(
 
     val screenState = combine(
         textFieldsFlow,
-        errorFlow,
         repository.getAllCards()
-    ) {textFields, error, cards ->
-        UpsertCategoriesScreenState.Ready(
+    ) {textFields, cards ->
+        UpsertCategoriesScreenState.UpsertCategory(
             forms = textFields,
-            error = error,
             cards = cards
         ) as UpsertCategoriesScreenState
     }
@@ -56,7 +53,8 @@ internal class UpsertCategoriesScreenViewModel(
     fun categorySelected(category: CashbackRule.CashbackCategory) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
-                category = category
+                category = category,
+                hasError = false,
             )
         }
     }
@@ -64,7 +62,8 @@ internal class UpsertCategoriesScreenViewModel(
     fun cardSelected(card: String) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
-                card = card
+                card = card,
+                hasError = false,
             )
         }
     }
@@ -72,7 +71,8 @@ internal class UpsertCategoriesScreenViewModel(
     fun dateSelected(date: String) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
-                date = date
+                date = date,
+                hasError = false
             )
         }
     }
@@ -86,14 +86,15 @@ internal class UpsertCategoriesScreenViewModel(
     }
 
     fun upsertRule() {
-        val forms = (screenState.value as UpsertCategoriesScreenState.Ready).forms
+        val forms = (screenState.value as UpsertCategoriesScreenState.UpsertCategory).forms
         if (checkNull(forms)) {
-            errorFlow.update {
-                true
+            textFieldsFlow.update {
+                it.copy(hasError = true)
             }
             return
         }
 
+        textFieldsFlow.update { it.copy(isSaving = true)}
         val newCashbackRule = CashbackRule(
             bankCardName = forms.card ?: throw RuntimeException("Card is null"),
             percentage = getPercent(forms.cashback),
@@ -102,7 +103,23 @@ internal class UpsertCategoriesScreenViewModel(
             expirationDate = forms.date ?: throw RuntimeException("Card is null")
         )
         applicationScope.launch {
-            repository.upsertCashbackRule(newCashbackRule)
+            try {
+                repository.upsertCashbackRule(newCashbackRule)
+                textFieldsFlow.update {
+                    it.copy (
+                        isSaving = false,
+                        isSaved = true,
+                    )
+                }
+            }
+            catch(_: Exception) {
+                textFieldsFlow.update{
+                    it.copy(
+                        isSaving = false,
+                        hasError = true,
+                    )
+                }
+            }
         }
     }
 

@@ -9,14 +9,17 @@ internal data class TextFields(
     val card: String? = null,
     val date: String? = null,
     val cashback: Int = 5,
+    val isSaved: Boolean = false,
+    val hasError: Boolean = false,
+    val isSaving: Boolean = false,
 )
 
 internal sealed interface UpsertCategoriesScreenState {
     data object Loading: UpsertCategoriesScreenState
 
-    data class Ready(
+    data class UpsertCategory(
         val forms: TextFields,
         val cards: List<BankCard>,
-        val error: Boolean = false
+        val isEditing: Boolean = false
     ): UpsertCategoriesScreenState
 }

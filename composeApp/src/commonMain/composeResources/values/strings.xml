@@ -50,7 +50,7 @@
     <string name="categories_screen_wrong_data_format">Неправильная дата</string>
 
     <!-- EditCategoriesScreen -->
-    <string name="edit_category_placeholder">Раздел &quot;Редактировать категорию&quot; скоро появится</string>
+    <string name="edit_category_title">Редактирвать категорию</string>
 
     <!-- AddCategoriesScreen -->
     <string name="add_category_placeholder">Раздел &quot;Добавить категорию&quot; скоро появится</string>
