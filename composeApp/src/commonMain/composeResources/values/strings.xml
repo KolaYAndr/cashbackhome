@@ -54,6 +54,19 @@
     <string name="category_pharmacy">Pharmacy</string>
     <string name="category_other">Other</string>
 
+    <!-- UpsertCardScreen -->
+    <string name="upsert_card_add_title">Добавить карту</string>
+    <string name="upsert_card_edit_title">Редактировать карту</string>
+    <string name="upsert_card_bank_label">Банк</string>
+    <string name="upsert_card_bank_placeholder">Выберите банк</string>
+    <string name="upsert_card_name_label">Название карты</string>
+    <string name="upsert_card_name_hint">Нужно для различия карт одного банка</string>
+    <string name="upsert_card_name_placeholder">Введите название карты</string>
+    <string name="upsert_card_type_label">Тип карты</string>
+    <string name="upsert_card_add_button">Добавить</string>
+    <string name="upsert_card_save_button">Сохранить</string>
+    <string name="upsert_card_privacy_hint">Информация о вашей карте хранится только на вашем устройстве и никогда не передается третьим лицам.</string>
+
     <!-- CategoriesScreen -->
     <string name="categories_screen_empty_title">У вас пока нет категорий</string>
     <string name="categories_screen_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>

@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -328,7 +329,7 @@ private fun AddCategoryTopBar(
 }
 
 @Composable
-private fun SectionLabel(text: String) {
+internal fun SectionLabel(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.headlineSmall,
@@ -337,12 +338,13 @@ private fun SectionLabel(text: String) {
 }
 
 @Composable
-private fun DefaultTextInBox(
+internal fun DefaultTextInBox(
     text: String,
     hasError: Boolean
 ) {
     Text(
         text = text,
+        modifier = Modifier.fillMaxWidth(),
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.bodySmall,
         color = if (hasError) {
@@ -350,6 +352,8 @@ private fun DefaultTextInBox(
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 

@@ -70,7 +70,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-internal fun CardsScreen(
+internal fun CardsScreenRoot(
     viewModel: CardsViewModel = koinViewModel(),
     scaffoldState: ScaffoldState,
     onAddCardClick: () -> Unit,

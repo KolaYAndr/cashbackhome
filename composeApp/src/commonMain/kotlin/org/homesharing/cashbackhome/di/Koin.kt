@@ -7,12 +7,14 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDatabase
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.data.local.database.getRoomDatabase
 import org.homesharing.cashbackhome.data.repository.CardCashbackRepositoryImpl
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksViewModel
 import org.homesharing.cashbackhome.presentation.cards.CardsViewModel
+import org.homesharing.cashbackhome.presentation.cards.UpsertCardScreenViewModel
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.categories.UpsertCategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
@@ -35,6 +37,9 @@ private val sharedStaticModule =
         viewModelOf(::AddCardWithCashbacksViewModel)
         viewModelOf(::HomeScreenViewModel)
         viewModelOf(::CategoriesScreenViewModel)
+        viewModel { (card: BankCard?) ->
+            UpsertCardScreenViewModel(get(), card)
+        }
         viewModel { (category: CashbackRule?) ->
             UpsertCategoriesScreenViewModel(get(), get(), category)
         }

@@ -17,7 +17,7 @@ internal sealed class AppRoute : NavKey {
     data class EditCategoryScreen(val category: CashbackRule): AppRoute()
 
     @Serializable
-    data object AddCardWithCashbacks : AppRoute()
+    data object AddCardScreen : AppRoute()
 
     @Serializable
     data class EditCardScreen(val card: BankCard) : AppRoute()

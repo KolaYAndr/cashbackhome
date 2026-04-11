@@ -10,7 +10,8 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.homesharing.cashbackhome.presentation.addcard.AddCardWithCashbacksScreen
+import org.homesharing.cashbackhome.presentation.cards.AddCardScreenRoot
+import org.homesharing.cashbackhome.presentation.cards.EditCardScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.EditCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.home.HomeScreenRoot
@@ -30,8 +31,8 @@ fun App() {
                             AppRoute.AddCategoryScreen.serializer()
                         )
                         subclass(
-                            AppRoute.AddCardWithCashbacks::class,
-                            AppRoute.AddCardWithCashbacks.serializer()
+                            AppRoute.AddCardScreen::class,
+                            AppRoute.AddCardScreen.serializer()
                         )
                         subclass(
                             AppRoute.PersonalCabinet::class,
@@ -67,7 +68,7 @@ fun App() {
                             backStack.add(AppRoute.AddCategoryScreen)
                         },
                         onAddCardClick = {
-                            backStack.add(AppRoute.AddCardWithCashbacks)
+                            backStack.add(AppRoute.AddCardScreen)
                         },
                         onEditCategoryClick = { category ->
                             backStack.add(AppRoute.EditCategoryScreen(category))
@@ -78,8 +79,8 @@ fun App() {
                     )
                 }
 
-                entry<AppRoute.AddCardWithCashbacks> {
-                    AddCardWithCashbacksScreen(
+                entry<AppRoute.AddCardScreen> {
+                    AddCardScreenRoot(
                         onBackClick = {
                             backStack.removeLastOrNull()
                         },
@@ -98,7 +99,7 @@ fun App() {
                             backStack.removeLastOrNull()
                         },
                         onAddCardClick = {
-                            backStack.add(AppRoute.AddCardWithCashbacks)
+                            backStack.add(AppRoute.AddCardScreen)
                         }
                     )
                 }
@@ -113,7 +114,7 @@ fun App() {
                             backStack.removeLastOrNull()
                         },
                         onAddCardClick = {
-                            backStack.add(AppRoute.AddCardWithCashbacks)
+                            backStack.add(AppRoute.AddCardScreen)
                         }
                     )
                 }
@@ -122,8 +123,16 @@ fun App() {
 //                    TODO("Add personal cabinet screen")
                 }
 
-                entry<AppRoute.EditCardScreen> {
-//                    TODO("Add edit category screen")
+                entry<AppRoute.EditCardScreen> { key ->
+                    EditCardScreenRoot(
+                        card = key.card,
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onSavedSuccessfully = {
+                            backStack.removeLastOrNull()
+                        },
+                    )
                 }
             },
         )

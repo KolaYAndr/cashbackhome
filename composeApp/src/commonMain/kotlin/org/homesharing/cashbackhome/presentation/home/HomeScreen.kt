@@ -74,7 +74,7 @@ import cashbackhome.composeapp.generated.resources.tune
 import cashbackhome.composeapp.generated.resources.view_list
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
-import org.homesharing.cashbackhome.presentation.cards.CardsScreen
+import org.homesharing.cashbackhome.presentation.cards.CardsScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -231,7 +231,7 @@ private fun HomeScreen(
                         onAddCategoryClick = onAddCategoryClick,
                         onEditCategoryClick = onEditCategoryClick
                     )
-                    Tab.MyCards -> CardsScreen(
+                    Tab.MyCards -> CardsScreenRoot(
                         scaffoldState = scaffoldState,
                         onAddCardClick = onAddCardClick,
                         onEditCard = onEditCardClick,
