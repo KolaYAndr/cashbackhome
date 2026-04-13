@@ -390,7 +390,7 @@ private fun CategorySelectionFieldSection(
                         hasError
                     )
                 },
-                colors = dropdownTextFieldColors(),
+                colors = textFieldColors(),
                 trailingIcon = {
                     Icon(
                         painter = painterResource(Res.drawable.arrow_drop_down),
@@ -499,7 +499,7 @@ private fun CardSelectionFieldSection(
                         hasError
                     )
                 },
-                colors = dropdownTextFieldColors(),
+                colors = textFieldColors(),
                 trailingIcon = {
                     Icon(
                         painter = painterResource(Res.drawable.arrow_drop_down),
@@ -563,7 +563,7 @@ private fun ChooseDate(
                     hasError
                 )
             },
-            colors = dropdownTextFieldColors(),
+            colors = textFieldColors(),
             modifier = Modifier.fillMaxWidth(),
             enabled = !isUnlimited,
             singleLine = true,
@@ -688,7 +688,7 @@ private fun StepperButton(
 }
 
 @Composable
-private fun dropdownTextFieldColors() = TextFieldDefaults.colors(
+internal fun textFieldColors() = TextFieldDefaults.colors(
     focusedContainerColor = MaterialTheme.colorScheme.surface,
     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
     disabledContainerColor = MaterialTheme.colorScheme.surface,

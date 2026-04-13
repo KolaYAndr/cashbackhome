@@ -65,6 +65,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
 import org.homesharing.cashbackhome.presentation.categories.DefaultTextInBox
 import org.homesharing.cashbackhome.presentation.categories.SectionLabel
+import org.homesharing.cashbackhome.presentation.categories.textFieldColors
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -290,7 +291,7 @@ private fun BankSelectionField(
                         hasError = hasError,
                     )
                 },
-                colors = fieldColors(),
+                colors = textFieldColors(),
                 trailingIcon = {
                     Icon(
                         painter = painterResource(Res.drawable.arrow_drop_down),
@@ -355,7 +356,7 @@ private fun LabeledTextField(
                     hasError = hasError,
                 )
             },
-            colors = fieldColors(),
+            colors = textFieldColors(),
             shape = RoundedCornerShape(14.dp),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
                 textAlign = TextAlign.Center,
@@ -494,21 +495,6 @@ private fun ButtonAndMessage(
         )
     }
 }
-
-@Composable
-private fun fieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = MaterialTheme.colorScheme.surface,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-    disabledContainerColor = MaterialTheme.colorScheme.surface,
-    errorContainerColor = MaterialTheme.colorScheme.surface,
-    focusedIndicatorColor = Color.Transparent,
-    unfocusedIndicatorColor = Color.Transparent,
-    disabledIndicatorColor = Color.Transparent,
-    errorIndicatorColor = Color.Transparent,
-    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-)
 
 @Composable
 @Preview

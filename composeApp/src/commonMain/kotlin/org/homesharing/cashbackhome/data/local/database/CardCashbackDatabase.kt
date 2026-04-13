@@ -16,7 +16,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 @Database(
     entities = [BankCard::class, CashbackRule::class, CardCashback::class],
-    version = 4,
+    version = 1,
     exportSchema = false,
 )
 @TypeConverters(value = [CashbackCategoryConverter::class, BankCardTypeConverter::class])
