@@ -72,6 +72,7 @@ import cashbackhome.composeapp.generated.resources.search_promotions_placeholder
 import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
 import cashbackhome.composeapp.generated.resources.view_list
+import co.touchlab.kermit.Logger
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.cards.CardsScreenRoot
@@ -93,9 +94,13 @@ internal fun HomeScreenRoot(
     onEditCardClick: (BankCard) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
+    val isGrid by viewModel.isGrid.collectAsStateWithLifecycle()
+    Logger.i { "$tabState. $isGrid" }
 
     HomeScreen(
         selectedTab = tabState,
+        isGrid = isGrid,
+        onGridStateChanged = viewModel::updateIsGridState,
         onAddCategoryClick = onAddCategoryClick,
         onAddCardClick = onAddCardClick,
         onTabClick = { viewModel.switchToTab(it) },
@@ -107,13 +112,16 @@ internal fun HomeScreenRoot(
 @Composable
 private fun HomeScreen(
     selectedTab: Tab,
+    isGrid: Boolean,
+    onGridStateChanged: (Boolean) -> Unit,
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onTabClick: (Tab) -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
 ) {
-    val scaffoldState = rememberScaffoldState()
+    val scaffoldState = rememberScaffoldState(isGrid)
+    Logger.i { scaffoldState.searchAndSortBarConfig.value.toString() }
 
     val fabEnterTransition = scaleIn(
             animationSpec = spring(
@@ -135,7 +143,7 @@ private fun HomeScreen(
     Scaffold(
         floatingActionButton = {
             AnimatedVisibility(
-                visible = scaffoldState.fabConfig.isVisible,
+                visible = scaffoldState.fabConfig.value.isVisible,
                 enter = fabEnterTransition,
                 exit = fabExitTransition
             ) {
@@ -145,7 +153,7 @@ private fun HomeScreen(
                         .size(56.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
-                    onClick = scaffoldState.fabConfig.onClick
+                    onClick = scaffoldState.fabConfig.value.onClick
                 ) {
                     Icon(
                         painter = painterResource(Res.drawable.add),
@@ -189,12 +197,20 @@ private fun HomeScreen(
 
             SearchAndSortBar(
                 selectedTab = selectedTab,
-                searchAndSortBarConfig = scaffoldState.searchAndSortBarConfig,
+                searchAndSortBarConfig = scaffoldState.searchAndSortBarConfig.value,
                 onGridIconClick = {
-                    scaffoldState.updateSearchAndSortBar(true, true)
+                    onGridStateChanged(true)
+                    scaffoldState.updateSearchAndSortBar(
+                        isWidened = true,
+                        newGridState = true
+                    )
                 },
                 onListIconClick = {
-                    scaffoldState.updateSearchAndSortBar(true, false)
+                    onGridStateChanged(false)
+                    scaffoldState.updateSearchAndSortBar(
+                        isWidened = true,
+                        newGridState = false
+                    )
                 }
             )
 
@@ -428,6 +444,8 @@ private fun Modifier.colorUnderline(
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
         HomeScreen(Tab.Categories,
+            false,
+            {},
             {},
             {},
             {},

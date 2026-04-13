@@ -15,6 +15,13 @@ internal class HomeScreenViewModel : ViewModel() {
     private val _tabState: MutableStateFlow<Tab> = MutableStateFlow(Tab.Categories)
     val tabState: StateFlow<Tab> = _tabState.asStateFlow()
 
+    private val _isGrid: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isGrid = _isGrid.asStateFlow()
+
+    fun updateIsGridState(state: Boolean) {
+        _isGrid.update { state }
+    }
+
     fun switchToTab(tab: Tab) {
         _tabState.update { tab }
     }
@@ -28,17 +35,17 @@ internal sealed class Tab(
     val name: StringResource,
     val hierarchyIndex: Int,
 ) {
-    object Categories : Tab(
+    data object Categories : Tab(
         name = Res.string.tab_categories,
         hierarchyIndex = FIRST_TAB,
     )
 
-    object MyCards : Tab(
+    data object MyCards : Tab(
         name = Res.string.tab_my_cards,
         hierarchyIndex = SECOND_TAB,
     )
 
-    object Promotions : Tab(
+    data object Promotions : Tab(
         name = Res.string.tab_promotions,
         hierarchyIndex = THIRD_TAB,
     )

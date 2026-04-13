@@ -1,12 +1,9 @@
 package org.homesharing.cashbackhome.presentation.home
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import org.jetbrains.compose.resources.DrawableResource
-import org.jetbrains.compose.resources.StringResource
+import co.touchlab.kermit.Logger
 
 internal data class FabConfig(
     val isVisible: Boolean = false,
@@ -18,28 +15,37 @@ internal data class SearchAndSortBarConfig(
     val isGrid: Boolean = false,
 )
 
-internal class ScaffoldState {
-    var fabConfig by mutableStateOf(FabConfig())
+internal class ScaffoldState(private val isGrid: Boolean) {
+    var fabConfig = mutableStateOf(FabConfig())
         private set
-    var searchAndSortBarConfig by mutableStateOf(SearchAndSortBarConfig())
+    var searchAndSortBarConfig = mutableStateOf(SearchAndSortBarConfig(isGrid = isGrid))
         private set
 
     fun updateFab(isVisible: Boolean, onClick: () -> Unit) {
-        fabConfig = FabConfig(isVisible, onClick)
+        fabConfig.value = FabConfig(isVisible, onClick)
     }
 
     fun updateSearchAndSortBar(
         isWidened: Boolean,
-        isGrid: Boolean,
+        newGridState: Boolean,
     ) {
-        searchAndSortBarConfig = SearchAndSortBarConfig(
+        searchAndSortBarConfig.value = SearchAndSortBarConfig(
             isWidened = isWidened,
-            isGrid = isGrid
+            isGrid = newGridState,
+        )
+    }
+
+    fun updateSearchAndSortBar(
+        isWidened: Boolean,
+    ) {
+        searchAndSortBarConfig.value = SearchAndSortBarConfig(
+            isWidened = isWidened,
+            isGrid = this.searchAndSortBarConfig.value.isGrid,
         )
     }
 }
 
 @Composable
-internal fun rememberScaffoldState(): ScaffoldState {
-    return remember { ScaffoldState() }
+internal fun rememberScaffoldState(isGrid: Boolean = false): ScaffoldState {
+    return remember { ScaffoldState(isGrid) }
 }
