@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
+import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -149,39 +151,52 @@ private fun CashbackCard(
                     .fillMaxWidth()
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(27.dp)
             ) {
-                Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row (
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     Image(
                         painter = painterResource(Res.drawable.bankplaceholder),
                         contentDescription = null,
                         modifier = Modifier.size(53.dp),
                     )
 
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp) ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
                         Text(
-                            text = category.category.name,
+                            text = categoryName(category.category),
                             lineHeight = 22.sp,
                             style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            text = "Bank name",
+                            text = category.bankCardName,
                             lineHeight = 19.sp,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
                 Text(
                     text = getExpirationDaysTitle(category.expirationDate),
                     style = MaterialTheme.typography.bodySmall,
-                    color = getDateColor(category.expirationDate)
+                    color = getDateColor(category.expirationDate),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = getPercents(category.percentage),
                     style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
