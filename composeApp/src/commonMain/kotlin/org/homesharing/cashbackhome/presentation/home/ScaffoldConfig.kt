@@ -3,7 +3,6 @@ package org.homesharing.cashbackhome.presentation.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import co.touchlab.kermit.Logger
 
 internal data class FabConfig(
     val isVisible: Boolean = false,
