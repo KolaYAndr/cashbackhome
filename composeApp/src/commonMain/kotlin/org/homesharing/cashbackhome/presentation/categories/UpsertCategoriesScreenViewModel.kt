@@ -40,7 +40,8 @@ internal class UpsertCategoriesScreenViewModel(
     ) {textFields, cards ->
         UpsertCategoriesScreenState.UpsertCategory(
             forms = textFields,
-            cards = cards
+            cards = cards,
+            isEditing = category != null,
         ) as UpsertCategoriesScreenState
     }
         .onStart { emit(UpsertCategoriesScreenState.Loading) }
@@ -96,6 +97,7 @@ internal class UpsertCategoriesScreenViewModel(
 
         textFieldsFlow.update { it.copy(isSaving = true)}
         val newCashbackRule = CashbackRule(
+            cashbackRuleId = forms.id ?: 0,
             bankCardName = forms.card ?: throw RuntimeException("Card is null"),
             percentage = getPercent(forms.cashback),
             category = forms.category ?: throw RuntimeException("Card is null"),

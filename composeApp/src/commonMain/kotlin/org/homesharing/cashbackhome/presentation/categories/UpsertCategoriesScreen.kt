@@ -72,6 +72,7 @@ import cashbackhome.composeapp.generated.resources.arrow_back
 import cashbackhome.composeapp.generated.resources.arrow_drop_down
 import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.calendar
+import cashbackhome.composeapp.generated.resources.edit_category_submit_button
 import cashbackhome.composeapp.generated.resources.edit_category_title
 import co.touchlab.kermit.Logger
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
@@ -289,7 +290,11 @@ private fun AddCategoryScreen(
                 ),
             ) {
                 Text(
-                    text = stringResource(Res.string.add_category_submit_button),
+                    text = if (state.isEditing) {
+                        stringResource(Res.string.edit_category_submit_button)
+                    } else {
+                        stringResource(Res.string.add_category_submit_button)
+                    },
                     style = MaterialTheme.typography.headlineSmall,
                 )
             }

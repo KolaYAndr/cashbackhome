@@ -75,6 +75,7 @@
 
     <!-- EditCategoriesScreen -->
     <string name="edit_category_title">Редактирвать категорию</string>
+    <string name="edit_category_submit_button">Сохранить</string>
 
     <!-- AddCategoriesScreen -->
     <string name="add_category_placeholder">Раздел &quot;Добавить категорию&quot; скоро появится</string>
