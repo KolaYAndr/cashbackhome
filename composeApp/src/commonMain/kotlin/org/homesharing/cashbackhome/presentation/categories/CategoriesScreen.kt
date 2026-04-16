@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.bankplaceholder
 import cashbackhome.composeapp.generated.resources.categories_screen_add_category_button
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
