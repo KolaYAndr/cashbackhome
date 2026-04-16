@@ -23,5 +23,10 @@ internal sealed class AppRoute : NavKey {
     data class EditCardScreen(val card: BankCard) : AppRoute()
 
     @Serializable
+    data class ChooseBankScreen(
+        val selectedBankName: String? = null,
+    ) : AppRoute()
+
+    @Serializable
     data object PersonalCabinet : AppRoute()
 }

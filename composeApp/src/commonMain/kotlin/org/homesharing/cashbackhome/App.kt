@@ -1,6 +1,10 @@
 package org.homesharing.cashbackhome
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -11,6 +15,9 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.homesharing.cashbackhome.presentation.cards.AddCardScreenRoot
+import org.homesharing.cashbackhome.presentation.cards.BankPickerOptions
+import org.homesharing.cashbackhome.presentation.cards.BankSelectionResult
+import org.homesharing.cashbackhome.presentation.cards.ChooseBankScreen
 import org.homesharing.cashbackhome.presentation.cards.EditCardScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.EditCategoryScreenRoot
@@ -21,6 +28,9 @@ import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 @Composable
 fun App() {
     CashbackHomeTheme {
+        val knownBankNames = remember {
+            BankPickerOptions.map { it.name }.toSet()
+        }
         val backStack = rememberNavBackStack(
             configuration = SavedStateConfiguration {
                 serializersModule = SerializersModule {
@@ -43,6 +53,10 @@ fun App() {
                             AppRoute.EditCardScreen.serializer()
                         )
                         subclass(
+                            AppRoute.ChooseBankScreen::class,
+                            AppRoute.ChooseBankScreen.serializer()
+                        )
+                        subclass(
                             AppRoute.EditCategoryScreen::class,
                             AppRoute.EditCategoryScreen.serializer()
                         )
@@ -51,6 +65,25 @@ fun App() {
             },
             AppRoute.Home
         )
+        var bankSelectionEventId by remember { mutableStateOf(0L) }
+        var bankSelectionResult by remember { mutableStateOf<BankSelectionResult?>(null) }
+
+        fun openChooseBankScreen(currentBankName: String?) {
+            val isKnownBankName = currentBankName != null && currentBankName in knownBankNames
+            backStack.add(
+                AppRoute.ChooseBankScreen(
+                    selectedBankName = currentBankName.takeIf { isKnownBankName },
+                )
+            )
+        }
+
+        fun publishBankSelectionResult(bankName: String) {
+            bankSelectionEventId += 1
+            bankSelectionResult = BankSelectionResult(
+                bankName = bankName,
+                eventId = bankSelectionEventId,
+            )
+        }
 
         NavDisplay(
             backStack = backStack,
@@ -86,6 +119,11 @@ fun App() {
                         },
                         onSavedSuccessfully = {
                             backStack.removeLastOrNull()
+                        },
+                        onChooseBankClick = ::openChooseBankScreen,
+                        bankSelectionResult = bankSelectionResult,
+                        onBankSelectionResultConsumed = {
+                            bankSelectionResult = null
                         },
                     )
                 }
@@ -130,6 +168,24 @@ fun App() {
                             backStack.removeLastOrNull()
                         },
                         onSavedSuccessfully = {
+                            backStack.removeLastOrNull()
+                        },
+                        onChooseBankClick = ::openChooseBankScreen,
+                        bankSelectionResult = bankSelectionResult,
+                        onBankSelectionResultConsumed = {
+                            bankSelectionResult = null
+                        },
+                    )
+                }
+
+                entry<AppRoute.ChooseBankScreen> { key ->
+                    ChooseBankScreen(
+                        selectedBankName = key.selectedBankName,
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onBankSelected = { bankName ->
+                            publishBankSelectionResult(bankName)
                             backStack.removeLastOrNull()
                         },
                     )

@@ -67,6 +67,11 @@
     <string name="upsert_card_save_button">Сохранить</string>
     <string name="upsert_card_privacy_hint">Информация о вашей карте хранится только на вашем устройстве и никогда не передается третьим лицам.</string>
 
+    <!-- ChooseBankScreen -->
+    <string name="choose_bank_title">Добавить банк</string>
+    <string name="choose_bank_search_placeholder">Поиск банков</string>
+    <string name="choose_bank_empty_results">Ничего не найдено</string>
+
     <!-- CategoriesScreen -->
     <string name="categories_screen_empty_title">У вас пока нет категорий</string>
     <string name="categories_screen_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>

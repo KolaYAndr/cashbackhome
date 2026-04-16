@@ -207,11 +207,7 @@ private fun CardListItem(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    painter = painterResource(Res.drawable.bankplaceholder),
-                    contentDescription = null,
-                    modifier = Modifier.size(53.dp),
-                )
+                BankBadge(card.bankName)
 
                 Column(
                     modifier = Modifier.weight(1f),
@@ -287,11 +283,8 @@ private fun CardGridItem(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Image(
-                            painter = painterResource(Res.drawable.bankplaceholder),
-                            contentDescription = null,
-                            modifier = Modifier.size(53.dp),
-                        )
+                        BankBadge(card.bankName)
+
                         Text(
                             text = card.bankName,
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),

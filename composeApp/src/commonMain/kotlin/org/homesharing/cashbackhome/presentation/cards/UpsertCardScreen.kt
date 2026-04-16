@@ -4,8 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +27,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +47,7 @@ import cashbackhome.composeapp.generated.resources.upsert_card_add_title
 import cashbackhome.composeapp.generated.resources.upsert_card_bank_label
 import cashbackhome.composeapp.generated.resources.upsert_card_bank_placeholder
 import cashbackhome.composeapp.generated.resources.upsert_card_edit_title
+import cashbackhome.composeapp.generated.resources.upsert_card_name_hint
 import cashbackhome.composeapp.generated.resources.upsert_card_name_label
 import cashbackhome.composeapp.generated.resources.upsert_card_name_placeholder
 import cashbackhome.composeapp.generated.resources.upsert_card_privacy_hint
@@ -70,26 +64,25 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-private val BankOptions = listOf(
-    "Т-Банк",
-    "Сбер",
-    "Альфа-Банк",
-    "ВТБ",
-    "Газпромбанк",
-    "Совкомбанк",
-    "Ozon Банк",
-    "Райффайзен Банк",
-)
-
 @Composable
 internal fun AddCardScreenRoot(
     onBackClick: () -> Unit,
     onSavedSuccessfully: () -> Unit,
+    onChooseBankClick: (String?) -> Unit,
+    bankSelectionResult: BankSelectionResult?,
+    onBankSelectionResultConsumed: () -> Unit,
 ) {
     val viewModel: UpsertCardScreenViewModel = koinViewModel(
         parameters = { parametersOf(null) }
     )
     val uiState = viewModel.screenState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(bankSelectionResult?.eventId) {
+        bankSelectionResult?.let { result ->
+            viewModel.bankSelected(result.bankName)
+            onBankSelectionResultConsumed()
+        }
+    }
 
     LaunchedEffect(uiState.value) {
         when (uiState.value) {
@@ -99,22 +92,18 @@ internal fun AddCardScreenRoot(
                     onSavedSuccessfully()
                 }
             }
-            else -> {
-
-            }
+            else -> Unit
         }
     }
 
     when (uiState.value) {
-        is UpsertCardScreenState.Loading -> {
-
-        }
+        is UpsertCardScreenState.Loading -> Unit
         is UpsertCardScreenState.UpsertCard -> {
             val state = uiState.value as UpsertCardScreenState.UpsertCard
             UpsertCardScreen(
                 state = state,
                 onBackClick = onBackClick,
-                onBankNameChanged = viewModel::bankNameChanged,
+                onChooseBankClick = onChooseBankClick,
                 onTitleChanged = viewModel::titleChanged,
                 onCardTypeSelected = viewModel::cardTypeSelected,
                 onSubmitClick = viewModel::upsertCard,
@@ -128,11 +117,21 @@ internal fun EditCardScreenRoot(
     card: BankCard,
     onBackClick: () -> Unit,
     onSavedSuccessfully: () -> Unit,
+    onChooseBankClick: (String?) -> Unit,
+    bankSelectionResult: BankSelectionResult?,
+    onBankSelectionResultConsumed: () -> Unit,
 ) {
     val viewModel: UpsertCardScreenViewModel = koinViewModel(
         parameters = { parametersOf(card) }
     )
     val uiState = viewModel.screenState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(bankSelectionResult?.eventId) {
+        bankSelectionResult?.let { result ->
+            viewModel.bankSelected(result.bankName)
+            onBankSelectionResultConsumed()
+        }
+    }
 
     LaunchedEffect(uiState.value) {
         when (uiState.value) {
@@ -142,22 +141,18 @@ internal fun EditCardScreenRoot(
                     onSavedSuccessfully()
                 }
             }
-            else -> {
-
-            }
+            else -> Unit
         }
     }
 
     when (uiState.value) {
-        is UpsertCardScreenState.Loading -> {
-
-        }
+        is UpsertCardScreenState.Loading -> Unit
         is UpsertCardScreenState.UpsertCard -> {
             val state = uiState.value as UpsertCardScreenState.UpsertCard
             UpsertCardScreen(
                 state = state,
                 onBackClick = onBackClick,
-                onBankNameChanged = viewModel::bankNameChanged,
+                onChooseBankClick = onChooseBankClick,
                 onTitleChanged = viewModel::titleChanged,
                 onCardTypeSelected = viewModel::cardTypeSelected,
                 onSubmitClick = viewModel::upsertCard,
@@ -170,7 +165,7 @@ internal fun EditCardScreenRoot(
 private fun UpsertCardScreen(
     state: UpsertCardScreenState.UpsertCard,
     onBackClick: () -> Unit,
-    onBankNameChanged: (String) -> Unit,
+    onChooseBankClick: (String?) -> Unit,
     onTitleChanged: (String) -> Unit,
     onCardTypeSelected: (BankCardType) -> Unit,
     onSubmitClick: () -> Unit,
@@ -201,8 +196,9 @@ private fun UpsertCardScreen(
             BankSelectionField(
                 value = state.forms.bankName,
                 hasError = state.forms.hasError,
-                options = BankOptions,
-                onValueChange = onBankNameChanged,
+                onChooseBankClick = {
+                    onChooseBankClick(state.forms.bankName)
+                },
             )
 
             LabeledTextField(
@@ -250,83 +246,77 @@ private fun UpsertCardTopBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background,
         ),
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BankSelectionField(
     value: String?,
     hasError: Boolean,
-    options: List<String>,
-    onValueChange: (String) -> Unit,
+    onChooseBankClick: () -> Unit,
 ) {
-    var expanded by remember { mutableStateOf(false) }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         SectionLabel(text = stringResource(Res.string.upsert_card_bank_label))
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-        ) {
-            TextField(
-                value = value.orEmpty(),
-                onValueChange = {},
-                modifier = Modifier
-                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
-                    .fillMaxWidth(),
-                readOnly = true,
-                singleLine = true,
-                placeholder = {
-                    DefaultTextInBox(
-                        text = stringResource(Res.string.upsert_card_bank_placeholder),
-                        hasError = hasError,
-                    )
-                },
-                colors = textFieldColors(),
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.arrow_drop_down),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onBackground,
-                    )
-                },
-                shape = RoundedCornerShape(14.dp),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground,
-                ),
-            )
+        ListBankSelectionField(
+            value = value,
+            hasError = hasError,
+            onChooseBankClick = onChooseBankClick,
+        )
+    }
+}
 
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                containerColor = MaterialTheme.colorScheme.surface,
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = option,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                        },
-                        onClick = {
-                            onValueChange(option)
-                            expanded = false
-                        },
-                        contentPadding = PaddingValues(horizontal = 15.dp)
-                    )
-                }
-            }
-        }
+@Composable
+private fun ListBankSelectionField(
+    value: String?,
+    hasError: Boolean,
+    onChooseBankClick: () -> Unit,
+) {
+    val isEmpty = value.isNullOrBlank()
+    val displayText = value ?: stringResource(Res.string.upsert_card_bank_placeholder)
+    val textStyle = if (isEmpty) {
+        MaterialTheme.typography.bodySmall
+    } else {
+        MaterialTheme.typography.bodyMedium
+    }
+    val textColor = when {
+        isEmpty && hasError -> MaterialTheme.colorScheme.errorContainer
+        isEmpty -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> MaterialTheme.colorScheme.onBackground
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = onChooseBankClick)
+            .padding(horizontal = 13.dp, vertical = 15.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = displayText,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 24.dp),
+            style = textStyle,
+            color = textColor,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        Icon(
+            painter = painterResource(Res.drawable.arrow_drop_down),
+            contentDescription = null,
+            modifier = Modifier.align(Alignment.CenterEnd),
+            tint = MaterialTheme.colorScheme.onBackground,
+        )
     }
 }
 
@@ -341,7 +331,10 @@ private fun LabeledTextField(
     ) {
         SectionLabel(text = stringResource(Res.string.upsert_card_name_label))
 
-        DefaultTextInBox(text = stringResource(Res.string.upsert_card_privacy_hint), false)
+        DefaultTextInBox(
+            text = stringResource(Res.string.upsert_card_name_hint),
+            hasError = false,
+        )
 
         TextField(
             value = value.orEmpty(),
@@ -453,8 +446,7 @@ private fun ButtonAndMessage(
     isEditing: Boolean,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Button(
@@ -485,8 +477,7 @@ private fun ButtonAndMessage(
 
         Text(
             text = stringResource(Res.string.upsert_card_privacy_hint),
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -501,14 +492,14 @@ private fun UpsertCardScreenPreview() {
         UpsertCardScreen(
             state = UpsertCardScreenState.UpsertCard(
                 forms = CardsForms(
-                    bankName = "Т-Банк",
+                    bankName = "T-Банк",
                     title = "Основная карта",
                     cardType = BankCardType.Debit,
                 ),
-                isEditing = false
+                isEditing = false,
             ),
             onBackClick = {},
-            onBankNameChanged = {},
+            onChooseBankClick = {},
             onTitleChanged = {},
             onCardTypeSelected = {},
             onSubmitClick = {},

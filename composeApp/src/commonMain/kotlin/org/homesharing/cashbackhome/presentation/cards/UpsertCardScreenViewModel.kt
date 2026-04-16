@@ -32,7 +32,7 @@ internal class UpsertCardScreenViewModel(
         UpsertCardScreenState.Loading
     )
 
-    fun bankNameChanged(bankName: String) {
+    fun bankSelected(bankName: String) {
         _formsFlow.update {
             it.copy(
                 bankName = bankName,
@@ -58,7 +58,7 @@ internal class UpsertCardScreenViewModel(
 
     fun upsertCard() {
         val state = screenState.value as UpsertCardScreenState.UpsertCard
-        if (state.forms.title.isNullOrBlank() || state.forms.bankName == null) {
+        if (state.forms.title.isNullOrBlank() || state.forms.bankName.isNullOrBlank()) {
             _formsFlow.update { it.copy(hasError = true) }
             return
         }

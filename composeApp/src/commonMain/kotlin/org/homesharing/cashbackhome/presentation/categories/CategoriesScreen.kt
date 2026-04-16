@@ -54,6 +54,7 @@ import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.presentation.cards.BankBadge
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
@@ -159,11 +160,7 @@ private fun CashbackCard(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Image(
-                        painter = painterResource(Res.drawable.bankplaceholder),
-                        contentDescription = null,
-                        modifier = Modifier.size(53.dp),
-                    )
+                    BankBadge(category.bankCardName)
 
                     Column(
                         verticalArrangement = Arrangement.spacedBy(2.dp),
