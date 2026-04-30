@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -343,22 +342,22 @@ internal fun SectionLabel(text: String) {
 }
 
 @Composable
-internal fun DefaultTextInBox(
+internal fun TipText(
     text: String,
-    hasError: Boolean
+    hasError: Boolean,
+    isCentered: Boolean = false,
 ) {
     Text(
         text = text,
         modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.Center,
+        textAlign = if (isCentered) TextAlign.Center else TextAlign.Left,
         style = MaterialTheme.typography.bodySmall,
         color = if (hasError) {
             MaterialTheme.colorScheme.errorContainer
         } else {
             MaterialTheme.colorScheme.onSurfaceVariant
         },
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
+        maxLines = 1
     )
 }
 
@@ -390,9 +389,10 @@ private fun CategorySelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(
-                        stringResource(Res.string.add_category_category_placeholder),
-                        hasError
+                    TipText(
+                        text = stringResource(Res.string.add_category_category_placeholder),
+                        hasError = hasError,
+                        isCentered = true,
                     )
                 },
                 colors = textFieldColors(),
@@ -451,7 +451,7 @@ private fun NoCards(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            DefaultTextInBox(stringResource(Res.string.add_category_no_card), hasError)
+            TipText(stringResource(Res.string.add_category_no_card), hasError)
 
             Button(
                 shape = RoundedCornerShape(14.dp),
@@ -499,9 +499,10 @@ private fun CardSelectionFieldSection(
                 readOnly = true,
                 singleLine = true,
                 placeholder = {
-                    DefaultTextInBox(
-                        stringResource(Res.string.add_category_card_placeholder),
-                        hasError
+                    TipText(
+                        text = stringResource(Res.string.add_category_card_placeholder),
+                        hasError = hasError,
+                        isCentered = true
                     )
                 },
                 colors = textFieldColors(),
@@ -563,9 +564,10 @@ private fun ChooseDate(
             value = expirationDate.orEmpty(),
             onValueChange = onDateType,
             placeholder = {
-                DefaultTextInBox(
-                    stringResource(Res.string.add_category_expiration_placeholder),
-                    hasError
+                TipText(
+                    text = stringResource(Res.string.add_category_expiration_placeholder),
+                    hasError = hasError,
+                    isCentered = true,
                 )
             },
             colors = textFieldColors(),

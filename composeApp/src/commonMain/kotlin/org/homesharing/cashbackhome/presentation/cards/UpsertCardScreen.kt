@@ -55,7 +55,7 @@ import cashbackhome.composeapp.generated.resources.upsert_card_save_button
 import cashbackhome.composeapp.generated.resources.upsert_card_type_label
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
-import org.homesharing.cashbackhome.presentation.categories.DefaultTextInBox
+import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.categories.SectionLabel
 import org.homesharing.cashbackhome.presentation.categories.textFieldColors
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -279,16 +279,6 @@ private fun ListBankSelectionField(
 ) {
     val isEmpty = value.isNullOrBlank()
     val displayText = value ?: stringResource(Res.string.upsert_card_bank_placeholder)
-    val textStyle = if (isEmpty) {
-        MaterialTheme.typography.bodySmall
-    } else {
-        MaterialTheme.typography.bodyMedium
-    }
-    val textColor = when {
-        isEmpty && hasError -> MaterialTheme.colorScheme.errorContainer
-        isEmpty -> MaterialTheme.colorScheme.onSurfaceVariant
-        else -> MaterialTheme.colorScheme.onBackground
-    }
 
     Box(
         modifier = Modifier
@@ -299,17 +289,19 @@ private fun ListBankSelectionField(
             .padding(horizontal = 13.dp, vertical = 15.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = displayText,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 24.dp),
-            style = textStyle,
-            color = textColor,
-            textAlign = TextAlign.Center,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        if (isEmpty) {
+            TipText(
+                text = displayText,
+                hasError = hasError,
+                isCentered = true
+            )
+        } else {
+            Text(
+                text = displayText,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         Icon(
             painter = painterResource(Res.drawable.arrow_drop_down),
@@ -331,7 +323,7 @@ private fun LabeledTextField(
     ) {
         SectionLabel(text = stringResource(Res.string.upsert_card_name_label))
 
-        DefaultTextInBox(
+        TipText(
             text = stringResource(Res.string.upsert_card_name_hint),
             hasError = false,
         )
@@ -342,14 +334,15 @@ private fun LabeledTextField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             placeholder = {
-                DefaultTextInBox(
+                TipText(
                     text = stringResource(Res.string.upsert_card_name_placeholder),
                     hasError = hasError,
+                    isCentered = true,
                 )
             },
             colors = textFieldColors(),
             shape = RoundedCornerShape(14.dp),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(
+            textStyle = MaterialTheme.typography.bodySmall.copy(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onBackground,
             ),
@@ -431,10 +424,9 @@ private fun CardTypeButton(
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyLarge,
             color = contentColor,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
         )
     }
 }

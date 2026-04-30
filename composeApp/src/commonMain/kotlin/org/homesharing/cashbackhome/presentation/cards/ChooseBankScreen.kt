@@ -6,12 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,8 +44,7 @@ import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.choose_bank_empty_results
 import cashbackhome.composeapp.generated.resources.choose_bank_search_placeholder
 import cashbackhome.composeapp.generated.resources.choose_bank_title
-import cashbackhome.composeapp.generated.resources.search
-import org.homesharing.cashbackhome.presentation.categories.textFieldColors
+import org.homesharing.cashbackhome.presentation.home.SearchBarX
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -74,7 +69,7 @@ internal val BankPickerOptions = listOf(
         badgeText = "T",
         badgeBackgroundColor = Color(0xFFFFDD2D),
         badgeContentColor = Color(0xFF111111),
-        searchTerms = listOf("Тинькофф", "Tinkoff"),
+        searchTerms = listOf("Тинькофф", "Tinkoff", "T-bank"),
     ),
     BankPickerOption(
         name = "Сбербанк",
@@ -82,13 +77,14 @@ internal val BankPickerOptions = listOf(
         badgeBackgroundColor = Color(0xFFFFFFFF),
         badgeContentColor = Color(0xFF4CAF50),
         badgeBorderColor = Color(0xFFB7DDBD),
-        searchTerms = listOf("Сбер"),
+        searchTerms = listOf("Сбер", "Sber", "Sberbank"),
     ),
     BankPickerOption(
         name = "ВТБ",
         badgeText = "ВТБ",
         badgeBackgroundColor = Color(0xFFE7F1FF),
         badgeContentColor = Color(0xFF2A7DE1),
+        searchTerms = listOf("VTB")
     ),
     BankPickerOption(
         name = "Альфа-Банк",
@@ -96,14 +92,14 @@ internal val BankPickerOptions = listOf(
         badgeBackgroundColor = Color(0xFFFFFFFF),
         badgeContentColor = Color(0xFFE53935),
         badgeBorderColor = Color(0xFFE9D5D4),
-        searchTerms = listOf("Альфа"),
+        searchTerms = listOf("Альфа", "Альфа банк", "Alfa-bank", "Alfa", "Alfa bank"),
     ),
     BankPickerOption(
         name = "Райффайзенбанк",
         badgeText = "R",
         badgeBackgroundColor = Color(0xFFFFE04A),
         badgeContentColor = Color(0xFF111111),
-        searchTerms = listOf("Райфф"),
+        searchTerms = listOf("Райфф", "Raiffeisen", "Raiffeisen bank", "Raif"),
     ),
     BankPickerOption(
         name = "Газпромбанк",
@@ -111,6 +107,7 @@ internal val BankPickerOptions = listOf(
         badgeBackgroundColor = Color(0xFFFFFFFF),
         badgeContentColor = Color(0xFF111111),
         badgeBorderColor = Color(0xFFD8DADF),
+        searchTerms = listOf("Газпром", "Gazprom", "Gazprombank")
     ),
     BankPickerOption(
         name = "МТС Банк",
@@ -118,6 +115,7 @@ internal val BankPickerOptions = listOf(
         badgeBackgroundColor = Color(0xFFFFFFFF),
         badgeContentColor = Color(0xFF111111),
         badgeBorderColor = Color(0xFFD8DADF),
+        searchTerms = listOf("МТС", "MTS", "MTS bank")
     ),
     BankPickerOption(
         name = "Ozon Банк",
@@ -160,18 +158,18 @@ internal fun ChooseBankScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            SearchBanksField(
-                value = searchQuery,
+            SearchBarX(
+                modifier = Modifier,
+                placeholder = stringResource(Res.string.choose_bank_search_placeholder),
+                searchQuery = searchQuery,
                 onValueChange = { searchQuery = it },
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(
                     items = filteredBanks,
@@ -225,44 +223,12 @@ private fun ChooseBankTopBar(
 }
 
 @Composable
-private fun SearchBanksField(
-    value: String,
-    onValueChange: (String) -> Unit,
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        placeholder = {
-            Text(
-                text = stringResource(Res.string.choose_bank_search_placeholder),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        },
-        colors = textFieldColors(),
-        leadingIcon = {
-            Icon(
-                painter = painterResource(Res.drawable.search),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        },
-        shape = RoundedCornerShape(16.dp),
-        textStyle = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onBackground,
-        ),
-    )
-}
-
-@Composable
 private fun BankPickerRow(
     bank: BankPickerOption,
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(8.dp)
     val backgroundColor = if (isSelected) {
         MaterialTheme.colorScheme.surface
     } else {
@@ -314,16 +280,17 @@ internal fun BankBadge(
         fontWeight = FontWeight.Bold,
         fontSize = if (bank.badgeText.length > 2) 10.sp else 16.sp,
     )
+    val shape = RoundedCornerShape(12.dp)
 
     Box(
         modifier = Modifier
             .size(40.dp)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(shape)
             .background(bank.badgeBackgroundColor)
             .border(
                 width = 1.dp,
                 color = bank.badgeBorderColor,
-                shape = RoundedCornerShape(12.dp),
+                shape = shape,
             ),
         contentAlignment = Alignment.Center,
     ) {

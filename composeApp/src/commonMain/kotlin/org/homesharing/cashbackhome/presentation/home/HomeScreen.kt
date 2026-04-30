@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,7 +71,6 @@ import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_cards_placeholder
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
 import cashbackhome.composeapp.generated.resources.search_promotions_placeholder
-import cashbackhome.composeapp.generated.resources.search_icon_description
 import cashbackhome.composeapp.generated.resources.tune
 import cashbackhome.composeapp.generated.resources.view_list
 import co.touchlab.kermit.Logger
@@ -77,6 +78,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.cards.CardsScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
+import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -316,33 +318,47 @@ private fun ScreenTab(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchBar(
+internal fun SearchBarX(
     modifier: Modifier,
     placeholder: String,
+    searchQuery: String? = null,
+    onValueChange: (String) -> Unit = {},
 ) {
-    Row(
+    BasicTextField(
         modifier = modifier
+            .fillMaxWidth()
             .height(30.dp)
-            .clip(RoundedCornerShape(17.dp))
+            .clip(RoundedCornerShape(26.dp))
             .background(MaterialTheme.colorScheme.surface)
             .padding(start = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Icon(
-            painter = painterResource(Res.drawable.search),
-            contentDescription = stringResource(Res.string.search_icon_description),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(14.dp),
-        )
+        onValueChange = onValueChange,
+        singleLine = true,
+        value = searchQuery.orEmpty(),
+        decorationBox = { innerTextField ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.search),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-        Text(
-            text = placeholder,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (searchQuery.orEmpty().isEmpty()) {
+                        TipText(placeholder, false)
+                    }
+                    innerTextField()
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -358,7 +374,7 @@ private fun SearchAndSortBar(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SearchBar(
+        SearchBarX(
             modifier = Modifier.weight(1f),
             placeholder = stringResource(
                 when (selectedTab) {
