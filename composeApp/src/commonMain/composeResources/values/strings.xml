@@ -70,7 +70,9 @@
     <!-- ChooseBankScreen -->
     <string name="choose_bank_title">Добавить банк</string>
     <string name="choose_bank_search_placeholder">Поиск банков</string>
-    <string name="choose_bank_empty_results">Ничего не найдено</string>
+    <string name="choose_bank_empty_results">Банк не найден</string>
+    <string name="choose_bank_not_present">Нет вашего банка в списке?</string>
+    <string name="choose_bank_add_button">Добавить вручную</string>
 
     <!-- CategoriesScreen -->
     <string name="categories_screen_empty_title">У вас пока нет категорий</string>

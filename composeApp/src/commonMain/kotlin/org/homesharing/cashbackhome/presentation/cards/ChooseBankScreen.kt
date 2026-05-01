@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,12 +24,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,9 +49,13 @@ import androidx.compose.ui.unit.sp
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.arrow_back
 import cashbackhome.composeapp.generated.resources.back_button_description
+import cashbackhome.composeapp.generated.resources.choose_bank_add_button
 import cashbackhome.composeapp.generated.resources.choose_bank_empty_results
+import cashbackhome.composeapp.generated.resources.choose_bank_not_present
 import cashbackhome.composeapp.generated.resources.choose_bank_search_placeholder
 import cashbackhome.composeapp.generated.resources.choose_bank_title
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.homesharing.cashbackhome.presentation.home.SearchBarX
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -146,18 +158,40 @@ internal fun ChooseBankScreen(
             option.matchesQuery(searchQuery)
         }
     }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
-        ChooseBankTopBar(onBackClick = onBackClick)
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            ChooseBankTopBar(onBackClick = onBackClick)
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(horizontal = 36.dp, vertical = 12.dp),
+            ) { snackbarData ->
+                Snackbar(
 
+                    shape = RoundedCornerShape(26.dp),
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ) {
+                    Text(
+                        text = snackbarData.visuals.message,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        },
+    ) { contentPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(contentPadding)
+                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             SearchBarX(
@@ -188,6 +222,13 @@ internal fun ChooseBankScreen(
                     item {
                         EmptySearchResult()
                     }
+                }
+
+                item {
+                    BankNotInTheList(
+                        scope = scope,
+                        snackbarHostState = snackbarHostState
+                    )
                 }
             }
         }
@@ -304,18 +345,56 @@ internal fun BankBadge(
 }
 
 @Composable
-private fun EmptySearchResult() {
-    Box(
+private fun BankNotInTheList(
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        contentAlignment = Alignment.Center,
+            .padding(bottom = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Text(
+            text = stringResource(Res.string.choose_bank_not_present),
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+        Button(
+            contentPadding = PaddingValues(vertical = 12.5.dp, horizontal = 33.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            onClick = {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Этот функционал еще не реализован")
+                }
+            },
+        ) {
+            Text(
+                text = stringResource(Res.string.choose_bank_add_button),
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+    }
+}
+
+@Composable
+private fun EmptySearchResult() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 50.dp, bottom = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(Res.string.choose_bank_empty_results),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
