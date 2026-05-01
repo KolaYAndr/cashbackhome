@@ -17,6 +17,7 @@ import kotlinx.serialization.modules.polymorphic
 import org.homesharing.cashbackhome.presentation.cards.AddCardScreenRoot
 import org.homesharing.cashbackhome.presentation.cards.BankPickerOptions
 import org.homesharing.cashbackhome.presentation.cards.BankSelectionResult
+import org.homesharing.cashbackhome.presentation.cards.CardDetailsScreenRoot
 import org.homesharing.cashbackhome.presentation.cards.ChooseBankScreen
 import org.homesharing.cashbackhome.presentation.cards.EditCardScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoot
@@ -51,6 +52,10 @@ fun App() {
                         subclass(
                             AppRoute.EditCardScreen::class,
                             AppRoute.EditCardScreen.serializer()
+                        )
+                        subclass(
+                            AppRoute.CardDetailsScreen::class,
+                            AppRoute.CardDetailsScreen.serializer()
                         )
                         subclass(
                             AppRoute.ChooseBankScreen::class,
@@ -98,7 +103,7 @@ fun App() {
                 entry<AppRoute.Home> {
                     HomeScreenRoot(
                         onAddCategoryClick = {
-                            backStack.add(AppRoute.AddCategoryScreen)
+                             backStack.add(AppRoute.AddCategoryScreen)
                         },
                         onAddCardClick = {
                             backStack.add(AppRoute.AddCardScreen)
@@ -108,6 +113,9 @@ fun App() {
                         },
                         onEditCardClick = { card ->
                             backStack.add(AppRoute.EditCardScreen(card))
+                        },
+                        onCardClick = { card ->
+                            backStack.add(AppRoute.CardDetailsScreen(card))
                         }
                     )
                 }
@@ -174,6 +182,29 @@ fun App() {
                         bankSelectionResult = bankSelectionResult,
                         onBankSelectionResultConsumed = {
                             bankSelectionResult = null
+                        },
+                    )
+                }
+
+                entry<AppRoute.CardDetailsScreen> { key ->
+                    CardDetailsScreenRoot(
+                        card = key.card,
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                        onAddCategoryClick = {
+                            backStack.add(
+                                AppRoute.AddCategoryScreen
+                            )
+                        },
+                        onEditCategoryClick = { category ->
+                            backStack.add(AppRoute.EditCategoryScreen(category))
+                        },
+                        onEditCardClick = { card ->
+                            backStack.add(AppRoute.EditCardScreen(card))
+                        },
+                        onCardDeleted = {
+                            backStack.removeLastOrNull()
                         },
                     )
                 }

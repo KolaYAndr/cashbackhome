@@ -37,6 +37,16 @@
     <string name="rule_category_field_label">Category</string>
     <string name="remove_rule_button">Remove rule</string>
 
+    <!-- CardDetailsScreen -->
+    <string name="card_details_title">Детали карты</string>
+    <string name="card_details_categories_title">Категории кэшбэка</string>
+    <string name="card_details_empty_title">У этой карты пока нет категорий</string>
+    <string name="card_details_empty_description">Добавьте категорию, чтобы начать получать кэшбэк</string>
+    <string name="card_details_bind_category">Привязать категорию</string>
+    <string name="card_details_bind_new_category">Привязать новую категорию</string>
+    <string name="card_details_unlimited">Бессрочно</string>
+    <string name="card_details_until_date">до %1$s</string>
+
     <!-- CardsScreen -->
     <string name="card_add">Добавить карту</string>
     <string name="cards_empty_title">У вас пока нет карт</string>

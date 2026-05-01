@@ -1,6 +1,7 @@
 package org.homesharing.cashbackhome.presentation.cards
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,6 +73,7 @@ internal fun CardsScreenRoot(
     scaffoldState: ScaffoldState,
     onAddCardClick: () -> Unit,
     onEditCard: (BankCard) -> Unit,
+    onCardClick: (BankCard) -> Unit,
 ) {
     scaffoldState.updateSearchAndSortBar(
         isWidened = true,
@@ -93,7 +95,8 @@ internal fun CardsScreenRoot(
                     onDeleteCard = {
                         viewModel.deleteCashbackRuleById(it)
                     },
-                    onEditCard = onEditCard
+                    onEditCard = onEditCard,
+                    onCardClick = onCardClick,
                 )
             } else {
                 CardsList(
@@ -102,6 +105,7 @@ internal fun CardsScreenRoot(
                         viewModel.deleteCashbackRuleById(it)
                     },
                     onEditCard = onEditCard,
+                    onCardClick = onCardClick,
                 )
             }
         }
@@ -113,6 +117,7 @@ private fun CardsList(
     cards: List<BankCard>,
     onEditCard: (BankCard) -> Unit,
     onDeleteCard: (Long) -> Unit,
+    onCardClick: (BankCard) -> Unit,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -126,7 +131,7 @@ private fun CardsList(
                 card = card,
                 onEditCardSwipe = { onEditCard(card) },
                 onDeleteCardSwipe = { onDeleteCard(card.cardId) },
-                onClick = {},
+                onClick = { onCardClick(card) },
             )
         }
     }
@@ -137,6 +142,7 @@ private fun CardsGrid(
     cards: List<BankCard>,
     onDeleteCard: (Long) -> Unit,
     onEditCard: (BankCard) -> Unit,
+    onCardClick: (BankCard) -> Unit,
 ) {
     var overlayActiveItem by remember { mutableStateOf<Long?>(null) }
 
@@ -156,7 +162,7 @@ private fun CardsGrid(
                 onEditCategoryClick = { onEditCard(card) },
                 onDeleteCategoryClick = { onDeleteCard(card.cardId) },
                 onLongClick = { overlayActiveItem = card.cardId},
-                onClick = {},
+                onClick = { onCardClick(card) },
             )
         }
     }
@@ -191,7 +197,8 @@ private fun CardListItem(
     ) {
         Card(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -418,6 +425,7 @@ private fun CardsListPreview() {
         CardsList(
             cards = previewCards,
             {},
+            {},
             {}
         )
     }
@@ -429,7 +437,7 @@ private fun CardsGridPreview() {
     CashbackHomeTheme {
         CardsGrid(
             cards = previewCards,
-            {}, {}
+            {}, {}, {}
         )
     }
 }

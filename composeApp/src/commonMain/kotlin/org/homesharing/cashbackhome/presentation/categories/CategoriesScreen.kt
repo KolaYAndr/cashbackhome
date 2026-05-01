@@ -270,7 +270,7 @@ private fun revealedWidth(state: SwipeToDismissBoxState): Dp {
     }
 }
 
-private fun getPercents(x: Double) = "${(x * 100).toInt()}%"
+internal fun getPercents(x: Double) = "${(x * 100).toInt()}%"
 
 @Composable
 private fun getDateColor(until: String): Color {

@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,8 +54,8 @@ import cashbackhome.composeapp.generated.resources.upsert_card_save_button
 import cashbackhome.composeapp.generated.resources.upsert_card_type_label
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
-import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.categories.SectionLabel
+import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.categories.textFieldColors
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
 import org.jetbrains.compose.resources.painterResource
@@ -234,7 +233,6 @@ private fun UpsertCardTopBar(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
             )
         },
         navigationIcon = {

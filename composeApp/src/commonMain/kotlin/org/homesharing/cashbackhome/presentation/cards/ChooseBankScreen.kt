@@ -77,7 +77,7 @@ internal data class BankPickerOption(
 
 internal val BankPickerOptions = listOf(
     BankPickerOption(
-        name = "T-Банк",
+        name = "Т-Банк",
         badgeText = "T",
         badgeBackgroundColor = Color(0xFFFFDD2D),
         badgeContentColor = Color(0xFF111111),

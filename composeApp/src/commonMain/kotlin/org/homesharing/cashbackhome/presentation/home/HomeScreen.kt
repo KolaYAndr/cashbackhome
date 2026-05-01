@@ -94,6 +94,7 @@ internal fun HomeScreenRoot(
     onAddCardClick: () -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
+    onCardClick: (BankCard) -> Unit,
 ) {
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
     val isGrid by viewModel.isGrid.collectAsStateWithLifecycle()
@@ -108,6 +109,7 @@ internal fun HomeScreenRoot(
         onTabClick = { viewModel.switchToTab(it) },
         onEditCategoryClick = onEditCategoryClick,
         onEditCardClick = onEditCardClick,
+        onCardClick = onCardClick,
     )
 }
 
@@ -121,6 +123,7 @@ private fun HomeScreen(
     onTabClick: (Tab) -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
+    onCardClick: (BankCard) -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState(isGrid)
     Logger.i { scaffoldState.searchAndSortBarConfig.value.toString() }
@@ -253,6 +256,7 @@ private fun HomeScreen(
                         scaffoldState = scaffoldState,
                         onAddCardClick = onAddCardClick,
                         onEditCard = onEditCardClick,
+                        onCardClick = onCardClick,
                     )
                     Tab.Promotions -> PromotionsScreen(scaffoldState)
                 }
@@ -435,7 +439,7 @@ private fun SearchAndSortBar(
     }
 }
 
-private fun Modifier.colorUnderline(
+internal fun Modifier.colorUnderline(
     color: Color,
     thickness: Dp = 1.dp,
     yOffset: Dp = 0.dp,          // move line up/down if needed
@@ -461,6 +465,7 @@ private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
         HomeScreen(Tab.Categories,
             false,
+            {},
             {},
             {},
             {},
