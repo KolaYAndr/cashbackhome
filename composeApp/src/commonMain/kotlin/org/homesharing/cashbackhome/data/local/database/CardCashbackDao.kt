@@ -30,6 +30,9 @@ interface CardCashbackDao {
     @Query("SELECT * FROM bank_cards")
     fun getAllCards(): Flow<List<BankCard>>
 
+    @Query("SELECT * FROM bank_cards WHERE cardId = :cardId")
+    fun getCard(cardId: Long) : BankCard
+
     @Upsert
     suspend fun upsertBankCard(card: BankCard)
 
@@ -52,7 +55,7 @@ interface CardCashbackDao {
     fun getCashbackRule(ruleId: Long): Flow<CashbackRule>
 
     @Upsert
-    suspend fun upsertCashbackRule(rule: CashbackRule)
+    suspend fun upsertCashbackRule(rule: CashbackRule): Long
 
     @Upsert
     suspend fun upsertCashbackRules(rules: List<CashbackRule>)

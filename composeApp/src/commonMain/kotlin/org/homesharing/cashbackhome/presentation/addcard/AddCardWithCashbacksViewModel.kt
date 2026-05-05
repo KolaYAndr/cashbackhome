@@ -18,7 +18,7 @@ import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
 private const val THRESHOLD = 5000L
 
-class AddCardWithCashbacksViewModel(
+internal class AddCardWithCashbacksViewModel(
     private val repository: CardCashbackRepository
 ) : ViewModel() {
 
@@ -115,8 +115,10 @@ class AddCardWithCashbacksViewModel(
                             percentage = draft.percentage,
                             category = draft.category,
                             maxAmount = draft.maxAmount,
+                            startDate = draft.startDate,
                             expirationDate = draft.expirationDate,
-                            bankCardName = ""
+                            bankCardName = "",
+                            bankCardId = 0L
                         )
                         repository.upsertCashbackRule(rule)
                         val newRuleId =
@@ -130,8 +132,10 @@ class AddCardWithCashbacksViewModel(
                                 percentage = draft.percentage,
                                 category = draft.category,
                                 maxAmount = draft.maxAmount,
+                                startDate = draft.startDate,
                                 expirationDate = draft.expirationDate,
-                                bankCardName = ""
+                                bankCardName = "",
+                                bankCardId = 0L
                             )
                             repository.upsertCashbackRule(rule)
                             val newRuleId =

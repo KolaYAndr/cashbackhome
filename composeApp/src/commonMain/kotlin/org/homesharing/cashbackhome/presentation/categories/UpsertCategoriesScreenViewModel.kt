@@ -2,7 +2,6 @@ package org.homesharing.cashbackhome.presentation.categories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -10,11 +9,11 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
 internal class UpsertCategoriesScreenViewModel(
-    private val applicationScope: CoroutineScope,
     private val repository: CardCashbackRepository,
     private val category: CashbackRule? = null,
 ) : ViewModel() {
@@ -22,14 +21,19 @@ internal class UpsertCategoriesScreenViewModel(
 
     init {
         if (category != null) {
-            textFieldsFlow.update {
-                TextFields(
-                    id = category.cashbackRuleId,
-                    category = category.category,
-                    card = category.bankCardName,
-                    date = category.expirationDate,
-                    cashback = getValueFromPercent(category.percentage)
-                )
+            viewModelScope.launch {
+                val bankCard = repository.getCard(category.bankCardId)
+                textFieldsFlow.update {
+                    TextFields(
+                        id = category.cashbackRuleId,
+                        category = category.category,
+                        card = bankCard,
+                        startDate = category.startDate,
+                        expirationDate = category.expirationDate,
+                        isUnlimited = category.expirationDate.isBlank(),
+                        cashback = getValueFromPercent(category.percentage)
+                    )
+                }
             }
         }
     }
@@ -56,11 +60,12 @@ internal class UpsertCategoriesScreenViewModel(
             textFields.copy(
                 category = category,
                 hasError = false,
+                isDuplicate = false,
             )
         }
     }
 
-    fun cardSelected(card: String) {
+    fun cardSelected(card: BankCard) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
                 card = card,
@@ -69,11 +74,27 @@ internal class UpsertCategoriesScreenViewModel(
         }
     }
 
-    fun dateSelected(date: String) {
+    fun dateRangeSelected(
+        startDate: String,
+        expirationDate: String,
+    ) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
-                date = date,
+                startDate = startDate,
+                expirationDate = expirationDate,
+                isUnlimited = false,
                 hasError = false
+            )
+        }
+    }
+
+    fun dateUnlimitedChanged(isUnlimited: Boolean) {
+        textFieldsFlow.update { textFields ->
+            textFields.copy(
+                startDate = if (isUnlimited) " " else null,
+                expirationDate = if (isUnlimited) " " else null,
+                isUnlimited = isUnlimited,
+                hasError = false,
             )
         }
     }
@@ -82,6 +103,14 @@ internal class UpsertCategoriesScreenViewModel(
         textFieldsFlow.update { textFields ->
             textFields.copy(
                 cashback = cashback
+            )
+        }
+    }
+
+    fun clearError() {
+        textFieldsFlow.update {
+            it.copy(
+                hasError = false
             )
         }
     }
@@ -98,20 +127,49 @@ internal class UpsertCategoriesScreenViewModel(
         textFieldsFlow.update { it.copy(isSaving = true)}
         val newCashbackRule = CashbackRule(
             cashbackRuleId = forms.id ?: 0,
-            bankCardName = forms.card ?: throw RuntimeException("Card is null"),
+            bankCardId = forms.card?.cardId ?: throw RuntimeException("Card is null"),
+            bankCardName = forms.card.bankName,
             percentage = getPercent(forms.cashback),
             category = forms.category ?: throw RuntimeException("Card is null"),
             maxAmount = 0.0,
-            expirationDate = forms.date ?: throw RuntimeException("Card is null")
+            startDate = if (forms.isUnlimited) {
+                " "
+            } else {
+                forms.startDate ?: throw RuntimeException("Start date is null")
+            },
+            expirationDate = if (forms.isUnlimited) {
+                " "
+            } else {
+                forms.expirationDate ?: throw RuntimeException("Expiration date is null")
+            }
         )
-        applicationScope.launch {
+        viewModelScope.launch {
             try {
-                repository.upsertCashbackRule(newCashbackRule)
-                textFieldsFlow.update {
-                    it.copy (
-                        isSaving = false,
-                        isSaved = true,
-                    )
+                when (val result = repository.upsertCashbackRule(newCashbackRule)) {
+                    is SavedCategoryResult.Success -> {
+                        val ruleId = result.id
+                        repository.linkCardToRule(forms.card.cardId, ruleId)
+                        textFieldsFlow.update {
+                            it.copy (
+                                isSaving = false,
+                                isSaved = true,
+                            )
+                        }
+                    }
+                    is SavedCategoryResult.Duplicate -> {
+                        textFieldsFlow.update {
+                            it.copy (
+                                isDuplicate = true
+                            )
+                        }
+                    }
+                    is SavedCategoryResult.Error -> {
+                        textFieldsFlow.update {
+                            it.copy (
+                                hasError = true
+                            )
+                        }
+                    }
                 }
             }
             catch(_: Exception) {
@@ -128,7 +186,10 @@ internal class UpsertCategoriesScreenViewModel(
     private fun checkNull(forms: TextFields): Boolean {
         if (
             forms.category == null ||
-            forms.date == null ||
+            (
+                !forms.isUnlimited &&
+                    (forms.startDate.isNullOrBlank() || forms.expirationDate.isNullOrBlank())
+                ) ||
             forms.card == null
         ) {
             return true
@@ -139,4 +200,10 @@ internal class UpsertCategoriesScreenViewModel(
     private fun getPercent(value: Int) = value.toDouble() / 100
 
     private fun getValueFromPercent(percent: Double) = (percent * 100).toInt()
+}
+
+internal sealed interface SavedCategoryResult {
+    data class Success(val id: Long): SavedCategoryResult
+    data object Error: SavedCategoryResult
+    data object Duplicate: SavedCategoryResult
 }

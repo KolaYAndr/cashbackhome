@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +24,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DateRangePicker
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,17 +36,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,6 +58,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.add_category_add_card
@@ -60,6 +69,7 @@ import cashbackhome.composeapp.generated.resources.add_category_card_placeholder
 import cashbackhome.composeapp.generated.resources.add_category_cashback_label
 import cashbackhome.composeapp.generated.resources.add_category_category_label
 import cashbackhome.composeapp.generated.resources.add_category_category_placeholder
+import cashbackhome.composeapp.generated.resources.add_category_date_picker_label
 import cashbackhome.composeapp.generated.resources.add_category_duplicate_hint
 import cashbackhome.composeapp.generated.resources.add_category_expiration_label
 import cashbackhome.composeapp.generated.resources.add_category_expiration_placeholder
@@ -74,6 +84,11 @@ import cashbackhome.composeapp.generated.resources.calendar
 import cashbackhome.composeapp.generated.resources.edit_category_submit_button
 import cashbackhome.composeapp.generated.resources.edit_category_title
 import co.touchlab.kermit.Logger
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule.CashbackCategory
@@ -84,9 +99,15 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Instant
 
 private const val MinCashbackPercent = 1
 private const val MaxCashbackPercent = 100
+
+private data class DateRangeSelection(
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+)
 
 @Composable
 internal fun EditCategoryScreenRoot(
@@ -121,14 +142,15 @@ internal fun EditCategoryScreenRoot(
         }
         else -> {
             val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
-            AddCategoryScreen(
+            UpsertCategoryScreen(
                 state = state,
                 onAddCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
                 onAddCardClick = onAddCardClick,
                 onCategorySelected = viewModel::categorySelected,
                 onCardSelected = viewModel::cardSelected,
-                onDateType = viewModel::dateSelected,
+                onDateRangeSelected = viewModel::dateRangeSelected,
+                onUnlimitedDateChanged = viewModel::dateUnlimitedChanged,
                 onPressCashback = viewModel::cashbackSelected,
             )
         }
@@ -167,14 +189,15 @@ internal fun AddCategoryScreenRoot(
         }
         else -> {
             val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
-            AddCategoryScreen(
+            UpsertCategoryScreen(
                 state = state,
                 onAddCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
                 onAddCardClick = onAddCardClick,
                 onCategorySelected = viewModel::categorySelected,
                 onCardSelected = viewModel::cardSelected,
-                onDateType = viewModel::dateSelected,
+                onDateRangeSelected = viewModel::dateRangeSelected,
+                onUnlimitedDateChanged = viewModel::dateUnlimitedChanged,
                 onPressCashback = viewModel::cashbackSelected,
             )
         }
@@ -182,21 +205,24 @@ internal fun AddCategoryScreenRoot(
 }
 
 @Composable
-private fun AddCategoryScreen(
+private fun UpsertCategoryScreen(
     state: UpsertCategoriesScreenState.UpsertCategory,
     onAddCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onCategorySelected: (CashbackCategory) -> Unit,
-    onCardSelected: (String) -> Unit,
-    onDateType: (String) -> Unit,
+    onCardSelected: (BankCard) -> Unit,
+    onDateRangeSelected: (String, String) -> Unit,
+    onUnlimitedDateChanged: (Boolean) -> Unit,
     onPressCashback: (Int) -> Unit,
 ) {
     val selectedCategory = state.forms.category
     val cards = state.cards
     val selectedCard = state.forms.card
-    val expirationDate = state.forms.date
-    var isUnlimited by rememberSaveable { mutableStateOf(false) }
+    val startDate = state.forms.startDate
+    val expirationDate = state.forms.expirationDate
+    val isUnlimited = state.forms.isUnlimited
+    val isDuplicate = state.forms.isDuplicate
     val cashbackPercent = state.forms.cashback
     val categoryOptions = CashbackCategory.all.map {
         it to categoryName(it)
@@ -247,17 +273,11 @@ private fun AddCategoryScreen(
 
             ChooseDate(
                 hasError = state.forms.hasError,
+                startDate = startDate,
                 expirationDate = expirationDate,
-                onDateType = onDateType,
+                onDateRangeSelected = onDateRangeSelected,
                 isUnlimited = isUnlimited,
-                onCheck = { checkBoxState ->
-                    isUnlimited = checkBoxState
-                    if (checkBoxState) {
-                        onDateType(" ")
-                    } else {
-                        onDateType("")
-                    }
-                }
+                onCheck = onUnlimitedDateChanged,
             )
 
             ChooseCashback(
@@ -265,16 +285,17 @@ private fun AddCategoryScreen(
                 onPressCashback = onPressCashback,
             )
 
-            //duplicate found
-            Text(
-                text = stringResource(Res.string.add_category_duplicate_hint),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
+            if (isDuplicate) {
+                Text(
+                    text = stringResource(Res.string.add_category_duplicate_hint),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 28.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    textAlign = TextAlign.Center,
+                )
+            }
 
             Button(
                 onClick = onAddCategoryClick,
@@ -475,9 +496,9 @@ private fun NoCards(
 @Composable
 private fun CardSelectionFieldSection(
     hasError: Boolean,
-    selectedCard: String?,
+    selectedCard: BankCard?,
     options: List<BankCard>,
-    onCardSelected: (String) -> Unit,
+    onCardSelected: (BankCard) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -491,7 +512,7 @@ private fun CardSelectionFieldSection(
             onExpandedChange = { expanded = !expanded },
         ) {
             TextField(
-                value = selectedCard.orEmpty(),
+                value = getBankCardTitle(selectedCard).orEmpty(),
                 onValueChange = {},
                 modifier = Modifier
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -528,13 +549,14 @@ private fun CardSelectionFieldSection(
                 options.forEach { option ->
                     DropdownMenuItem(
                         text = {
+                            Logger.i { "${getBankCardTitle(option)}" }
                             Text(
-                                text = option.bankName,
+                                text = getBankCardTitle(option).orEmpty(),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         },
                         onClick = {
-                            onCardSelected(option.bankName)
+                            onCardSelected(option)
                             expanded = false
                         },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -545,14 +567,25 @@ private fun CardSelectionFieldSection(
     }
 }
 
+private fun getBankCardTitle(card: BankCard?) = if (card == null) {
+    null
+} else {
+    "${card.title}, ${card.bankName}"
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ChooseDate(
     hasError: Boolean,
+    startDate: String?,
     expirationDate: String?,
-    onDateType: (String) -> Unit,
+    onDateRangeSelected: (String, String) -> Unit,
     isUnlimited: Boolean,
     onCheck: (Boolean) -> Unit
 ) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    val selectedRange = parseDateRange(startDate, expirationDate)
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -561,8 +594,12 @@ private fun ChooseDate(
         )
 
         TextField(
-            value = expirationDate.orEmpty(),
-            onValueChange = onDateType,
+            value = if (isUnlimited) {
+                ""
+            } else {
+                formatDateRange(startDate, expirationDate)
+            },
+            onValueChange = {},
             placeholder = {
                 TipText(
                     text = stringResource(Res.string.add_category_expiration_placeholder),
@@ -571,20 +608,31 @@ private fun ChooseDate(
                 )
             },
             colors = textFieldColors(),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    enabled = !isUnlimited,
+                    onClick = { showDatePicker = true },
+                ),
             enabled = !isUnlimited,
+            readOnly = true,
             singleLine = true,
             trailingIcon = {
-                Icon(
-                    painter = painterResource(Res.drawable.calendar),
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = if (isUnlimited) {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-                    } else {
-                        MaterialTheme.colorScheme.onBackground
-                    }
-                )
+                IconButton(
+                    onClick = { showDatePicker = true },
+                    enabled = !isUnlimited,
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.calendar),
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = if (isUnlimited) {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+                        } else {
+                            MaterialTheme.colorScheme.onBackground
+                        }
+                    )
+                }
             },
             shape = RoundedCornerShape(14.dp),
             textStyle = MaterialTheme.typography.bodyMedium.copy(
@@ -615,7 +663,241 @@ private fun ChooseDate(
             )
         }
     }
+
+    if (showDatePicker) {
+        CustomDateRangePickerDialog(
+            initialStartDateMillis = selectedRange?.startDate?.toPickerMillis(),
+            initialEndDateMillis = selectedRange?.endDate?.toPickerMillis(),
+            onDismiss = { showDatePicker = false },
+            onConfirm = {selectedStartMillis, selectedEndMillis ->
+                val startDate = selectedStartMillis?.toPickerDate()
+                val endDate = selectedEndMillis?.toPickerDate()
+                if (startDate != null && endDate != null) {
+                    val range = normalizeDateRange(startDate, endDate)
+                    onDateRangeSelected(
+                        range.startDate.toString(),
+                        range.endDate.toString(),
+                    )
+                }
+                showDatePicker = false
+            }
+        )
+    }
 }
+
+@Composable
+fun CustomDateRangePickerDialog(
+    initialStartDateMillis: Long? = null,
+    initialEndDateMillis: Long? = null,
+    onDismiss: () -> Unit,
+    onConfirm: (startDateMillis: Long?, endDateMillis: Long?) -> Unit
+) {
+    val state = rememberDateRangePickerState(
+        initialSelectedStartDateMillis = initialStartDateMillis,
+        initialSelectedEndDateMillis = initialEndDateMillis,
+        initialDisplayedMonthMillis = initialStartDateMillis,
+        yearRange = 2020..2035,
+        initialDisplayMode = DisplayMode.Picker
+    )
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Surface(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .widthIn(max = 420.dp),
+            shape = RoundedCornerShape(28.dp),
+            color = Color.White,
+            tonalElevation = 6.dp
+        ) {
+            Column {
+                DateRangePicker(
+                    state = state,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(500.dp),
+                    showModeToggle = true,
+                    title = {
+                        Text(
+                            text = "Выберите дату",
+                            modifier = Modifier.padding(
+                                start = 28.dp,
+                                top = 22.dp,
+                                end = 28.dp
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    headline = {
+                        Text(
+                            text = formatRangeHeadline(
+                                startMillis = state.selectedStartDateMillis,
+                                endMillis = state.selectedEndDateMillis
+                            ),
+                            modifier = Modifier.padding(
+                                start = 28.dp,
+                                top = 18.dp,
+                                bottom = 18.dp
+                            ),
+                            style = MaterialTheme.typography.headlineLarge,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.background,
+
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
+                        headlineContentColor = MaterialTheme.colorScheme.onBackground,
+                        weekdayContentColor = MaterialTheme.colorScheme.onBackground,
+                        subheadContentColor = MaterialTheme.colorScheme.onBackground,
+                        navigationContentColor = MaterialTheme.colorScheme.onBackground,
+
+                        dayContentColor = MaterialTheme.colorScheme.onBackground,
+                        selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedDayContentColor = MaterialTheme.colorScheme.background,
+
+                        todayContentColor = MaterialTheme.colorScheme.primary,
+                        todayDateBorderColor = MaterialTheme.colorScheme.primary,
+
+                        dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary
+                            .copy(alpha = 0.18f),
+                        dayInSelectionRangeContentColor = MaterialTheme.colorScheme.background,
+                    )
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, bottom = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = {
+                            state.setSelection(null, null)
+                        }
+                    ) {
+                        Text(
+                            text = "Очистить",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+
+                    Row {
+                        TextButton(onClick = onDismiss) {
+                            Text(
+                                text = "Отменить",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+
+                        TextButton(
+                            enabled = state.selectedStartDateMillis != null &&
+                                    state.selectedEndDateMillis != null,
+                            onClick = {
+                                onConfirm(
+                                    state.selectedStartDateMillis,
+                                    state.selectedEndDateMillis
+                                )
+                                onDismiss()
+                            }
+                        ) {
+                            Text(
+                                text = "OK",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun formatRangeHeadline(
+    startMillis: Long?,
+    endMillis: Long?
+): String {
+    return when {
+        startMillis != null && endMillis != null ->
+            "${formatShortDate(startMillis)} - ${formatShortDate(endMillis)}"
+
+        startMillis != null ->
+            "${formatShortDate(startMillis)} -"
+
+        else ->
+            stringResource(Res.string.add_category_date_picker_label)
+    }
+}
+
+private fun formatShortDate(millis: Long): String {
+    val date = millis.toPickerDate()
+
+    val day = date.day
+    val month = date.month.number.toString().padStart(2, '0')
+    val year = (date.year % 100).toString().padStart(2, '0')
+
+    return "$day.$month.$year"
+}
+
+private fun parseDateRange(
+    startDate: String?,
+    expirationDate: String?,
+): DateRangeSelection? {
+    val endDate = parseDate(expirationDate) ?: return null
+    val parsedStartDate = parseDate(startDate) ?: endDate
+    return normalizeDateRange(parsedStartDate, endDate)
+}
+
+private fun parseDate(value: String?): LocalDate? =
+    runCatching {
+        LocalDate.parse(value.orEmpty())
+    }.getOrNull()
+
+private fun normalizeDateRange(
+    startDate: LocalDate,
+    endDate: LocalDate,
+): DateRangeSelection =
+    if (endDate < startDate) {
+        DateRangeSelection(
+            startDate = endDate,
+            endDate = startDate,
+        )
+    } else {
+        DateRangeSelection(
+            startDate = startDate,
+            endDate = endDate,
+        )
+    }
+
+private fun formatDateRange(
+    startDate: String?,
+    expirationDate: String?,
+): String {
+    val range = parseDateRange(startDate, expirationDate)
+        ?: return expirationDate.orEmpty()
+    return "${formatDate(range.startDate)} - ${formatDate(range.endDate)}"
+}
+
+private fun formatDate(date: LocalDate): String {
+    val day = date.day.toString().padStart(2, '0')
+    val month = date.month.number.toString().padStart(2, '0')
+    return "$day.$month.${date.year}"
+}
+
+private fun LocalDate.toPickerMillis(): Long =
+    atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds()
+
+private fun Long.toPickerDate(): LocalDate =
+    Instant.fromEpochMilliseconds(this)
+        .toLocalDateTime(TimeZone.UTC)
+        .date
 
 @Composable
 private fun ChooseCashback(
@@ -639,7 +921,7 @@ private fun ChooseCashback(
             val minusCashbackPercent =
                 (cashbackPercent - 1).coerceAtLeast(MinCashbackPercent)
             StepperButton(
-                label = "-",
+                label = "−",
                 onClick = { onPressCashback(minusCashbackPercent) },
             )
 
@@ -680,7 +962,7 @@ private fun StepperButton(
 ) {
     Box(
         modifier = Modifier
-            .size(24.dp)
+            .size(28.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.primary)
             .clickable(onClick = onClick),
@@ -688,8 +970,11 @@ private fun StepperButton(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.copy(
+                lineHeight = 16.sp
+            ),
             color = MaterialTheme.colorScheme.onPrimary,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -711,8 +996,19 @@ internal fun textFieldColors() = TextFieldDefaults.colors(
 
 @Composable
 @Preview
-fun PreviewAddCategoryScreenLight() {
+fun PreviewUpsertCategoryScreenLight() {
     CashbackHomeTheme {
-        AddCategoryScreenRoot(onSavedSuccessfully = {}, onBackClick = {}, onAddCardClick = {} )
+        val func: (String, String) -> Unit = {x1, x2 ->}
+        UpsertCategoryScreen(
+            state = UpsertCategoriesScreenState.UpsertCategory(TextFields(), listOf()),
+            onAddCategoryClick = {},
+            onBackClick = {},
+            onAddCardClick = {},
+            onCategorySelected = {},
+            onCardSelected = {},
+            onDateRangeSelected = func,
+            onUnlimitedDateChanged = {},
+            onPressCashback = {}
+        )
     }
 }

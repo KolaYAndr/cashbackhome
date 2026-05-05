@@ -425,7 +425,7 @@ private fun CashbackDetailsRow(
                     )
 
                     Text(
-                        text = expirationLabel(cashback.expirationDate),
+                        text = expirationLabel(cashback.startDate, cashback.expirationDate),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -501,22 +501,34 @@ private fun BindCategoryButton(
 }
 
 @Composable
-private fun expirationLabel(expirationDate: String): String {
+private fun expirationLabel(
+    startDate: String,
+    expirationDate: String,
+): String {
     val trimmedDate = expirationDate.trim()
     if (trimmedDate.isBlank()) {
         return stringResource(Res.string.card_details_unlimited)
     }
 
-    val date = runCatching { LocalDate.parse(trimmedDate) }.getOrNull()
-        ?: return trimmedDate
-    val formattedDate = buildString {
-        append(date.day.toString().padStart(2, '0'))
-        append('.')
-        append(date.month.number.toString().padStart(2, '0'))
-        append('.')
-        append(date.year)
-    }
-    return stringResource(Res.string.card_details_until_date, formattedDate)
+    val parsedExpirationDate = parseDate(trimmedDate) ?: return trimmedDate
+    val parsedStartDate = parseDate(startDate) ?: return trimmedDate
+
+    return stringResource(
+        Res.string.card_details_until_date,
+        formatDate(parsedStartDate),
+        formatDate(parsedExpirationDate)
+    )
+}
+
+private fun parseDate(value: String?): LocalDate? =
+    runCatching {
+        LocalDate.parse(value.orEmpty())
+    }.getOrNull()
+
+private fun formatDate(date: LocalDate): String {
+    val day = date.day.toString().padStart(2, '0')
+    val month = date.month.number.toString().padStart(2, '0')
+    return "$day.$month.${date.year}"
 }
 
 @Composable
@@ -544,7 +556,9 @@ private fun CardDetailsScreenPreview() {
                     percentage = 0.05,
                     category = CashbackRule.CashbackCategory.Supermarkets,
                     maxAmount = null,
+                    startDate = "2026-04-01",
                     expirationDate = "2026-04-13",
+                    bankCardId = 0L,
                 ),
                 CashbackRule(
                     cashbackRuleId = 2,
@@ -552,7 +566,9 @@ private fun CardDetailsScreenPreview() {
                     percentage = 0.03,
                     category = CashbackRule.CashbackCategory.Pharmacy,
                     maxAmount = null,
+                    startDate = "2026-04-01",
                     expirationDate = "2026-04-13",
+                    bankCardId = 0L,
                 ),
             ),
             onBackClick = {},

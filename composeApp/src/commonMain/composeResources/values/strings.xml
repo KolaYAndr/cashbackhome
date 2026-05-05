@@ -45,7 +45,7 @@
     <string name="card_details_bind_category">Привязать категорию</string>
     <string name="card_details_bind_new_category">Привязать новую категорию</string>
     <string name="card_details_unlimited">Бессрочно</string>
-    <string name="card_details_until_date">до %1$s</string>
+    <string name="card_details_until_date">от %1$s до %2$s</string>
 
     <!-- CardsScreen -->
     <string name="card_add">Добавить карту</string>
@@ -102,6 +102,7 @@
     <string name="add_category_card_label">Карта</string>
     <string name="add_category_card_placeholder">Выберите карту</string>
     <string name="add_category_expiration_label">Срок действия категории</string>
+    <string name="add_category_date_picker_label">Выберите диапазон</string>
     <string name="add_category_expiration_placeholder">Выберите срок действия категории</string>
     <string name="add_category_unlimited">Бессрочно</string>
     <string name="add_category_cashback_label">Кэшбэк</string>

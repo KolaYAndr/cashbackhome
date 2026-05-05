@@ -1,19 +1,30 @@
 package org.homesharing.cashbackhome.data.local.database.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import kotlinx.serialization.Serializable
 
-@Entity(tableName = "cashback_rules")
+@Entity(
+    tableName = "cashback_rules",
+    indices = [
+        Index(
+            "bankCardId", "category",
+            unique = true
+        )
+    ]
+)
 @Serializable
 data class CashbackRule(
     @PrimaryKey(autoGenerate = true)
     val cashbackRuleId: Long = 0,
+    val bankCardId: Long,
     val bankCardName: String,
     val percentage: Double,
     val category: CashbackCategory = CashbackCategory.Other,
     val maxAmount: Double?,
+    val startDate: String,
     val expirationDate: String,
 ) {
     @Serializable

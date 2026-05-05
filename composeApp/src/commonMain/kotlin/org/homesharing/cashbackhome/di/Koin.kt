@@ -20,8 +20,6 @@ import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenView
 import org.homesharing.cashbackhome.presentation.categories.UpsertCategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -31,8 +29,11 @@ private val sharedStaticModule =
         single<CoroutineScope>() {
             CoroutineScope(SupervisorJob() + Dispatchers.IO)
         }
-        singleOf(::CardCashbackRepositoryImpl) {
-            bind<CardCashbackRepository>()
+        single<CardCashbackRepository>() {
+            CardCashbackRepositoryImpl(
+                get(),
+                get()
+            )
         }
         viewModelOf(::CardsViewModel)
         viewModelOf(::AddCardWithCashbacksViewModel)
@@ -45,7 +46,7 @@ private val sharedStaticModule =
             CardDetailsViewModel(get(), get(), card)
         }
         viewModel { (category: CashbackRule?) ->
-            UpsertCategoriesScreenViewModel(get(), get(), category)
+            UpsertCategoriesScreenViewModel(get(), category)
         }
     }
 

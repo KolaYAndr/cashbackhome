@@ -89,13 +89,13 @@ private const val ANIMATION_DURATION = 200
 
 @Composable
 internal fun HomeScreenRoot(
-    viewModel: HomeScreenViewModel = koinViewModel(),
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
     onCardClick: (BankCard) -> Unit,
 ) {
+    val viewModel: HomeScreenViewModel = koinViewModel()
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
     val isGrid by viewModel.isGrid.collectAsStateWithLifecycle()
     Logger.i { "$tabState. $isGrid" }
@@ -188,7 +188,6 @@ private fun HomeScreen(
             )
 
             Row(
-                modifier = Modifier.padding(bottom = 5.dp),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
             ) {
                 tabs.forEach { tab ->
@@ -375,7 +374,7 @@ private fun SearchAndSortBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SearchBarX(
@@ -460,6 +459,16 @@ internal fun Modifier.colorUnderline(
 }
 
 @Composable
+internal fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
@@ -473,16 +482,5 @@ private fun HomeScreenPreviewLight() {
             {},
             {},
         )
-    }
-}
-
-
-@Composable
-internal fun LoadingScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ){
-        CircularProgressIndicator()
     }
 }

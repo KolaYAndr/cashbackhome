@@ -1,5 +1,7 @@
 package org.homesharing.cashbackhome.data.repository
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
@@ -7,8 +9,10 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashb
 import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
+import org.homesharing.cashbackhome.presentation.categories.SavedCategoryResult
 
 internal class CardCashbackRepositoryImpl(
+    private val applicationScope: CoroutineScope,
     private val dao: CardCashbackDao
 ) : CardCashbackRepository {
 
@@ -24,6 +28,8 @@ internal class CardCashbackRepositoryImpl(
     // -------- BankCard --------
 
     override fun getAllCards(): Flow<List<BankCard>> = dao.getAllCards()
+
+    override suspend fun getCard(cardId: Long) = dao.getCard(cardId)
 
     override suspend fun upsertBankCard(card: BankCard) {
         dao.upsertBankCard(card)
@@ -43,8 +49,21 @@ internal class CardCashbackRepositoryImpl(
     override fun getCashbackRule(ruleId: Long): Flow<CashbackRule> =
         dao.getCashbackRule(ruleId)
 
-    override suspend fun upsertCashbackRule(rule: CashbackRule) {
-        dao.upsertCashbackRule(rule)
+    override suspend fun upsertCashbackRule(rule: CashbackRule): SavedCategoryResult {
+        return applicationScope.async<SavedCategoryResult> {
+            try {
+                val resultId = dao.upsertCashbackRule(rule)
+
+                if (resultId == -1L) {
+                    SavedCategoryResult.Duplicate
+                } else {
+                    SavedCategoryResult.Success(resultId)
+                }
+            }
+            catch (_: Exception) {
+                SavedCategoryResult.Error
+            }
+        }.await()
     }
 
     override suspend fun deleteCashbackRuleById(ruleId: Long) {
