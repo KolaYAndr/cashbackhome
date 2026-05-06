@@ -120,7 +120,7 @@ internal class AddCardWithCashbacksViewModel(
                             bankCardName = "",
                             bankCardId = 0L
                         )
-                        repository.upsertCashbackRule(rule)
+                        repository.insertCashbackRule(rule)
                         val newRuleId =
                             repository.getAllCashbackRules().first().last().cashbackRuleId
                         repository.linkCardToRule(newCardId, newRuleId)
@@ -137,7 +137,7 @@ internal class AddCardWithCashbacksViewModel(
                                 bankCardName = "",
                                 bankCardId = 0L
                             )
-                            repository.upsertCashbackRule(rule)
+                            repository.insertCashbackRule(rule)
                             val newRuleId =
                                 repository.getAllCashbackRules().first().last().cashbackRuleId
                             repository.linkCardToRule(cardId, newRuleId)

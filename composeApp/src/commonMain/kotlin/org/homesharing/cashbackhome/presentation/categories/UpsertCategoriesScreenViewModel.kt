@@ -2,6 +2,7 @@ package org.homesharing.cashbackhome.presentation.categories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -137,7 +138,12 @@ internal class UpsertCategoriesScreenViewModel(
         )
         viewModelScope.launch {
             try {
-                when (val result = repository.upsertCashbackRule(newCashbackRule)) {
+                val result = if (newCashbackRule.cashbackRuleId != 0L) {
+                    repository.updateCashbackRule(newCashbackRule)
+                } else {
+                    repository.insertCashbackRule(newCashbackRule)
+                }
+                when (result) {
                     is SavedCategoryResult.Success -> {
                         val ruleId = result.id
                         repository.linkCardToRule(forms.card.cardId, ruleId)
@@ -149,6 +155,9 @@ internal class UpsertCategoriesScreenViewModel(
                         }
                     }
                     is SavedCategoryResult.Duplicate -> {
+                        Logger.i("UpsertCategoriesScreenViewModel") {
+                            "Duplicate found while adding category to the database"
+                        }
                         textFieldsFlow.update {
                             it.copy (
                                 isDuplicate = true
@@ -156,6 +165,9 @@ internal class UpsertCategoriesScreenViewModel(
                         }
                     }
                     is SavedCategoryResult.Error -> {
+                        Logger.i("UpsertCategoriesScreenViewModel") {
+                            "Error while adding category to the database"
+                        }
                         textFieldsFlow.update {
                             it.copy (
                                 hasError = true

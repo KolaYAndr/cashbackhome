@@ -21,7 +21,8 @@ internal interface CardCashbackRepository {
     // CashbackRule
     fun getAllCashbackRules(): Flow<List<CashbackRule>>
     fun getCashbackRule(ruleId: Long): Flow<CashbackRule>
-    suspend fun upsertCashbackRule(rule: CashbackRule): SavedCategoryResult
+    suspend fun updateCashbackRule(rule: CashbackRule): SavedCategoryResult
+    suspend fun insertCashbackRule(rule: CashbackRule): SavedCategoryResult
     suspend fun deleteCashbackRuleById(ruleId: Long)
 
     // Junction

@@ -2,8 +2,10 @@ package org.homesharing.cashbackhome.data.local.database
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
@@ -67,8 +69,11 @@ interface CardCashbackDao {
     @Query("SELECT * FROM cashback_rules WHERE cashbackRuleId = :ruleId")
     fun getCashbackRule(ruleId: Long): Flow<CashbackRule>
 
-    @Upsert
-    suspend fun upsertCashbackRule(rule: CashbackRule): Long
+    @Insert
+    suspend fun insertCashbackRule(rule: CashbackRule): Long
+
+    @Update
+    suspend fun updateCashbackRule(rule: CashbackRule)
 
     @Upsert
     suspend fun upsertCashbackRules(rules: List<CashbackRule>)
