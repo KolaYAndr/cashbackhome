@@ -28,6 +28,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -123,26 +124,28 @@ private fun CategoriesScreen(
     val months = remember(categories) {
         categories.availableCashbackMonths()
     }
-    var selectedMonth by remember(categories) {
-        mutableStateOf(months.firstOrNull())
+    var selectedMonth: CashbackMonth? by remember(categories) {
+        mutableStateOf(null)
     }
-    val activeMonth = selectedMonth ?: months.firstOrNull()
+    val activeMonth = selectedMonth ?: getCurrentMonth()
     val visibleCategories = remember(categories, activeMonth) {
-        activeMonth?.let { month ->
+        activeMonth.let { month ->
             categories.filter { category -> category.belongsToMonth(month) }
-        }.orEmpty()
+        }
+    }
+
+    LaunchedEffect(visibleCategories.isNotEmpty()) {
+        selectedMonth = months.first()
     }
 
     Column (
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ){
-        if (activeMonth != null) {
-            MonthSelector(
-                selectedMonth = activeMonth,
-                months = months,
-                onMonthSelected = { selectedMonth = it },
-            )
-        }
+        MonthSelector(
+            selectedMonth = activeMonth,
+            months = months,
+            onMonthSelected = { selectedMonth = it },
+        )
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -388,6 +391,10 @@ private fun getCurrentDate(): LocalDate {
     val currentMoment = Clock.System.now()
     val datetimeInSystemZone = currentMoment.toLocalDateTime(TimeZone.currentSystemDefault())
     return datetimeInSystemZone.date
+}
+
+private fun getCurrentMonth(): CashbackMonth {
+    return monthsBetween(getCurrentDate(), getCurrentDate()).first()
 }
 
 @Composable
