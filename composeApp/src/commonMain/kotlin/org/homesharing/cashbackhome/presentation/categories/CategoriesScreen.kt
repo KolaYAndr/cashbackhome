@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -41,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -52,17 +50,19 @@ import cashbackhome.composeapp.generated.resources.arrow_drop_down
 import cashbackhome.composeapp.generated.resources.categories_screen_add_category_button
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_description
 import cashbackhome.composeapp.generated.resources.categories_screen_empty_title
+import cashbackhome.composeapp.generated.resources.categories_screen_unlimited
 import cashbackhome.composeapp.generated.resources.categories_screen_wrong_data_format
 import cashbackhome.composeapp.generated.resources.delete
 import cashbackhome.composeapp.generated.resources.edit
 import kotlinx.coroutines.launch
-import kotlinx.datetime.daysUntil
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.number
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.cards.BankBadge
+import org.homesharing.cashbackhome.presentation.home.ButtonOnEmptyScreen
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
@@ -275,21 +275,17 @@ private fun CashbackCard(
                         )
                     }
                 }
-                getExpirationDateTitle(category.expirationDate)?.let { expirationTitle ->
-                    Text(
-                        text = expirationTitle,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = getDateColor(category.expirationDate),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Text(
+                    text = getExpirationDateTitle(category.expirationDate),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = getDateColor(category.expirationDate),
+                    maxLines = 1,
+                )
                 Text(
                     text = getPercents(category.percentage),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -397,9 +393,9 @@ private fun getCurrentDate(): LocalDate {
 @Composable
 private fun getExpirationDateTitle(
     expirationDate: String,
-): String? {
+): String {
     if (expirationDate.isBlank()) {
-        return null
+        return stringResource(Res.string.categories_screen_unlimited)
     }
 
     parseDate(expirationDate)?.let { expiration ->
@@ -435,7 +431,7 @@ private fun List<CashbackRule>.availableCashbackMonths(): List<CashbackMonth> =
 private fun CashbackRule.belongsToMonth(month: CashbackMonth): Boolean =
     dateRange()?.let { (start, expiration) ->
         start <= month.lastDate && expiration >= month.firstDate
-    } == true
+    } != false
 
 private fun CashbackRule.availableMonths(): List<CashbackMonth> {
     val (start, expiration) = dateRange() ?: return emptyList()
@@ -556,25 +552,13 @@ private fun EmptyCategories(onAddCategoryClick: () -> Unit) {
             text = stringResource(Res.string.categories_screen_empty_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
 
-        Button(
+        ButtonOnEmptyScreen(
             onClick = onAddCategoryClick,
-            modifier = Modifier
-                .padding(top = 13.dp, bottom = 13.dp)
-                .height(45.dp)
-                .width(193.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-            ),
-        ) {
-            Text(
-                text = stringResource(Res.string.categories_screen_add_category_button),
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
+            text = stringResource(Res.string.categories_screen_add_category_button)
+        )
     }
 }
 

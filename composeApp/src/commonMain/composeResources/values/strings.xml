@@ -48,7 +48,7 @@
     <string name="card_details_until_date">от %1$s до %2$s</string>
 
     <!-- CardsScreen -->
-    <string name="card_add">Добавить карту</string>
+    <string name="cards_add_button">Добавить</string>
     <string name="cards_empty_title">У вас пока нет карт</string>
     <string name="cards_empty_description">Добавьте первую карту, чтобы начать получать кэшбеки</string>
     <string name="cards_switch_to_grid">Переключить на сетку</string>
@@ -89,6 +89,7 @@
     <string name="categories_screen_empty_description">Добавьте категорию, чтобы начать получать кэшбек</string>
     <string name="categories_screen_add_category_button">Добавить</string>
     <string name="categories_screen_wrong_data_format">Неправильная дата</string>
+    <string name="categories_screen_unlimited">Бессрочно</string>
 
     <!-- EditCategoriesScreen -->
     <string name="edit_category_title">Редактирвать категорию</string>

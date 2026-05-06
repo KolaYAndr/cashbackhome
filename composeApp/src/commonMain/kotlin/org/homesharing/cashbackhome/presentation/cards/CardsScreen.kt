@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -20,8 +18,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -42,15 +38,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashbackhome.composeapp.generated.resources.Res
-import cashbackhome.composeapp.generated.resources.card_add
 import cashbackhome.composeapp.generated.resources.card_type_credit
 import cashbackhome.composeapp.generated.resources.card_type_debit
 import cashbackhome.composeapp.generated.resources.card_type_other
+import cashbackhome.composeapp.generated.resources.cards_add_button
 import cashbackhome.composeapp.generated.resources.cards_empty_description
 import cashbackhome.composeapp.generated.resources.cards_empty_title
 import cashbackhome.composeapp.generated.resources.delete
@@ -60,6 +57,7 @@ import kotlinx.coroutines.launch
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
 import org.homesharing.cashbackhome.presentation.categories.SwipeBackground
+import org.homesharing.cashbackhome.presentation.home.ButtonOnEmptyScreen
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -389,25 +387,13 @@ private fun EmptyCards(
             text = stringResource(Res.string.cards_empty_description),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
 
-        Button(
+        ButtonOnEmptyScreen(
             onClick = onAddCardClick,
-            modifier = Modifier
-                .padding(top = 13.dp, bottom = 13.dp)
-                .height(45.dp)
-                .width(193.dp),
-            shape = RoundedCornerShape(26.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-            ),
-        ) {
-            Text(
-                text = stringResource(Res.string.card_add),
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
+            text = stringResource(Res.string.cards_add_button)
+        )
     }
 }
 

@@ -27,9 +27,12 @@ import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -79,6 +82,7 @@ import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenRoot
 import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.promotions.PromotionsScreen
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
+import org.homesharing.cashbackhome.presentation.theme.LightOnBackground
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -481,6 +485,52 @@ internal fun LoadingScreen() {
         contentAlignment = Alignment.Center
     ){
         CircularProgressIndicator()
+    }
+}
+
+@Composable
+internal fun ButtonOnEmptyScreen(
+    onClick: () -> Unit,
+    text: String,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .height(55.dp)
+            .width(170.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = LightOnBackground
+        ),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.headlineSmall,
+        )
+    }
+}
+
+@Composable
+internal fun ChooseOrSaveButton(
+    onClick: () -> Unit,
+    text: String,
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .height(55.dp)
+            .width(271.dp),
+        shape = RoundedCornerShape(14.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = LightOnBackground
+        ),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.headlineSmall,
+        )
     }
 }
 

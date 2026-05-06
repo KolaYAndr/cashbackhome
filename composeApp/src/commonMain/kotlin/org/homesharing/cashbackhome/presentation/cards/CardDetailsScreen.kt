@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -67,6 +64,7 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.presentation.categories.SwipeBackground
 import org.homesharing.cashbackhome.presentation.categories.getPercents
+import org.homesharing.cashbackhome.presentation.home.ChooseOrSaveButton
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.home.colorUnderline
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
@@ -484,20 +482,10 @@ private fun BindCategoryButton(
     text: String,
     onClick: () -> Unit,
 ) {
-    Button(
+    ChooseOrSaveButton(
         onClick = onClick,
-        shape = RoundedCornerShape(14.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-        ),
-        contentPadding = PaddingValues(vertical = 16.5.dp, horizontal = 20.dp),
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.headlineSmall
-        )
-    }
+        text = text
+    )
 }
 
 @Composable

@@ -74,18 +74,19 @@ import cashbackhome.composeapp.generated.resources.back_button_description
 import cashbackhome.composeapp.generated.resources.calendar
 import cashbackhome.composeapp.generated.resources.default_profile_picture
 import cashbackhome.composeapp.generated.resources.edit
-import org.homesharing.cashbackhome.data.local.database.entity.ThemeMode
-import org.homesharing.cashbackhome.domain.model.AuthenticatedUser
-import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
-import org.jetbrains.compose.resources.painterResource
-import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import org.homesharing.cashbackhome.data.local.database.entity.ThemeMode
+import org.homesharing.cashbackhome.domain.model.AuthenticatedUser
+import org.homesharing.cashbackhome.presentation.home.ChooseOrSaveButton
+import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Instant
 
 private val ProfileTextSecondary = Color(0xFF8A8A8A)
@@ -910,31 +911,10 @@ private fun SelectedThemeIndicator(
 
 @Composable
 private fun SaveButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.primary)
-            .clickable(onClick = onClick),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CheckIcon(
-            modifier = Modifier.size(18.dp),
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Сохранить",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-            ),
-            color = MaterialTheme.colorScheme.onPrimary,
-            maxLines = 1,
-        )
-    }
+    ChooseOrSaveButton(
+        onClick = onClick,
+        text = "Сохранить"
+    )
 }
 
 @Composable
@@ -1029,69 +1009,6 @@ private fun PhoneIcon(
             path = path,
             color = color,
             style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-        )
-    }
-}
-
-@Composable
-private fun CheckIcon(
-    modifier: Modifier,
-    color: Color,
-) {
-    Canvas(modifier = modifier) {
-        drawLine(
-            color = color,
-            start = Offset(size.width * 0.12f, size.height * 0.52f),
-            end = Offset(size.width * 0.38f, size.height * 0.78f),
-            strokeWidth = 2.dp.toPx(),
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = color,
-            start = Offset(size.width * 0.38f, size.height * 0.78f),
-            end = Offset(size.width * 0.9f, size.height * 0.22f),
-            strokeWidth = 2.dp.toPx(),
-            cap = StrokeCap.Round,
-        )
-    }
-}
-
-@Composable
-private fun ShieldIcon(
-    modifier: Modifier,
-    color: Color,
-) {
-    Canvas(modifier = modifier) {
-        val strokeWidth = 1.7.dp.toPx()
-        val path = Path().apply {
-            moveTo(size.width * 0.5f, size.height * 0.08f)
-            lineTo(size.width * 0.82f, size.height * 0.22f)
-            lineTo(size.width * 0.75f, size.height * 0.62f)
-            quadraticBezierTo(
-                size.width * 0.68f,
-                size.height * 0.84f,
-                size.width * 0.5f,
-                size.height * 0.94f,
-            )
-            quadraticBezierTo(
-                size.width * 0.32f,
-                size.height * 0.84f,
-                size.width * 0.25f,
-                size.height * 0.62f,
-            )
-            lineTo(size.width * 0.18f, size.height * 0.22f)
-            close()
-        }
-        drawPath(
-            path = path,
-            color = color,
-            style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-        )
-        drawCircle(
-            color = color,
-            radius = size.minDimension * 0.08f,
-            center = Offset(size.width * 0.5f, size.height * 0.46f),
-            style = Stroke(width = strokeWidth),
         )
     }
 }

@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -57,7 +55,9 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCard
 import org.homesharing.cashbackhome.presentation.categories.SectionLabel
 import org.homesharing.cashbackhome.presentation.categories.TipText
 import org.homesharing.cashbackhome.presentation.categories.textFieldColors
+import org.homesharing.cashbackhome.presentation.home.ChooseOrSaveButton
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
+import org.homesharing.cashbackhome.presentation.theme.LightOnBackground
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -213,7 +213,6 @@ private fun UpsertCardScreen(
 
             ButtonAndMessage(
                 onSubmitClick = onSubmitClick,
-                isSaving = state.forms.isSaving,
                 isEditing = state.isEditing,
             )
         }
@@ -390,17 +389,12 @@ private fun CardTypeButton(
     val containerColor = if (selected) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.background
+        MaterialTheme.colorScheme.surface
     }
     val borderColor = if (selected) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    val contentColor = if (selected) {
-        MaterialTheme.colorScheme.onBackground
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        MaterialTheme.colorScheme.surface
     }
 
     Row(
@@ -418,12 +412,12 @@ private fun CardTypeButton(
             painter = painterResource(Res.drawable.card),
             contentDescription = null,
             modifier = Modifier.size(16.dp),
-            tint = contentColor,
+            tint = LightOnBackground,
         )
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,
-            color = contentColor,
+            color = LightOnBackground,
             maxLines = 1,
         )
     }
@@ -432,38 +426,21 @@ private fun CardTypeButton(
 @Composable
 private fun ButtonAndMessage(
     onSubmitClick: () -> Unit,
-    isSaving: Boolean,
     isEditing: Boolean,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Button(
+        ChooseOrSaveButton(
             onClick = onSubmitClick,
-            enabled = !isSaving,
-            modifier = Modifier
-                .padding(horizontal = 35.dp)
-                .fillMaxWidth()
-                .padding(vertical = 15.dp)
-                .height(55.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-            ),
-        ) {
-            Text(
-                text = stringResource(
-                    if (isEditing) {
-                        Res.string.upsert_card_save_button
-                    } else {
-                        Res.string.upsert_card_add_button
-                    }
-                ),
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
+            text = if (isEditing) {
+                stringResource(Res.string.upsert_card_save_button)
+            } else {
+                stringResource(Res.string.upsert_card_add_button)
+            }
+        )
 
         Text(
             text = stringResource(Res.string.upsert_card_privacy_hint),

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -96,6 +95,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule.CashbackCategory
+import org.homesharing.cashbackhome.presentation.home.ChooseOrSaveButton
 import org.homesharing.cashbackhome.presentation.home.LoadingScreen
 import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
@@ -148,7 +148,7 @@ internal fun EditCategoryScreenRoot(
             val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
             UpsertCategoryScreen(
                 state = state,
-                onAddCategoryClick = viewModel::upsertRule,
+                onUpsertCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
                 onAddCardClick = onAddCardClick,
                 onCategorySelected = viewModel::categorySelected,
@@ -195,7 +195,7 @@ internal fun AddCategoryScreenRoot(
             val state = uiState.value as UpsertCategoriesScreenState.UpsertCategory
             UpsertCategoryScreen(
                 state = state,
-                onAddCategoryClick = viewModel::upsertRule,
+                onUpsertCategoryClick = viewModel::upsertRule,
                 onBackClick = onBackClick,
                 onAddCardClick = onAddCardClick,
                 onCategorySelected = viewModel::categorySelected,
@@ -211,7 +211,7 @@ internal fun AddCategoryScreenRoot(
 @Composable
 private fun UpsertCategoryScreen(
     state: UpsertCategoriesScreenState.UpsertCategory,
-    onAddCategoryClick: () -> Unit,
+    onUpsertCategoryClick: () -> Unit,
     onBackClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onCategorySelected: (CashbackCategory) -> Unit,
@@ -252,6 +252,7 @@ private fun UpsertCategoryScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CategorySelectionFieldSection(
                 hasError = state.forms.hasError,
@@ -301,29 +302,14 @@ private fun UpsertCategoryScreen(
                 )
             }
 
-            Button(
-                onClick = onAddCategoryClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 15.dp)
-                    .height(55.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                ),
-            ) {
-                Text(
-                    text = if (state.isEditing) {
-                        stringResource(Res.string.edit_category_submit_button)
-                    } else {
-                        stringResource(Res.string.add_category_submit_button)
-                    },
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
+            ChooseOrSaveButton(
+                onClick = onUpsertCategoryClick,
+                text = if (state.isEditing) {
+                    stringResource(Res.string.edit_category_submit_button)
+                } else {
+                    stringResource(Res.string.add_category_submit_button)
+                },
+            )
         }
     }
 }
@@ -1006,7 +992,7 @@ fun PreviewUpsertCategoryScreenLight() {
         val func: (String, String) -> Unit = {x1, x2 ->}
         UpsertCategoryScreen(
             state = UpsertCategoriesScreenState.UpsertCategory(TextFields(), listOf()),
-            onAddCategoryClick = {},
+            onUpsertCategoryClick = {},
             onBackClick = {},
             onAddCardClick = {},
             onCategorySelected = {},
