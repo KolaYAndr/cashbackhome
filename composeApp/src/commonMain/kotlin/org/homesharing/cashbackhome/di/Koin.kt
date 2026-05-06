@@ -19,6 +19,7 @@ import org.homesharing.cashbackhome.presentation.cards.UpsertCardScreenViewModel
 import org.homesharing.cashbackhome.presentation.categories.CategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.categories.UpsertCategoriesScreenViewModel
 import org.homesharing.cashbackhome.presentation.home.HomeScreenViewModel
+import org.homesharing.cashbackhome.presentation.profile.ProfileViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -38,6 +39,7 @@ private val sharedStaticModule =
         viewModelOf(::CardsViewModel)
         viewModelOf(::AddCardWithCashbacksViewModel)
         viewModelOf(::HomeScreenViewModel)
+        viewModelOf(::ProfileViewModel)
         viewModelOf(::CategoriesScreenViewModel)
         viewModel { (card: BankCard?) ->
             UpsertCardScreenViewModel(get(), card)

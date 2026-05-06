@@ -136,11 +136,13 @@ private fun CategoriesScreen(
     Column (
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ){
-        MonthSelector(
-            selectedMonth = activeMonth!!,
-            months = months,
-            onMonthSelected = { selectedMonth = it },
-        )
+        if (activeMonth != null) {
+            MonthSelector(
+                selectedMonth = activeMonth,
+                months = months,
+                onMonthSelected = { selectedMonth = it },
+            )
+        }
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)

@@ -15,13 +15,21 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCardTypeConve
 import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackCategoryConverter
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.ProfileSettings
+import org.homesharing.cashbackhome.data.local.database.entity.ThemeModeConverter
 
 @Database(
-    entities = [BankCard::class, CashbackRule::class, CardCashback::class],
-    version = 4,
+    entities = [BankCard::class, CashbackRule::class, CardCashback::class, ProfileSettings::class],
+    version = 6,
     exportSchema = false,
 )
-@TypeConverters(value = [CashbackCategoryConverter::class, BankCardTypeConverter::class])
+@TypeConverters(
+    value = [
+        CashbackCategoryConverter::class,
+        BankCardTypeConverter::class,
+        ThemeModeConverter::class,
+    ]
+)
 @ConstructedBy(CardCashbackDatabaseConstructor::class)
 abstract class CardCashbackDatabase : RoomDatabase() {
     abstract fun cardCashbackDao(): CardCashbackDao
@@ -31,7 +39,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<CardCashbackDatabase>,
 ): CardCashbackDatabase {
     return builder
-        .addMigrations(Migration1To2, Migration2To3, Migration3to4)
+        .addMigrations(Migration1To2, Migration2To3, Migration3to4, Migration4To5, Migration5To6)
         .fallbackToDestructiveMigrationOnDowngrade(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
@@ -40,7 +48,9 @@ fun getRoomDatabase(
 
 private val Migration1To2 = object : Migration(1, 2) {
     override fun migrate(connection: SQLiteConnection) {
-        connection.execSql("ALTER TABLE cashback_rules ADD COLUMN startDate TEXT NOT NULL DEFAULT ''")
+        connection.execSql(
+            "ALTER TABLE cashback_rules ADD COLUMN startDate TEXT NOT NULL DEFAULT ' '"
+        )
         connection.execSql(
             """
             UPDATE cashback_rules
@@ -106,6 +116,50 @@ val Migration3to4 = object : Migration(3, 4) {
             """
             CREATE UNIQUE INDEX IF NOT EXISTS `index_cashback_bankCardId_category`
             ON cashback_rules (bankCardId, category)
+            """
+        )
+    }
+}
+
+private val Migration4To5 = object : Migration(4, 5) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSql(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                userId INTEGER NOT NULL,
+                login TEXT NOT NULL,
+                password TEXT NOT NULL,
+                email TEXT NOT NULL,
+                birthDate TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                isDarkThemeEnabled INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY(userId)
+            )
+            """
+        )
+    }
+}
+
+private val Migration5To6 = object : Migration(5, 6) {
+    override fun migrate(connection: SQLiteConnection) {
+        connection.execSql(
+            """
+            DROP TABLE IF EXISTS users
+            """
+        )
+        connection.execSql(
+            """
+            CREATE TABLE IF NOT EXISTS profile_settings (
+                settingsId INTEGER NOT NULL,
+                themeMode TEXT NOT NULL,
+                PRIMARY KEY(settingsId)
+            )
+            """
+        )
+        connection.execSql(
+            """
+            INSERT OR IGNORE INTO profile_settings(settingsId, themeMode)
+            VALUES (1, 'system')
             """
         )
     }

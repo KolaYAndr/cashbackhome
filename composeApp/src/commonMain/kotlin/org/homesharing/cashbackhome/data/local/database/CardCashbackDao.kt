@@ -10,9 +10,22 @@ import org.homesharing.cashbackhome.data.local.database.entity.BankCard
 import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
 import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.ProfileSettings
+import org.homesharing.cashbackhome.data.local.database.entity.ThemeMode
 
 @Dao
 interface CardCashbackDao {
+
+    // --------- Profile settings ---------
+
+    @Query("SELECT * FROM profile_settings WHERE settingsId = 1")
+    fun getProfileSettings(): Flow<ProfileSettings?>
+
+    @Upsert
+    suspend fun upsertProfileSettings(settings: ProfileSettings)
+
+    @Query("UPDATE profile_settings SET themeMode = :themeMode WHERE settingsId = 1")
+    suspend fun updateThemeMode(themeMode: ThemeMode)
 
     // --------- Aggregates (BankCard + Cashbacks) ---------
 

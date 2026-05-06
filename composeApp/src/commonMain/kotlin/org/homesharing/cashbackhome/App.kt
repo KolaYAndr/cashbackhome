@@ -1,6 +1,9 @@
 package org.homesharing.cashbackhome
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -12,8 +15,13 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import org.homesharing.cashbackhome.data.local.database.CardCashbackDao
+import org.homesharing.cashbackhome.data.local.database.entity.ProfileSettings
+import org.homesharing.cashbackhome.data.local.database.entity.ThemeMode
+import org.homesharing.cashbackhome.domain.model.mockAuthenticatedUser
 import org.homesharing.cashbackhome.presentation.cards.AddCardScreenRoot
 import org.homesharing.cashbackhome.presentation.cards.BankPickerOptions
 import org.homesharing.cashbackhome.presentation.cards.BankSelectionResult
@@ -24,11 +32,30 @@ import org.homesharing.cashbackhome.presentation.categories.AddCategoryScreenRoo
 import org.homesharing.cashbackhome.presentation.categories.EditCategoryScreenRoot
 import org.homesharing.cashbackhome.presentation.home.HomeScreenRoot
 import org.homesharing.cashbackhome.presentation.navigation.AppRoute
+import org.homesharing.cashbackhome.presentation.profile.ProfileScreenRoot
 import org.homesharing.cashbackhome.presentation.theme.CashbackHomeTheme
+import org.koin.compose.koinInject
 
 @Composable
 fun App() {
-    CashbackHomeTheme {
+    val dao = koinInject<CardCashbackDao>()
+    val profileSettings by dao.getProfileSettings().collectAsState(initial = null)
+    val systemDarkTheme = isSystemInDarkTheme()
+    val darkTheme = when (profileSettings?.themeMode ?: ThemeMode.System) {
+        ThemeMode.System -> systemDarkTheme
+        ThemeMode.Dark -> true
+        ThemeMode.Light -> false
+    }
+
+    LaunchedEffect(dao) {
+        if (dao.getProfileSettings().first() == null) {
+            dao.upsertProfileSettings(ProfileSettings())
+        }
+    }
+
+    var authenticatedUser by remember { mutableStateOf(mockAuthenticatedUser()) }
+
+    CashbackHomeTheme(darkTheme = darkTheme) {
         val knownBankNames = remember {
             BankPickerOptions.map { it.name }.toSet()
         }
@@ -102,6 +129,7 @@ fun App() {
             entryProvider = entryProvider {
                 entry<AppRoute.Home> {
                     HomeScreenRoot(
+                        profileName = authenticatedUser.username,
                         onAddCategoryClick = {
                              backStack.add(AppRoute.AddCategoryScreen)
                         },
@@ -116,6 +144,9 @@ fun App() {
                         },
                         onCardClick = { card ->
                             backStack.add(AppRoute.CardDetailsScreen(card))
+                        },
+                        onProfileClick = {
+                            backStack.add(AppRoute.PersonalCabinet)
                         }
                     )
                 }
@@ -166,7 +197,13 @@ fun App() {
                 }
 
                 entry<AppRoute.PersonalCabinet> {
-//                    TODO("Add personal cabinet screen")
+                    ProfileScreenRoot(
+                        user = authenticatedUser,
+                        onUserChanged = { authenticatedUser = it },
+                        onBackClick = {
+                            backStack.removeLastOrNull()
+                        },
+                    )
                 }
 
                 entry<AppRoute.EditCardScreen> { key ->

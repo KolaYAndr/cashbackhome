@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fitInside
@@ -47,8 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.RectRulers
 import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.layout.innermostOf
@@ -66,7 +65,6 @@ import cashbackhome.composeapp.generated.resources.grid_view_icon_description
 import cashbackhome.composeapp.generated.resources.list_view_icon_description
 import cashbackhome.composeapp.generated.resources.profile_chevron_right
 import cashbackhome.composeapp.generated.resources.profile_icon_description
-import cashbackhome.composeapp.generated.resources.profile_name
 import cashbackhome.composeapp.generated.resources.search
 import cashbackhome.composeapp.generated.resources.search_cards_placeholder
 import cashbackhome.composeapp.generated.resources.search_categories_placeholder
@@ -89,11 +87,13 @@ private const val ANIMATION_DURATION = 200
 
 @Composable
 internal fun HomeScreenRoot(
+    profileName: String,
     onAddCategoryClick: () -> Unit,
     onAddCardClick: () -> Unit,
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
     onCardClick: (BankCard) -> Unit,
+    onProfileClick: () -> Unit,
 ) {
     val viewModel: HomeScreenViewModel = koinViewModel()
     val tabState by viewModel.tabState.collectAsStateWithLifecycle()
@@ -101,6 +101,7 @@ internal fun HomeScreenRoot(
     Logger.i { "$tabState. $isGrid" }
 
     HomeScreen(
+        profileName = profileName,
         selectedTab = tabState,
         isGrid = isGrid,
         onGridStateChanged = viewModel::updateIsGridState,
@@ -110,11 +111,13 @@ internal fun HomeScreenRoot(
         onEditCategoryClick = onEditCategoryClick,
         onEditCardClick = onEditCardClick,
         onCardClick = onCardClick,
+        onProfileClick = onProfileClick,
     )
 }
 
 @Composable
 private fun HomeScreen(
+    profileName: String,
     selectedTab: Tab,
     isGrid: Boolean,
     onGridStateChanged: (Boolean) -> Unit,
@@ -124,6 +127,7 @@ private fun HomeScreen(
     onEditCategoryClick: (CashbackRule) -> Unit,
     onEditCardClick: (BankCard) -> Unit,
     onCardClick: (BankCard) -> Unit,
+    onProfileClick: () -> Unit,
 ) {
     val scaffoldState = rememberScaffoldState(isGrid)
     Logger.i { scaffoldState.searchAndSortBarConfig.value.toString() }
@@ -180,7 +184,10 @@ private fun HomeScreen(
                 ).background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 16.dp),
         ) {
-            Header()
+            Header(
+                name = profileName,
+                onClick = onProfileClick,
+            )
             val tabs = listOf(
                 Tab.Categories,
                 Tab.MyCards,
@@ -265,13 +272,15 @@ private fun HomeScreen(
 }
 
 @Composable
-private fun Header(name: String? = null) {
+private fun Header(
+    name: String,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Image(
             painter = painterResource(Res.drawable.default_profile_picture),
@@ -279,19 +288,26 @@ private fun Header(name: String? = null) {
             modifier = Modifier.size(30.dp),
         )
 
+        Spacer(Modifier.size(8.dp))
+
         Text(
-            text = name ?: stringResource(Res.string.profile_name),
+            text = name,
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground,
         )
 
-        Image(
-            painter = painterResource(Res.drawable.profile_chevron_right),
-            contentDescription = stringResource(Res.string.chevron_right_icon_description),
-            modifier = Modifier.size(width = 10.dp, height = 12.dp),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground),
-            contentScale = ContentScale.Crop,
-        )
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            IconButton(
+                onClick = onClick,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.profile_chevron_right),
+                    contentDescription = stringResource(Res.string.chevron_right_icon_description),
+                    tint = MaterialTheme.colorScheme.onBackground
+                )
+            }
+        }
     }
 }
 
@@ -472,15 +488,18 @@ internal fun LoadingScreen() {
 @Preview
 private fun HomeScreenPreviewLight() {
     CashbackHomeTheme {
-        HomeScreen(Tab.Categories,
-            false,
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
-            {},
+        HomeScreen(
+            profileName = "krispimil",
+            selectedTab = Tab.Categories,
+            isGrid = false,
+            onGridStateChanged = {},
+            onAddCategoryClick = {},
+            onAddCardClick = {},
+            onTabClick = {},
+            onEditCategoryClick = {},
+            onEditCardClick = {},
+            onCardClick = {},
+            onProfileClick = {},
         )
     }
 }
