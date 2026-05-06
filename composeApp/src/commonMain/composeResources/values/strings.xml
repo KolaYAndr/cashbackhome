@@ -103,6 +103,10 @@
     <string name="add_category_card_placeholder">Выберите карту</string>
     <string name="add_category_expiration_label">Срок действия категории</string>
     <string name="add_category_date_picker_label">Выберите диапазон</string>
+    <string name="add_category_date_picker_title">Выберите дату</string>
+    <string name="add_category_date_picker_clear_button">Очистить</string>
+    <string name="add_category_date_picker_cancel_button">Отменить</string>
+    <string name="add_category_date_picker_save_button">OK</string>
     <string name="add_category_expiration_placeholder">Выберите срок действия категории</string>
     <string name="add_category_unlimited">Бессрочно</string>
     <string name="add_category_cashback_label">Кэшбэк</string>

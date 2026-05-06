@@ -69,7 +69,11 @@ import cashbackhome.composeapp.generated.resources.add_category_card_placeholder
 import cashbackhome.composeapp.generated.resources.add_category_cashback_label
 import cashbackhome.composeapp.generated.resources.add_category_category_label
 import cashbackhome.composeapp.generated.resources.add_category_category_placeholder
+import cashbackhome.composeapp.generated.resources.add_category_date_picker_cancel_button
+import cashbackhome.composeapp.generated.resources.add_category_date_picker_clear_button
 import cashbackhome.composeapp.generated.resources.add_category_date_picker_label
+import cashbackhome.composeapp.generated.resources.add_category_date_picker_save_button
+import cashbackhome.composeapp.generated.resources.add_category_date_picker_title
 import cashbackhome.composeapp.generated.resources.add_category_duplicate_hint
 import cashbackhome.composeapp.generated.resources.add_category_expiration_label
 import cashbackhome.composeapp.generated.resources.add_category_expiration_placeholder
@@ -721,7 +725,7 @@ fun CustomDateRangePickerDialog(
                     showModeToggle = true,
                     title = {
                         Text(
-                            text = "Выберите дату",
+                            text = stringResource(Res.string.add_category_date_picker_title),
                             modifier = Modifier.padding(
                                 start = 28.dp,
                                 top = 22.dp,
@@ -764,14 +768,15 @@ fun CustomDateRangePickerDialog(
 
                         dayInSelectionRangeContainerColor = MaterialTheme.colorScheme.primary
                             .copy(alpha = 0.18f),
-                        dayInSelectionRangeContentColor = MaterialTheme.colorScheme.background,
+                        dayInSelectionRangeContentColor = MaterialTheme.colorScheme.onBackground,
                     )
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, bottom = 14.dp),
+                        .padding(start = 20.dp, end = 20.dp, bottom = 14.dp)
+                        .background(MaterialTheme.colorScheme.background),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
@@ -780,7 +785,7 @@ fun CustomDateRangePickerDialog(
                         }
                     ) {
                         Text(
-                            text = "Очистить",
+                            text = stringResource(Res.string.add_category_date_picker_clear_button),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -789,7 +794,7 @@ fun CustomDateRangePickerDialog(
                     Row {
                         TextButton(onClick = onDismiss) {
                             Text(
-                                text = "Отменить",
+                                text = stringResource(Res.string.add_category_date_picker_cancel_button),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
@@ -807,7 +812,7 @@ fun CustomDateRangePickerDialog(
                             }
                         ) {
                             Text(
-                                text = "OK",
+                                text = stringResource(Res.string.add_category_date_picker_save_button),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onBackground
                             )

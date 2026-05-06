@@ -91,8 +91,8 @@ internal class UpsertCategoriesScreenViewModel(
     fun dateUnlimitedChanged(isUnlimited: Boolean) {
         textFieldsFlow.update { textFields ->
             textFields.copy(
-                startDate = if (isUnlimited) " " else null,
-                expirationDate = if (isUnlimited) " " else null,
+                startDate = null,
+                expirationDate = null,
                 isUnlimited = isUnlimited,
                 hasError = false,
             )
@@ -103,14 +103,6 @@ internal class UpsertCategoriesScreenViewModel(
         textFieldsFlow.update { textFields ->
             textFields.copy(
                 cashback = cashback
-            )
-        }
-    }
-
-    fun clearError() {
-        textFieldsFlow.update {
-            it.copy(
-                hasError = false
             )
         }
     }
