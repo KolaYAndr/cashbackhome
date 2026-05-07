@@ -135,7 +135,7 @@ private fun CategoriesScreen(
     }
 
     LaunchedEffect(visibleCategories.isNotEmpty()) {
-        selectedMonth = months.first()
+        selectedMonth = months.firstOrNull() ?: getCurrentMonth()
     }
 
     Column (
