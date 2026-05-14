@@ -11,10 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import cashbackhome.composeapp.generated.resources.Res
 import cashbackhome.composeapp.generated.resources.promotions_placeholder
+import org.homesharing.cashbackhome.presentation.home.ScaffoldState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun PromotionsScreen() {
+internal fun PromotionsScreen(
+    scaffoldState: ScaffoldState
+) {
+    scaffoldState.updateFab(false, {})
+    scaffoldState.updateSearchAndSortBar(false)
     Box(
         modifier = Modifier
             .fillMaxSize()

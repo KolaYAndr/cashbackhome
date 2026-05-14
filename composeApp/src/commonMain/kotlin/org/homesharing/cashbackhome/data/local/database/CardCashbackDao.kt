@@ -1,18 +1,33 @@
-package org.homesharing.cashbackhome.data.local
+package org.homesharing.cashbackhome.data.local.database
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
-import org.homesharing.cashbackhome.domain.entity.CardCashback
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCardWithCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CardCashback
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.ProfileSettings
+import org.homesharing.cashbackhome.data.local.database.entity.ThemeMode
 
 @Dao
 interface CardCashbackDao {
+
+    // --------- Profile settings ---------
+
+    @Query("SELECT * FROM profile_settings WHERE settingsId = 1")
+    fun getProfileSettings(): Flow<ProfileSettings?>
+
+    @Upsert
+    suspend fun upsertProfileSettings(settings: ProfileSettings)
+
+    @Query("UPDATE profile_settings SET themeMode = :themeMode WHERE settingsId = 1")
+    suspend fun updateThemeMode(themeMode: ThemeMode)
 
     // --------- Aggregates (BankCard + Cashbacks) ---------
 
@@ -29,6 +44,9 @@ interface CardCashbackDao {
 
     @Query("SELECT * FROM bank_cards")
     fun getAllCards(): Flow<List<BankCard>>
+
+    @Query("SELECT * FROM bank_cards WHERE cardId = :cardId")
+    fun getCard(cardId: Long) : BankCard
 
     @Upsert
     suspend fun upsertBankCard(card: BankCard)
@@ -51,8 +69,11 @@ interface CardCashbackDao {
     @Query("SELECT * FROM cashback_rules WHERE cashbackRuleId = :ruleId")
     fun getCashbackRule(ruleId: Long): Flow<CashbackRule>
 
-    @Upsert
-    suspend fun upsertCashbackRule(rule: CashbackRule)
+    @Insert
+    suspend fun insertCashbackRule(rule: CashbackRule): Long
+
+    @Update
+    suspend fun updateCashbackRule(rule: CashbackRule)
 
     @Upsert
     suspend fun upsertCashbackRules(rules: List<CashbackRule>)
@@ -88,11 +109,13 @@ interface CardCashbackDao {
     // --------- Helpers / Filters для UI ---------
 
     @Transaction
-    @Query("""
+    @Query(
+        """
         SELECT * FROM bank_cards
         WHERE bankName LIKE '%' || :query || '%'
-           OR mask      LIKE '%' || :query || '%'
-    """)
+           OR title      LIKE '%' || :query || '%'
+    """
+    )
     fun searchCards(query: String): Flow<List<BankCardWithCashback>>
 
     @Transaction

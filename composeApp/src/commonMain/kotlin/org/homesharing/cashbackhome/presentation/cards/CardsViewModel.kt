@@ -2,21 +2,35 @@ package org.homesharing.cashbackhome.presentation.cards
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import org.homesharing.cashbackhome.domain.entity.BankCardWithCashback
+import kotlinx.coroutines.launch
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
 
-private const val THRESHOLD = 5000L
+private const val THRESHOLD = 5_000L
 
 internal class CardsViewModel(
-    repository: CardCashbackRepository
+    val applicationScope: CoroutineScope,
+    val repository: CardCashbackRepository,
 ) : ViewModel() {
+    val uiState = repository.getAllCards()
+        .map { cards ->
+            if (cards.isEmpty()) {
+                CardsScreenState.EmptyScreen
+            } else {
+                CardsScreenState.Cards(cards)
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(THRESHOLD),
+            initialValue = CardsScreenState.Loading,
+        )
 
-    val uiState: StateFlow<List<BankCardWithCashback>?> = repository.getAllCardsWithCashbacks().stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(THRESHOLD),
-        initialValue = null
-    )
+    fun deleteCashbackRuleById(ruleId: Long) {
+        applicationScope.launch {
+            repository.deleteBankCardById(ruleId)
+        }
+    }
 }

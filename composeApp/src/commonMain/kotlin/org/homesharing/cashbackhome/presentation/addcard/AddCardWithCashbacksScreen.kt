@@ -44,26 +44,23 @@ import cashbackhome.composeapp.generated.resources.card
 import cashbackhome.composeapp.generated.resources.card_bank_label
 import cashbackhome.composeapp.generated.resources.card_mask_field_label
 import cashbackhome.composeapp.generated.resources.card_mask_label
+import cashbackhome.composeapp.generated.resources.card_type_credit
+import cashbackhome.composeapp.generated.resources.card_type_debit
+import cashbackhome.composeapp.generated.resources.card_type_field_label
+import cashbackhome.composeapp.generated.resources.card_type_other
 import cashbackhome.composeapp.generated.resources.cashback_rules_section_title
-import cashbackhome.composeapp.generated.resources.category_cafe
-import cashbackhome.composeapp.generated.resources.category_flowers
-import cashbackhome.composeapp.generated.resources.category_groceries
-import cashbackhome.composeapp.generated.resources.category_online_shopping
-import cashbackhome.composeapp.generated.resources.category_other
-import cashbackhome.composeapp.generated.resources.category_pharmacy
-import cashbackhome.composeapp.generated.resources.category_restaurant
-import cashbackhome.composeapp.generated.resources.category_travel
 import cashbackhome.composeapp.generated.resources.new_card_dropdown_item
 import cashbackhome.composeapp.generated.resources.remove_rule_button
 import cashbackhome.composeapp.generated.resources.rule_category_field_label
 import cashbackhome.composeapp.generated.resources.rule_percentage_field_label
-import cashbackhome.composeapp.generated.resources.rule_title_field_label
 import cashbackhome.composeapp.generated.resources.save_button
 import cashbackhome.composeapp.generated.resources.selected_card_label
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
+import org.homesharing.cashbackhome.presentation.mapper.categoryName
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -136,7 +133,7 @@ private fun AddCardWithCashbacksScreenContent(
                     } else {
                         existingCards
                             .find { it.cardId == uiState.selectedCardId }
-                            ?.let { "${it.bankName} - ${it.mask}" }.orEmpty()
+                            ?.let { "${it.bankName} - ${it.title}" }.orEmpty()
                     },
                     onValueChange = {},
                     label = { Text(stringResource(Res.string.selected_card_label)) },
@@ -166,7 +163,7 @@ private fun AddCardWithCashbacksScreenContent(
                     )
                     existingCards.forEach { card ->
                         DropdownMenuItem(
-                            text = { Text("${card.bankName} - ${card.mask}") },
+                            text = { Text("${card.bankName} - ${card.title}") },
                             onClick = {
                                 onIntent(AddCardIntent.ExistingCardSelected(card.cardId))
                                 expanded = false
@@ -200,7 +197,7 @@ private fun AddCardWithCashbacksScreenContent(
                                 modifier = Modifier.padding(16.dp)
                             ) {
                                 Text(stringResource(Res.string.card_bank_label, card.bankName))
-                                Text(stringResource(Res.string.card_mask_label, card.mask))
+                                Text(stringResource(Res.string.card_mask_label, card.title))
                             }
                         }
                     }
@@ -263,11 +260,14 @@ private fun AddCardWithCashbacksScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CardDraftForm(
     draft: BankCardDraft,
     onDraftChange: (BankCardDraft) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
         TextField(
             value = draft.bankName,
@@ -276,11 +276,41 @@ private fun CardDraftForm(
             modifier = Modifier.fillMaxWidth()
         )
         TextField(
-            value = draft.mask,
-            onValueChange = { onDraftChange(draft.copy(mask = it)) },
+            value = draft.title,
+            onValueChange = { onDraftChange(draft.copy(title = it)) },
             label = { Text(stringResource(Res.string.card_mask_field_label)) },
             modifier = Modifier.fillMaxWidth()
         )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+        ) {
+            TextField(
+                modifier = Modifier
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = cardTypeName(draft.cardType),
+                onValueChange = {},
+                label = { Text(stringResource(Res.string.card_type_field_label)) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                BankCardType.all.forEach { cardType ->
+                    DropdownMenuItem(
+                        text = { Text(cardTypeName(cardType)) },
+                        onClick = {
+                            onDraftChange(draft.copy(cardType = cardType))
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -292,26 +322,9 @@ private fun CashbackRuleDraftItem(
     onDraftChange: (CashbackRuleDraft) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val categories = remember {
-        listOf(
-            CashbackRule.CashbackCategory.Groceries,
-            CashbackRule.CashbackCategory.Cafe,
-            CashbackRule.CashbackCategory.Restaurant,
-            CashbackRule.CashbackCategory.Travel,
-            CashbackRule.CashbackCategory.OnlineShopping,
-            CashbackRule.CashbackCategory.Flowers,
-            CashbackRule.CashbackCategory.Pharmacy,
-            CashbackRule.CashbackCategory.Other,
-        )
-    }
+    val categories = remember { CashbackRule.CashbackCategory.all }
 
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        TextField(
-            value = draft.title,
-            onValueChange = { onDraftChange(draft.copy(title = it)) },
-            label = { Text(stringResource(Res.string.rule_title_field_label)) },
-            modifier = Modifier.fillMaxWidth()
-        )
         TextField(
             value = draft.percentage.toString(),
             onValueChange = { onDraftChange(draft.copy(percentage = it.toDoubleOrNull() ?: 0.0)) },
@@ -360,15 +373,8 @@ private fun CashbackRuleDraftItem(
 }
 
 @Composable
-private fun categoryName(category: CashbackRule.CashbackCategory): String {
-    return when (category) {
-        is CashbackRule.CashbackCategory.Cafe -> stringResource(Res.string.category_cafe)
-        is CashbackRule.CashbackCategory.Flowers -> stringResource(Res.string.category_flowers)
-        is CashbackRule.CashbackCategory.Groceries -> stringResource(Res.string.category_groceries)
-        is CashbackRule.CashbackCategory.OnlineShopping -> stringResource(Res.string.category_online_shopping)
-        is CashbackRule.CashbackCategory.Other -> stringResource(Res.string.category_other)
-        is CashbackRule.CashbackCategory.Pharmacy -> stringResource(Res.string.category_pharmacy)
-        is CashbackRule.CashbackCategory.Restaurant -> stringResource(Res.string.category_restaurant)
-        is CashbackRule.CashbackCategory.Travel -> stringResource(Res.string.category_travel)
-    }
+private fun cardTypeName(cardType: BankCardType): String = when (cardType) {
+    BankCardType.Debit -> stringResource(Res.string.card_type_debit)
+    BankCardType.Credit -> stringResource(Res.string.card_type_credit)
+    else -> stringResource(Res.string.card_type_other)
 }

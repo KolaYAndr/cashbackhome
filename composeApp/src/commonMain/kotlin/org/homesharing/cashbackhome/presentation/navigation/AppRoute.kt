@@ -2,6 +2,8 @@ package org.homesharing.cashbackhome.presentation.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 
 @Serializable
 internal sealed class AppRoute : NavKey {
@@ -9,10 +11,24 @@ internal sealed class AppRoute : NavKey {
     data object Home : AppRoute()
 
     @Serializable
-    data object AddCardWithCashbacks : AppRoute()
+    data object AddCategoryScreen : AppRoute()
 
     @Serializable
-    data object EditCardWithCashback : AppRoute()
+    data class EditCategoryScreen(val category: CashbackRule): AppRoute()
+
+    @Serializable
+    data object AddCardScreen : AppRoute()
+
+    @Serializable
+    data class EditCardScreen(val card: BankCard) : AppRoute()
+
+    @Serializable
+    data class CardDetailsScreen(val card: BankCard) : AppRoute()
+
+    @Serializable
+    data class ChooseBankScreen(
+        val selectedBankName: String? = null,
+    ) : AppRoute()
 
     @Serializable
     data object PersonalCabinet : AppRoute()

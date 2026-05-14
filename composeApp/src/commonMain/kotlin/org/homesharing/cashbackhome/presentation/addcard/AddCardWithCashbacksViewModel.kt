@@ -9,16 +9,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.homesharing.cashbackhome.domain.entity.BankCard
-import org.homesharing.cashbackhome.domain.entity.CashbackRule
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard
+import org.homesharing.cashbackhome.data.local.database.entity.BankCard.BankCardType
+import org.homesharing.cashbackhome.data.local.database.entity.CashbackRule
 import org.homesharing.cashbackhome.domain.model.BankCardDraft
 import org.homesharing.cashbackhome.domain.model.CashbackRuleDraft
 import org.homesharing.cashbackhome.domain.repository.CardCashbackRepository
-import kotlin.collections.emptyList
 
 private const val THRESHOLD = 5000L
 
-class AddCardWithCashbacksViewModel(
+internal class AddCardWithCashbacksViewModel(
     private val repository: CardCashbackRepository
 ) : ViewModel() {
 
@@ -36,6 +36,7 @@ class AddCardWithCashbacksViewModel(
             is AddCardIntent.ExistingCardSelected -> handleExistingCardSelected(intent.cardId)
             is AddCardIntent.SwitchToNewCard -> handleSwitchToNewCard()
             is AddCardIntent.CardDraftChanged -> handleCardDraftChange(intent.cardDraft)
+            is AddCardIntent.CardTypeChanged -> handleCardTypeChange(intent.cardType)
             is AddCardIntent.AddCashbackDraft -> handleAddCashbackDraft()
             is AddCardIntent.CashbackDraftChanged -> handleCashbackDraftChange(
                 intent.index,
@@ -70,6 +71,10 @@ class AddCardWithCashbacksViewModel(
         _uiState.update { it.copy(cardDraft = cardDraft) }
     }
 
+    private fun handleCardTypeChange(cardType: BankCardType) {
+        _uiState.update { it.copy(cardDraft = it.cardDraft.copy(cardType = cardType)) }
+    }
+
     private fun handleAddCashbackDraft() {
         _uiState.update {
             it.copy(cashbackDrafts = it.cashbackDrafts + CashbackRuleDraft())
@@ -99,20 +104,23 @@ class AddCardWithCashbacksViewModel(
                 if (uiState.value.isCreatingNewCard) {
                     val newCard = BankCard(
                         bankName = uiState.value.cardDraft.bankName,
-                        mask = uiState.value.cardDraft.mask
+                        title = uiState.value.cardDraft.title,
+                        cardType = uiState.value.cardDraft.cardType,
                     )
                     repository.upsertBankCard(newCard)
                     val newCardId = repository.getAllCards().first().last().cardId
 
                     uiState.value.cashbackDrafts.forEach { draft ->
                         val rule = CashbackRule(
-                            title = draft.title,
                             percentage = draft.percentage,
                             category = draft.category,
                             maxAmount = draft.maxAmount,
-                            expirationDate = draft.expirationDate
+                            startDate = draft.startDate,
+                            expirationDate = draft.expirationDate,
+                            bankCardName = "",
+                            bankCardId = 0L
                         )
-                        repository.upsertCashbackRule(rule)
+                        repository.insertCashbackRule(rule)
                         val newRuleId =
                             repository.getAllCashbackRules().first().last().cashbackRuleId
                         repository.linkCardToRule(newCardId, newRuleId)
@@ -121,13 +129,15 @@ class AddCardWithCashbacksViewModel(
                     uiState.value.selectedCardId?.let { cardId ->
                         uiState.value.cashbackDrafts.forEach { draft ->
                             val rule = CashbackRule(
-                                title = draft.title,
                                 percentage = draft.percentage,
                                 category = draft.category,
                                 maxAmount = draft.maxAmount,
-                                expirationDate = draft.expirationDate
+                                startDate = draft.startDate,
+                                expirationDate = draft.expirationDate,
+                                bankCardName = "",
+                                bankCardId = 0L
                             )
-                            repository.upsertCashbackRule(rule)
+                            repository.insertCashbackRule(rule)
                             val newRuleId =
                                 repository.getAllCashbackRules().first().last().cashbackRuleId
                             repository.linkCardToRule(cardId, newRuleId)
@@ -151,6 +161,7 @@ sealed interface AddCardIntent {
     data class ExistingCardSelected(val cardId: Long?) : AddCardIntent
     data object SwitchToNewCard : AddCardIntent
     data class CardDraftChanged(val cardDraft: BankCardDraft) : AddCardIntent
+    data class CardTypeChanged(val cardType: BankCardType) : AddCardIntent
     data object AddCashbackDraft : AddCardIntent
     data class CashbackDraftChanged(val index: Int, val draft: CashbackRuleDraft) : AddCardIntent
     data class RemoveCashbackDraft(val index: Int) : AddCardIntent
