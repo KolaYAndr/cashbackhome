@@ -41,5 +41,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v6
         with:
-          name: Lockbox-debug.apk
+          name: CashbackHome-debug.apk
           path: androidApp/build/outputs/apk/debug/CashbackHome-debug.apk
